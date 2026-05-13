@@ -11,8 +11,8 @@ function fmtRate(n: number) {
 
 interface InputFieldProps {
   label: string
-  value: number
-  onChange: (v: number) => void
+  value: string | number
+  onChange: (v: string) => void
   suffix?: string
   min?: number
   step?: number
@@ -26,10 +26,7 @@ function InputField({ label, value, onChange, suffix, min = 0, step = 0.01 }: In
         <input
           type="number"
           value={value}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value)
-            if (!isNaN(v) && v >= min) onChange(v)
-          }}
+          onChange={(e) => onChange(e.target.value)}
           min={min}
           step={step}
           className="w-full bg-[#1a1d27] border border-[#2e303a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4b5563] focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1] transition-colors"

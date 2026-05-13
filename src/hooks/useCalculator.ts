@@ -36,35 +36,35 @@ export function computePeriods(startDateStr: string, depositMonths: number, iter
 }
 
 interface InputState {
-  initialPrincipal: number
-  depositMonths: number
-  iterate: number
-  hkdRate: number
-  usdRate: number
-  bankSellRate: number
-  bankBuyRate: number
+  initialPrincipal: string | number
+  depositMonths: string | number
+  iterate: string | number
+  hkdRate: string | number
+  usdRate: string | number
+  bankSellRate: string | number
+  bankBuyRate: string | number
   startDate: string
 }
 
 interface InputActions {
-  setInitialPrincipal: (v: number) => void
-  setDepositMonths: (v: number) => void
-  setIterate: (v: number) => void
-  setHkdRate: (v: number) => void
-  setUsdRate: (v: number) => void
-  setBankSellRate: (v: number) => void
-  setBankBuyRate: (v: number) => void
+  setInitialPrincipal: (v: string) => void
+  setDepositMonths: (v: string) => void
+  setIterate: (v: string) => void
+  setHkdRate: (v: string) => void
+  setUsdRate: (v: string) => void
+  setBankSellRate: (v: string) => void
+  setBankBuyRate: (v: string) => void
   setStartDate: (v: string) => void
 }
 
 export function useInputs() {
-  const [initialPrincipal, setInitialPrincipal] = useState(100000)
-  const [depositMonths, setDepositMonths] = useState(3)
-  const [iterate, setIterate] = useState(1)
-  const [hkdRate, setHkdRate] = useState(2.25)
-  const [usdRate, setUsdRate] = useState(3.2)
-  const [bankSellRate, setBankSellRate] = useState(7.8468)
-  const [bankBuyRate, setBankBuyRate] = useState(7.8103)
+  const [initialPrincipal, setInitialPrincipal] = useState<string | number>(100000)
+  const [depositMonths, setDepositMonths] = useState<string | number>(3)
+  const [iterate, setIterate] = useState<string | number>(1)
+  const [hkdRate, setHkdRate] = useState<string | number>(2.25)
+  const [usdRate, setUsdRate] = useState<string | number>(3.2)
+  const [bankSellRate, setBankSellRate] = useState<string | number>(7.8468)
+  const [bankBuyRate, setBankBuyRate] = useState<string | number>(7.8103)
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'))
 
   const state: InputState = {
@@ -109,7 +109,14 @@ export function calculateCompoundDayBased(
 
 export function useCalculator(state: InputState) {
   return useMemo(() => {
-    const { initialPrincipal, depositMonths, iterate, hkdRate, usdRate, bankSellRate, bankBuyRate, startDate } = state
+    const { startDate } = state
+    const initialPrincipal = Number(state.initialPrincipal) || 0
+    const depositMonths = Number(state.depositMonths) || 3
+    const iterate = Number(state.iterate) || 1
+    const hkdRate = Number(state.hkdRate) || 0
+    const usdRate = Number(state.usdRate) || 0
+    const bankSellRate = Number(state.bankSellRate) || 0
+    const bankBuyRate = Number(state.bankBuyRate) || 0
 
     const periods = computePeriods(startDate, depositMonths, iterate)
     const totalDays = periods.reduce((sum, p) => sum + p.days, 0)

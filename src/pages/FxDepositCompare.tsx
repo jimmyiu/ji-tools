@@ -6,8 +6,8 @@ function fmt(n: number) {
 
 interface InputFieldProps {
   label: string
-  value: number
-  onChange: (v: number) => void
+  value: string | number
+  onChange: (v: string) => void
   suffix?: string
   min?: number
   step?: number
@@ -21,10 +21,7 @@ function InputField({ label, value, onChange, suffix, min = 0, step = 0.01 }: In
         <input
           type="number"
           value={value}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value)
-            if (!isNaN(v) && v >= min) onChange(v)
-          }}
+          onChange={(e) => onChange(e.target.value)}
           min={min}
           step={step}
           className="w-full bg-[#1a1d27] border border-[#2e303a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4b5563] focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1] transition-colors"
@@ -41,7 +38,7 @@ function InputField({ label, value, onChange, suffix, min = 0, step = 0.01 }: In
 
 function DateField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <label className="block text-xs text-[#9ca3af] mb-1.5">{label}</label>
       <input
         type="date"
@@ -55,7 +52,7 @@ function DateField({ label, value, onChange }: { label: string; value: string; o
 
 function ReadonlyDateField({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <label className="block text-xs text-[#9ca3af] mb-1.5">{label}</label>
       <div className="relative">
         <input
@@ -87,7 +84,7 @@ export default function FxDepositCompare() {
         <div className="bg-[#1a1d27] border border-[#2e303a] rounded-xl p-6">
           <h2 className="text-sm font-semibold text-white mb-5">輸入參數</h2>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <DateField
                 label="開始日期"
                 value={inputs.startDate}
@@ -150,7 +147,7 @@ export default function FxDepositCompare() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-6">
           <div className="bg-[#1a1d27] border border-[#2e303a] rounded-xl p-6">
             <h2 className="text-sm font-semibold text-white mb-1">計算結果</h2>
             <p className="text-xs text-[#9ca3af] mb-5">

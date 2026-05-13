@@ -40,11 +40,7 @@ export default function Layout() {
         )}
       </header>
 
-      <div aria-hidden="true" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="max-w-5xl mx-auto px-4 h-11" />
-      </div>
-
-      <main className="flex-1 page-enter">
+      <main className="flex-1 page-enter pb-28">
         <Outlet />
       </main>
 

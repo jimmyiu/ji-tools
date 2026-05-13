@@ -17,25 +17,25 @@ export type Currency = 'HKD' | 'USD'
 export interface PhaseState {
   startDate: string
   endDate: string
-  hkdRate: number
-  usdRate: number
+  hkdRate: string | number
+  usdRate: string | number
 }
 
 export interface InputState {
   depositDate: string
   currency: Currency
-  principal: number
+  principal: string | number
   phases: [PhaseState, PhaseState, PhaseState]
 }
 
 interface InputActions {
   setDepositDate: (v: string) => void
   setCurrency: (v: Currency) => void
-  setPrincipal: (v: number) => void
+  setPrincipal: (v: string) => void
   setPhaseStartDate: (index: 0 | 1 | 2, v: string) => void
   setPhaseEndDate: (index: 0 | 1 | 2, v: string) => void
-  setPhaseHkdRate: (index: 0 | 1 | 2, v: number) => void
-  setPhaseUsdRate: (index: 0 | 1 | 2, v: number) => void
+  setPhaseHkdRate: (index: 0 | 1 | 2, v: string) => void
+  setPhaseUsdRate: (index: 0 | 1 | 2, v: string) => void
 }
 
 const defaultDates = {
@@ -57,7 +57,7 @@ const defaultPhases: [PhaseState, PhaseState, PhaseState] = [
 export function useInputs() {
   const [depositDate, setDepositDate] = useState(defaultDates.depositDate)
   const [currency, setCurrency] = useState<Currency>('HKD')
-  const [principal, setPrincipal] = useState(100000)
+  const [principal, setPrincipal] = useState<string | number>(100000)
   const [phases, setPhases] = useState<[PhaseState, PhaseState, PhaseState]>(defaultPhases)
 
   const actions: InputActions = {
@@ -121,6 +121,7 @@ export interface Result {
 export function useCalculator(state: InputState): Result {
   return useMemo(() => {
     const deposit = parseDateStr(state.depositDate)
+    const principal = Number(state.principal) || 0
 
     const phaseDays: number[] = []
     const phaseRatesHKD: number[] = []
@@ -132,8 +133,8 @@ export function useCalculator(state: InputState): Result {
       const end = parseDateStr(p.endDate)
       const days = effectiveDays(deposit, start, end)
       phaseDays.push(days)
-      phaseRatesHKD.push(p.hkdRate)
-      phaseRatesUSD.push(p.usdRate)
+      phaseRatesHKD.push(Number(p.hkdRate) || 0)
+      phaseRatesUSD.push(Number(p.usdRate) || 0)
     }
 
     let totalWeightedHKD = 0
@@ -149,8 +150,8 @@ export function useCalculator(state: InputState): Result {
     const usdActualRate = totalDays === 0 ? 0 : totalWeightedUSD / totalDays
 
     const phaseResults: PhaseResult[] = state.phases.map((p, i) => {
-      const rate = state.currency === 'HKD' ? p.hkdRate : p.usdRate
-      const interest = phaseInterest(state.principal, rate, phaseDays[i], state.currency)
+      const rate = state.currency === 'HKD' ? (Number(p.hkdRate) || 0) : (Number(p.usdRate) || 0)
+      const interest = phaseInterest(principal, rate, phaseDays[i], state.currency)
       return { days: phaseDays[i], rate, interest }
     })
 

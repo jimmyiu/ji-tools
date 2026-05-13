@@ -27,6 +27,8 @@ jobs:
 
       - name: Security Scan
         uses: gitleaks/gitleaks-action@v2.3.9
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6

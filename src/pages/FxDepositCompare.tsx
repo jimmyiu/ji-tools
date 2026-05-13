@@ -71,8 +71,8 @@ function ReadonlyDateField({ label, value }: { label: string; value: string }) {
 export default function FxDepositCompare() {
   const inputs = useInputs()
   const result = useCalculator(inputs)
-  const hkdInterest = result.hkdTotal - inputs.initialPrincipal
-  const usdInterestInHkd = result.usdTotalInHkd - inputs.initialPrincipal
+  const hkdInterest = result.hkdTotal - Number(inputs.initialPrincipal)
+  const usdInterestInHkd = result.usdTotalInHkd - Number(inputs.initialPrincipal)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 page-enter">

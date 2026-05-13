@@ -193,7 +193,7 @@ export default function MarathonSavings() {
             <h2 className="text-sm font-semibold text-white mb-4">
               {inputs.currency === 'HKD' ? '港元' : '美元'} 利息明細
               <span className="ml-2 text-xs font-normal text-[#6b7280]">
-                (本金 HK$ {fmt(inputs.principal)})
+                (本金 HK$ {fmt(Number(inputs.principal))})
               </span>
             </h2>
             <div className="space-y-3">

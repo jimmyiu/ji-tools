@@ -28,7 +28,7 @@ export default function Layout() {
   const [bannerHeight, setBannerHeight] = useState(0)
   const bannerRef = useRef<HTMLDivElement>(null)
 
-  useScrollLock()
+  useScrollLock(location.pathname)
 
   useLayoutEffect(() => {
     if (bannerRef.current) {

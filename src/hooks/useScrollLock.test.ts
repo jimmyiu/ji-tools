@@ -4,10 +4,13 @@ import { useScrollLock } from './useScrollLock'
 
 describe('useScrollLock', () => {
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame'] })
     document.documentElement.style.overflow = ''
+    vi.stubGlobal('visualViewport', undefined)
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.unstubAllGlobals()
     document.documentElement.style.overflow = ''
   })
@@ -23,21 +26,27 @@ describe('useScrollLock', () => {
     })
   }
 
+  function renderAndTick() {
+    const result = renderHook(() => useScrollLock())
+    vi.advanceTimersByTime(16)
+    return result
+  }
+
   it('locks overflow when content fits viewport', () => {
     setupScrollValues(500, 800)
-    renderHook(() => useScrollLock())
+    renderAndTick()
     expect(document.documentElement.style.overflow).toBe('hidden')
   })
 
   it('allows scroll when content overflows viewport', () => {
     setupScrollValues(1000, 800)
-    renderHook(() => useScrollLock())
+    renderAndTick()
     expect(document.documentElement.style.overflow).toBe('')
   })
 
   it('restores overflow on unmount', () => {
     setupScrollValues(500, 800)
-    const { unmount } = renderHook(() => useScrollLock())
+    const { unmount } = renderAndTick()
     expect(document.documentElement.style.overflow).toBe('hidden')
 
     unmount()
@@ -55,7 +64,7 @@ describe('useScrollLock', () => {
     vi.stubGlobal('ResizeObserver', MockResizeObserver)
 
     setupScrollValues(500, 800)
-    const { unmount } = renderHook(() => useScrollLock())
+    const { unmount } = renderAndTick()
     expect(mockObserve).toHaveBeenCalledWith(document.body)
 
     unmount()
@@ -77,7 +86,7 @@ describe('useScrollLock', () => {
     vi.stubGlobal('ResizeObserver', MockResizeObserver)
 
     setupScrollValues(500, 800)
-    renderHook(() => useScrollLock())
+    renderAndTick()
     expect(document.documentElement.style.overflow).toBe('hidden')
 
     setupScrollValues(1000, 800)

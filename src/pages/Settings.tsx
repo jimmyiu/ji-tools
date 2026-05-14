@@ -4,7 +4,7 @@ export default function Settings() {
   const { dismissed, resetDismissed } = useInstallPrompt()
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 page-enter">
+    <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
       <div className="bg-[#1a1d27] border border-[#2e303a] rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-[#2e303a]">
           <h2 className="text-sm font-semibold text-white">關於</h2>

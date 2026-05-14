@@ -92,12 +92,12 @@ export default function MarathonSavings() {
   const result = useCalculator(inputs)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 page-enter">
+    <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
       <p className="text-sm text-[#9ca3af] mb-8">
         揭示階梯式利率活期存款的「實際等效年利率」，擺脫銀行最高息宣傳迷思。
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-4">
           <div className="bg-[#1a1d27] border border-[#2e303a] rounded-xl p-6">
             <h2 className="text-sm font-semibold text-white mb-5">基本參數</h2>

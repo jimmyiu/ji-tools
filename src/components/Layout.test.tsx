@@ -59,3 +59,24 @@ describe('Layout header', () => {
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
   })
 })
+
+describe('Layout bottom spacing', () => {
+  it('does not render an h-14 spacer div', () => {
+    const { container: c } = renderWithRouter(<Layout />)
+    expect(c.querySelector('div[class="h-14"]')).not.toBeInTheDocument()
+  })
+
+  it('renders main without flex-1 class', () => {
+    const { container: c } = renderWithRouter(<Layout />)
+    const main = c.querySelector('main')
+    expect(main).not.toHaveClass('flex-1')
+  })
+
+  it('sets paddingBottom on main via inline style', () => {
+    const { container: c } = renderWithRouter(<Layout />)
+    const main = c.querySelector('main') as HTMLElement
+    const pb = main.style.paddingBottom
+    expect(pb).toContain('72px')
+    expect(pb).toContain('env(safe-area-inset-bottom)')
+  })
+})

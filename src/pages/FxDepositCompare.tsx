@@ -75,12 +75,12 @@ export default function FxDepositCompare() {
   const usdInterestInHkd = result.usdTotalInHkd - Number(inputs.initialPrincipal)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 page-enter">
+    <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
       <p className="text-sm text-[#9ca3af] mb-8">
         比較港元定存與美元定存的實際淨回報，計算匯率差價影響及追平所需時間。
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-[#1a1d27] border border-[#2e303a] rounded-xl p-6">
           <h2 className="text-sm font-semibold text-white mb-5">輸入參數</h2>
           <div className="space-y-4">
@@ -147,7 +147,7 @@ export default function FxDepositCompare() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <div className="bg-[#1a1d27] border border-[#2e303a] rounded-xl p-6">
             <h2 className="text-sm font-semibold text-white mb-1">計算結果</h2>
             <p className="text-xs text-[#9ca3af] mb-5">

@@ -35,28 +35,26 @@ describe('Layout header', () => {
     window.scrollY = originalScrollY
   })
 
-  it('renders the page title in large mode when not scrolled', () => {
+  it('renders the page title as an h1', () => {
     window.scrollY = 0
     renderWithRouter(<Layout />)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('JI Tools')
   })
 
-  it('renders the title in a compact header when scrolled past threshold', () => {
+  it('renders h1 regardless of scroll position', () => {
     window.scrollY = 50
     renderWithRouter(<Layout />)
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('JI Tools')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('JI Tools')
   })
 
-  it('does not render a h1 when scrolled past threshold', () => {
-    window.scrollY = 50
-    renderWithRouter(<Layout />)
-    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument()
-  })
-
-  it('does not render the compact header when not scrolled', () => {
+  it('does not render h2 (replaced by animated h1)', () => {
     window.scrollY = 0
     renderWithRouter(<Layout />)
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
+
+    window.scrollY = 50
+    const { container } = renderWithRouter(<Layout />)
+    expect(container.querySelector('h2')).not.toBeInTheDocument()
   })
 })
 

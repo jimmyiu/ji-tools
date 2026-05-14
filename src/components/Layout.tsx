@@ -1,6 +1,7 @@
 import { useRef, useState, useLayoutEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useScrollPosition } from '../hooks/useScrollPosition'
+import { useScrollLock } from '../hooks/useScrollLock'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import TabBar from './TabBar'
 import InstallBanner from './InstallBanner'
@@ -15,13 +16,19 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
   '/settings': { title: '設定' },
 }
 
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t
+}
+
 export default function Layout() {
   const location = useLocation()
-  const { isScrolled } = useScrollPosition(44)
+  const { scrollProgress } = useScrollPosition(44)
   const pageInfo = pageTitles[location.pathname] ?? { title: 'JI Tools' }
   const { canInstall, isIOS, dismiss, install } = useInstallPrompt()
   const [bannerHeight, setBannerHeight] = useState(0)
   const bannerRef = useRef<HTMLDivElement>(null)
+
+  useScrollLock()
 
   useLayoutEffect(() => {
     if (bannerRef.current) {
@@ -35,29 +42,44 @@ export default function Layout() {
     ? `calc(${SPACING + bannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
     : `calc(${SPACING + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
 
+  const titleFontSize = `${lerp(1.5, 1, scrollProgress)}rem`
+  const titleFontWeight = Math.round(lerp(700, 600, scrollProgress))
+  const containerPT = `${lerp(0.5, 0, scrollProgress)}rem`
+  const containerPB = `${lerp(0.5, 0, scrollProgress)}rem`
+  const containerMH = `${lerp(0, 2.75, scrollProgress)}rem`
+
   return (
     <div className="min-h-screen min-h-[100dvh] bg-[#0f1117] text-[#e2e8f0] flex flex-col">
-      <header
-        className={`sticky top-0 z-30 bg-[#0f1117] transition-all duration-200 ${
-          isScrolled ? 'border-b border-[#2e303a]' : ''
-        }`}
-      >
-        {isScrolled ? (
-          <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-            <div className="max-w-5xl mx-auto px-4 h-11 flex items-center">
-              <h2 className="text-base font-semibold text-white truncate">{pageInfo.title}</h2>
-            </div>
+      <header className="sticky top-0 z-30 bg-[#0f1117]">
+        <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div
+            className="max-w-5xl mx-auto px-4 flex flex-col justify-center"
+            style={{
+              paddingTop: containerPT,
+              paddingBottom: containerPB,
+              minHeight: containerMH,
+            }}
+          >
+            <h1
+              className="text-white truncate"
+              style={{ fontSize: titleFontSize, fontWeight: titleFontWeight }}
+            >
+              {pageInfo.title}
+            </h1>
+            {pageInfo.subtitle && scrollProgress < 1 && (
+              <p
+                className="text-[#9ca3af] text-sm mt-1"
+                style={{ opacity: 1 - scrollProgress }}
+              >
+                {pageInfo.subtitle}
+              </p>
+            )}
           </div>
-        ) : (
-          <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-            <div className="max-w-5xl mx-auto px-4 pt-2 pb-2">
-              <h1 className="text-2xl font-bold text-white">{pageInfo.title}</h1>
-              {pageInfo.subtitle && (
-                <p className="text-[#9ca3af] text-sm mt-1">{pageInfo.subtitle}</p>
-              )}
-            </div>
-          </div>
-        )}
+        </div>
+        <div
+          className="border-b border-[#2e303a]"
+          style={{ opacity: scrollProgress }}
+        />
       </header>
 
       <main className="page-enter" style={{ paddingBottom: bottomOffset }}>

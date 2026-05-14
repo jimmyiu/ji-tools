@@ -7,10 +7,11 @@ describe('useScrollPosition', () => {
 
   beforeEach(() => {
     originalScrollY = window.scrollY
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame'] })
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    vi.useRealTimers()
     window.scrollY = originalScrollY
   })
 
@@ -47,6 +48,9 @@ describe('useScrollPosition', () => {
       window.scrollY = 80
       window.dispatchEvent(new Event('scroll'))
     })
+    act(() => {
+      vi.advanceTimersByTime(16)
+    })
 
     expect(result.current.isScrolled).toBe(true)
   })
@@ -66,7 +70,62 @@ describe('useScrollPosition', () => {
       window.scrollY = 20
       window.dispatchEvent(new Event('scroll'))
     })
+    act(() => {
+      vi.advanceTimersByTime(16)
+    })
 
     expect(result.current.isScrolled).toBe(false)
+  })
+
+  describe('scrollProgress', () => {
+    it('returns scrollProgress 0 when at top', () => {
+      window.scrollY = 0
+      const { result } = renderHook(() => useScrollPosition(50))
+      expect(result.current.scrollProgress).toBe(0)
+    })
+
+    it('returns scrollProgress 1 when at or beyond threshold', () => {
+      window.scrollY = 50
+      const { result } = renderHook(() => useScrollPosition(50))
+      expect(result.current.scrollProgress).toBe(1)
+
+      window.scrollY = 80
+      const { result: result2 } = renderHook(() => useScrollPosition(50))
+      expect(result2.current.scrollProgress).toBe(1)
+    })
+
+    it('interpolates scrollProgress between 0 and threshold', () => {
+      window.scrollY = 25
+      const { result } = renderHook(() => useScrollPosition(50))
+      expect(result.current.scrollProgress).toBe(0.5)
+    })
+
+    it('updates scrollProgress on scroll event', () => {
+      window.scrollY = 0
+      const { result } = renderHook(() => useScrollPosition(50))
+      expect(result.current.scrollProgress).toBe(0)
+
+    act(() => {
+      window.scrollY = 25
+      window.dispatchEvent(new Event('scroll'))
+    })
+    act(() => {
+      vi.advanceTimersByTime(16)
+    })
+
+    expect(result.current.scrollProgress).toBe(0.5)
+    })
+
+    it('isScrolled is derived from scrollProgress >= 1', () => {
+      window.scrollY = 0
+      const { result } = renderHook(() => useScrollPosition(50))
+      expect(result.current.isScrolled).toBe(false)
+      expect(result.current.scrollProgress).toBe(0)
+
+      window.scrollY = 100
+      const { result: result2 } = renderHook(() => useScrollPosition(50))
+      expect(result2.current.isScrolled).toBe(true)
+      expect(result2.current.scrollProgress).toBe(1)
+    })
   })
 })

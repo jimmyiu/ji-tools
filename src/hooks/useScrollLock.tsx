@@ -14,13 +14,15 @@ export function useScrollLock(pathname?: string) {
     }
 
     const rafId = requestAnimationFrame(checkOverflow)
-
     const observer = new ResizeObserver(checkOverflow)
     observer.observe(document.body)
-
+    const viewport = window.visualViewport
+    const resizeHandler = () => { checkOverflow() }
+    viewport?.addEventListener('resize', resizeHandler)
     return () => {
       cancelAnimationFrame(rafId)
       observer.disconnect()
+      viewport?.removeEventListener('resize', resizeHandler)
       document.documentElement.style.overflow = ''
     }
   }, [pathname])

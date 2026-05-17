@@ -20,7 +20,7 @@ Code Review with rigorous line-by-line analysis.
 **Actions**:
 1. Execute this EXACT command (copy-paste it):
    ```
-   git diff -U8 <base>..<branch> -- . ':!package-lock.json' ':!pnpm-lock.yaml' ':!yarn.lock' ':!components/ui/*' ':!ui/*' ':!*.svg' ':!*.min.js' > .review-changes.diff
+    git diff -U8 <base>..<branch> -- . ':!package-lock.json' ':!pnpm-lock.yaml' ':!yarn.lock' ':!openspec/**' ':!components/ui/*' ':!ui/*' ':!*.svg' ':!*.min.js' > .review-changes.diff
    ```
    The `.` anchors the pathspec exclusions (required for `:!` magic to work). The `-U8` adds 8 context lines to prevent false positives. Generated UI, lockfiles, and raw assets are excluded.
 2. `git log <base>..<branch> --oneline` — review commit history
@@ -47,7 +47,10 @@ Spawn three sub-agents (described below) in parallel. Each receives the diff fil
 
 ### Step 4: Clean Up
 
-Remove `.review-changes.diff` and `.review-report-*.md` intermediate files.
+Execute this command to remove intermediate files:
+```
+rm -f .review-changes.diff .review-report-*.md
+```
 
 ---
 

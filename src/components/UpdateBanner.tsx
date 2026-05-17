@@ -29,7 +29,7 @@ const UpdateBanner = forwardRef<HTMLDivElement, UpdateBannerProps>(
               新版本已可用
             </p>
           </div>
-          <BannerActionButton onClick={update}>
+          <BannerActionButton onClick={update} aria-label="更新">
             <RotateCw className="inline-block size-4 mr-1 align-text-bottom" />
             重新整理
           </BannerActionButton>

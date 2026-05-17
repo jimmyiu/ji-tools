@@ -4,7 +4,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react'
 export function usePwaUpdate() {
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({
     onRegistered(r) {
-      console.log('SW registered:', r)
+      if (import.meta.env.DEV) console.log('SW registered:', r)
     },
     onRegisterError(e) {
       console.error('SW registration error:', e)

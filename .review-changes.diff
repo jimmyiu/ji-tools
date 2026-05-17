@@ -1,0 +1,452 @@
+diff --git a/package.json b/package.json
+index 9b5cb08..bcfd503 100644
+--- a/package.json
++++ b/package.json
+@@ -21,16 +21,17 @@
+     "lucide-react": "^1.16.0",
+     "radix-ui": "^1.4.3",
+     "react": "^19.2.6",
+     "react-dom": "^19.2.6",
+     "react-hook-form": "^7.76.0",
+     "react-router-dom": "^7.15.1",
+     "tailwind-merge": "^3.6.0",
+     "tw-animate-css": "^1.4.0",
++    "workbox-window": "^7.4.1",
+     "zod": "^4.4.3"
+   },
+   "devDependencies": {
+     "@commitlint/cli": "^21.0.1",
+     "@commitlint/config-conventional": "^21.0.1",
+     "@eslint/js": "^10.0.1",
+     "@semantic-release/changelog": "^6.0.3",
+     "@semantic-release/commit-analyzer": "^13.0.1",
+diff --git a/src/components/InstallBanner.tsx b/src/components/InstallBanner.tsx
+index 94ed8c0..2975330 100644
+--- a/src/components/InstallBanner.tsx
++++ b/src/components/InstallBanner.tsx
+@@ -1,11 +1,12 @@
+ import { forwardRef } from 'react'
+ import { X, Share } from 'lucide-react'
+ import { TAB_BAR_HEIGHT } from '../lib/constants'
++import { BannerActionButton } from './ui/banner-action-button'
+ 
+ interface InstallBannerProps {
+   canInstall: boolean
+   isIOS: boolean
+   install: () => Promise<void>
+   dismiss: () => void
+ }
+ 
+@@ -29,22 +30,19 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(
+               <p className="text-xs text-muted-foreground mt-1">
+                 點擊下方
+                 <Share className="inline-block size-4 mx-0.5 align-text-bottom" />
+                 分享按鈕，然後選擇「加入主畫面」
+               </p>
+             )}
+           </div>
+           {!isIOS && (
+-            <button
+-              onClick={install}
+-              className="shrink-0 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors"
+-            >
++            <BannerActionButton onClick={install}>
+               安裝
+-            </button>
++            </BannerActionButton>
+           )}
+           <button
+             onClick={dismiss}
+             className="shrink-0 p-1 text-muted-foreground hover:text-foreground transition-colors"
+             aria-label="關閉"
+           >
+             <X className="size-5" />
+           </button>
+diff --git a/src/components/Layout.test.tsx b/src/components/Layout.test.tsx
+index 51bb2ed..01d9a2f 100644
+--- a/src/components/Layout.test.tsx
++++ b/src/components/Layout.test.tsx
+@@ -1,13 +1,19 @@
+ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+ import { render, screen } from '@testing-library/react'
+ import { BrowserRouter } from 'react-router-dom'
+ import Layout from './Layout'
+ 
++const mockUsePwaUpdate = vi.fn()
++
++vi.mock('../hooks/usePwaUpdate', () => ({
++  usePwaUpdate: () => mockUsePwaUpdate(),
++}))
++
+ function renderWithRouter(ui: React.ReactElement) {
+   return render(<BrowserRouter>{ui}</BrowserRouter>)
+ }
+ 
+ beforeEach(() => {
+   Object.defineProperty(window, 'matchMedia', {
+     writable: true,
+     value: vi.fn().mockImplementation((query: string) => ({
+@@ -16,16 +22,21 @@ beforeEach(() => {
+       onchange: null,
+       addListener: vi.fn(),
+       removeListener: vi.fn(),
+       addEventListener: vi.fn(),
+       removeEventListener: vi.fn(),
+       dispatchEvent: vi.fn(),
+     })),
+   })
++
++  mockUsePwaUpdate.mockReturnValue({
++    needRefresh: false,
++    update: vi.fn(),
++  })
+ })
+ 
+ describe('Layout header', () => {
+   let originalScrollY: number
+ 
+   beforeEach(() => {
+     originalScrollY = window.scrollY
+   })
+@@ -73,8 +84,34 @@ describe('Layout bottom spacing', () => {
+   it('sets paddingBottom on main via inline style', () => {
+     const { container: c } = renderWithRouter(<Layout />)
+     const main = c.querySelector('main') as HTMLElement
+     const pb = main.style.paddingBottom
+     expect(pb).toContain('72px')
+     expect(pb).toContain('env(safe-area-inset-bottom)')
+   })
+ })
++
++describe('UpdateBanner', () => {
++  afterEach(() => {
++    vi.restoreAllMocks()
++  })
++
++  it('renders update banner with refresh button when needRefresh is true', () => {
++    mockUsePwaUpdate.mockReturnValue({
++      needRefresh: true,
++      update: vi.fn(),
++    })
++    renderWithRouter(<Layout />)
++    expect(screen.getByText('新版本已可用')).toBeInTheDocument()
++    expect(screen.getByText('重新整理')).toBeInTheDocument()
++  })
++
++  it('does not render update banner when needRefresh is false', () => {
++    mockUsePwaUpdate.mockReturnValue({
++      needRefresh: false,
++      update: vi.fn(),
++    })
++    renderWithRouter(<Layout />)
++    expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
++    expect(screen.queryByText('重新整理')).not.toBeInTheDocument()
++  })
++})
+diff --git a/src/components/Layout.tsx b/src/components/Layout.tsx
+index b5e8d06..9e17c6a 100644
+--- a/src/components/Layout.tsx
++++ b/src/components/Layout.tsx
+@@ -1,15 +1,17 @@
+-import { useRef, useState, useLayoutEffect } from 'react'
+ import { Outlet, useLocation } from 'react-router-dom'
+ import { useScrollPosition } from '../hooks/useScrollPosition'
+ import { useScrollLock } from '../hooks/useScrollLock'
+ import { useInstallPrompt } from '../hooks/useInstallPrompt'
++import { usePwaUpdate } from '../hooks/usePwaUpdate'
++import { useBannerManager } from '../hooks/useBannerManager'
+ import TabBar from './TabBar'
+ import InstallBanner from './InstallBanner'
++import UpdateBanner from './UpdateBanner'
+ 
+ import { TAB_BAR_HEIGHT } from '../lib/constants'
+ 
+ const SPACING = 16
+ 
+ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
+   '/': { title: 'JI Tools' },
+   '/fx-deposit-compare': { title: '港美定存比較' },
+@@ -21,32 +23,29 @@ function lerp(a: number, b: number, t: number) {
+   return a + (b - a) * t
+ }
+ 
+ export default function Layout() {
+   const location = useLocation()
+   const { scrollProgress } = useScrollPosition(44)
+   const pageInfo = pageTitles[location.pathname] ?? { title: 'JI Tools' }
+   const { canInstall, isIOS, dismiss, install } = useInstallPrompt()
+-  const [bannerHeight, setBannerHeight] = useState(0)
+-  const bannerRef = useRef<HTMLDivElement>(null)
++  const { needRefresh, update } = usePwaUpdate()
++  const {
++    bannerRef,
++    updateBannerRef,
++    installBannerHeight,
++    totalBannerHeight,
++    showUpdateBanner,
++    dismissUpdate,
++  } = useBannerManager(canInstall, needRefresh)
+ 
+   useScrollLock(location.pathname)
+ 
+-  useLayoutEffect(() => {
+-    if (bannerRef.current) {
+-      setBannerHeight(bannerRef.current.offsetHeight)
+-    } else {
+-      setBannerHeight(0)
+-    }
+-  }, [canInstall])
+-
+-  const bottomOffset = canInstall
+-    ? `calc(${SPACING + bannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
+-    : `calc(${SPACING + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
++  const bottomOffset = `calc(${SPACING + totalBannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
+ 
+   const titleFontSize = `${lerp(1.5, 1, scrollProgress)}rem`
+   const titleFontWeight = Math.round(lerp(700, 600, scrollProgress))
+   const containerPT = `${lerp(0.5, 0, scrollProgress)}rem`
+   const containerPB = `${lerp(0.5, 0, scrollProgress)}rem`
+   const containerMH = `${lerp(0, 2.75, scrollProgress)}rem`
+ 
+   return (
+@@ -82,13 +81,20 @@ export default function Layout() {
+           style={{ opacity: scrollProgress }}
+         />
+       </header>
+ 
+       <main className="page-enter" style={{ paddingBottom: bottomOffset }}>
+         <Outlet />
+       </main>
+ 
++      <UpdateBanner
++        ref={updateBannerRef}
++        needRefresh={showUpdateBanner}
++        installBannerHeight={installBannerHeight}
++        update={update}
++        dismiss={dismissUpdate}
++      />
+       <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismiss} />
+       <TabBar />
+     </div>
+   )
+ }
+diff --git a/src/components/UpdateBanner.tsx b/src/components/UpdateBanner.tsx
+new file mode 100644
+index 0000000..8fd2182
+--- /dev/null
++++ b/src/components/UpdateBanner.tsx
+@@ -0,0 +1,49 @@
++import { forwardRef } from 'react'
++import { RotateCw, X } from 'lucide-react'
++import { TAB_BAR_HEIGHT } from '../lib/constants'
++import { BannerActionButton } from './ui/banner-action-button'
++
++interface UpdateBannerProps {
++  needRefresh: boolean
++  installBannerHeight: number
++  update: () => void
++  dismiss: () => void
++}
++
++const UpdateBanner = forwardRef<HTMLDivElement, UpdateBannerProps>(
++  function UpdateBanner({ needRefresh, installBannerHeight, update, dismiss }, ref) {
++    if (!needRefresh) return null
++
++    return (
++      <div
++        ref={ref}
++        className="fixed left-0 right-0 z-50 p-4 bg-card border-t border-border animate-slide-up"
++        role="alert"
++        style={{
++          bottom: `calc(${TAB_BAR_HEIGHT}px + ${installBannerHeight}px + env(safe-area-inset-bottom))`,
++        }}
++      >
++        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
++          <div className="flex-1 min-w-0">
++            <p className="text-sm font-medium text-foreground">
++              新版本已可用
++            </p>
++          </div>
++          <BannerActionButton onClick={update}>
++            <RotateCw className="inline-block size-4 mr-1 align-text-bottom" />
++            重新整理
++          </BannerActionButton>
++          <button
++            onClick={dismiss}
++            className="shrink-0 p-1 text-muted-foreground hover:text-foreground transition-colors"
++            aria-label="關閉"
++          >
++            <X className="size-5" />
++          </button>
++        </div>
++      </div>
++    )
++  },
++)
++
++export default UpdateBanner
+diff --git a/src/components/ui/banner-action-button.tsx b/src/components/ui/banner-action-button.tsx
+new file mode 100644
+index 0000000..8860197
+--- /dev/null
++++ b/src/components/ui/banner-action-button.tsx
+@@ -0,0 +1,16 @@
++import type { ButtonHTMLAttributes, ReactNode } from 'react'
++
++const baseClass =
++  'shrink-0 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors'
++
++interface BannerActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
++  children: ReactNode
++}
++
++export function BannerActionButton({ children, ...props }: BannerActionButtonProps) {
++  return (
++    <button className={baseClass} {...props}>
++      {children}
++    </button>
++  )
++}
+diff --git a/src/hooks/useBannerManager.ts b/src/hooks/useBannerManager.ts
+new file mode 100644
+index 0000000..7bfd2b2
+--- /dev/null
++++ b/src/hooks/useBannerManager.ts
+@@ -0,0 +1,27 @@
++import { useRef, useState, useLayoutEffect, useCallback } from 'react'
++
++export function useBannerManager(canInstall: boolean, needRefresh: boolean) {
++  const [dismissedUpdate, setDismissedUpdate] = useState(false)
++  const [installBannerHeight, setInstallBannerHeight] = useState(0)
++  const [updateBannerHeight, setUpdateBannerHeight] = useState(0)
++  const bannerRef = useRef<HTMLDivElement>(null)
++  const updateBannerRef = useRef<HTMLDivElement>(null)
++
++  const showUpdateBanner = needRefresh && !dismissedUpdate
++
++  useLayoutEffect(() => {
++    setInstallBannerHeight(bannerRef.current?.offsetHeight ?? 0)
++    setUpdateBannerHeight(updateBannerRef.current?.offsetHeight ?? 0)
++  }, [canInstall, needRefresh, dismissedUpdate])
++
++  const dismissUpdate = useCallback(() => setDismissedUpdate(true), [])
++
++  return {
++    bannerRef,
++    updateBannerRef,
++    installBannerHeight,
++    totalBannerHeight: installBannerHeight + updateBannerHeight,
++    showUpdateBanner,
++    dismissUpdate,
++  }
++}
+diff --git a/src/hooks/usePwaUpdate.ts b/src/hooks/usePwaUpdate.ts
+new file mode 100644
+index 0000000..59858e3
+--- /dev/null
++++ b/src/hooks/usePwaUpdate.ts
+@@ -0,0 +1,24 @@
++import { useCallback } from 'react'
++import { useRegisterSW } from 'virtual:pwa-register/react'
++
++export function usePwaUpdate() {
++  const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({
++    onRegistered(r) {
++      console.log('SW registered:', r)
++    },
++    onRegisterError(e) {
++      console.error('SW registration error:', e)
++    },
++  })
++
++  const update = useCallback(() => {
++    updateServiceWorker(true).catch((err) => {
++      console.error('SW update failed:', err)
++    })
++  }, [updateServiceWorker])
++
++  return {
++    needRefresh,
++    update,
++  }
++}
+diff --git a/src/index.css b/src/index.css
+index 915a0f9..761e5a2 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -29,16 +29,31 @@ a, button, [role="button"] {
+   touch-action: manipulation;
+ }
+ 
+ @keyframes fadeIn {
+   from { opacity: 0; }
+   to { opacity: 1; }
+ }
+ 
++@keyframes slide-up {
++  from {
++    transform: translateY(100%);
++    opacity: 0;
++  }
++  to {
++    transform: translateY(0);
++    opacity: 1;
++  }
++}
++
++.animate-slide-up {
++  animation: slide-up 0.3s ease-out;
++}
++
+ .page-enter {
+   animation: fadeIn 120ms ease-out;
+ }
+ 
+ .dark {
+   --background: oklch(0.09 0.005 270);
+   --foreground: oklch(0.88 0.01 260);
+   --card: oklch(0.13 0.008 270);
+diff --git a/tsconfig.app.json b/tsconfig.app.json
+index 1a710f9..9e1b8b8 100644
+--- a/tsconfig.app.json
++++ b/tsconfig.app.json
+@@ -1,15 +1,15 @@
+ {
+   "compilerOptions": {
+     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+     "target": "es2023",
+     "lib": ["ES2023", "DOM"],
+     "module": "esnext",
+-    "types": ["vite/client"],
++    "types": ["vite/client", "vite-plugin-pwa/client"],
+     "skipLibCheck": true,
+ 
+     /* Bundler mode */
+     "moduleResolution": "bundler",
+     "allowImportingTsExtensions": true,
+     "verbatimModuleSyntax": true,
+     "moduleDetection": "force",
+     "noEmit": true,
+diff --git a/vite.config.ts b/vite.config.ts
+index b60e05f..ee42d17 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -14,17 +14,17 @@ export default defineConfig({
+       '@': path.resolve(__dirname, './src'),
+     },
+   },
+   base: '/ji-tools/',
+   plugins: [
+     react(),
+     tailwindcss(),
+     VitePWA({
+-      registerType: 'autoUpdate',
++      registerType: 'prompt',
+       includeAssets: ['favicon.svg'],
+       manifest: {
+         name: 'JI Tools',
+         short_name: 'JI Tools',
+         description: '前端工具集 - 港美定存比較、馬拉松存款計算機',
+         theme_color: '#0f1117',
+         background_color: '#0f1117',
+         display: 'standalone',

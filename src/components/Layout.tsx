@@ -1,10 +1,12 @@
-import { useRef, useState, useLayoutEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useScrollPosition } from '../hooks/useScrollPosition'
 import { useScrollLock } from '../hooks/useScrollLock'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
+import { usePwaUpdate } from '../hooks/usePwaUpdate'
+import { useBannerManager } from '../hooks/useBannerManager'
 import TabBar from './TabBar'
 import InstallBanner from './InstallBanner'
+import UpdateBanner from './UpdateBanner'
 
 import { TAB_BAR_HEIGHT } from '../lib/constants'
 
@@ -26,22 +28,19 @@ export default function Layout() {
   const { scrollProgress } = useScrollPosition(44)
   const pageInfo = pageTitles[location.pathname] ?? { title: 'JI Tools' }
   const { canInstall, isIOS, dismiss, install } = useInstallPrompt()
-  const [bannerHeight, setBannerHeight] = useState(0)
-  const bannerRef = useRef<HTMLDivElement>(null)
+  const { needRefresh, update } = usePwaUpdate()
+  const {
+    bannerRef,
+    updateBannerRef,
+    installBannerHeight,
+    totalBannerHeight,
+    showUpdateBanner,
+    dismissUpdate,
+  } = useBannerManager(canInstall, needRefresh)
 
   useScrollLock(location.pathname)
 
-  useLayoutEffect(() => {
-    if (bannerRef.current) {
-      setBannerHeight(bannerRef.current.offsetHeight)
-    } else {
-      setBannerHeight(0)
-    }
-  }, [canInstall])
-
-  const bottomOffset = canInstall
-    ? `calc(${SPACING + bannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
-    : `calc(${SPACING + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
+  const bottomOffset = `calc(${SPACING + totalBannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
 
   const titleFontSize = `${lerp(1.5, 1, scrollProgress)}rem`
   const titleFontWeight = Math.round(lerp(700, 600, scrollProgress))
@@ -87,6 +86,13 @@ export default function Layout() {
         <Outlet />
       </main>
 
+      <UpdateBanner
+        ref={updateBannerRef}
+        needRefresh={showUpdateBanner}
+        installBannerHeight={installBannerHeight}
+        update={update}
+        dismiss={dismissUpdate}
+      />
       <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismiss} />
       <TabBar />
     </div>

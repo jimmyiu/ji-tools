@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import { X, Share } from 'lucide-react'
 import { TAB_BAR_HEIGHT } from '../lib/constants'
+import { BannerActionButton } from './ui/banner-action-button'
 
 interface InstallBannerProps {
   canInstall: boolean
@@ -34,12 +35,9 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(
             )}
           </div>
           {!isIOS && (
-            <button
-              onClick={install}
-              className="shrink-0 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors"
-            >
+            <BannerActionButton onClick={install}>
               安裝
-            </button>
+            </BannerActionButton>
           )}
           <button
             onClick={dismiss}

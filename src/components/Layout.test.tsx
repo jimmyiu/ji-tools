@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import Layout from './Layout'
+
+const mockUsePwaUpdate = vi.fn()
+
+vi.mock('../hooks/usePwaUpdate', () => ({
+  usePwaUpdate: () => mockUsePwaUpdate(),
+}))
 
 function renderWithRouter(ui: React.ReactElement) {
   return render(<BrowserRouter>{ui}</BrowserRouter>)
@@ -20,6 +26,11 @@ beforeEach(() => {
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
     })),
+  })
+
+  mockUsePwaUpdate.mockReturnValue({
+    needRefresh: false,
+    update: vi.fn(),
   })
 })
 
@@ -76,5 +87,54 @@ describe('Layout bottom spacing', () => {
     const pb = main.style.paddingBottom
     expect(pb).toContain('72px')
     expect(pb).toContain('env(safe-area-inset-bottom)')
+  })
+})
+
+describe('UpdateBanner', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('renders update banner with refresh button when needRefresh is true', () => {
+    mockUsePwaUpdate.mockReturnValue({
+      needRefresh: true,
+      update: vi.fn(),
+    })
+    renderWithRouter(<Layout />)
+    expect(screen.getByText('新版本已可用')).toBeInTheDocument()
+    expect(screen.getByText('重新整理')).toBeInTheDocument()
+  })
+
+  it('does not render update banner when needRefresh is false', () => {
+    mockUsePwaUpdate.mockReturnValue({
+      needRefresh: false,
+      update: vi.fn(),
+    })
+    renderWithRouter(<Layout />)
+    expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
+    expect(screen.queryByText('重新整理')).not.toBeInTheDocument()
+  })
+
+  it('hides banner on dismiss click', () => {
+    mockUsePwaUpdate.mockReturnValue({
+      needRefresh: true,
+      update: vi.fn(),
+    })
+    renderWithRouter(<Layout />)
+    expect(screen.getByText('新版本已可用')).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('關閉'))
+    expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
+  })
+
+  it('adjusts paddingBottom when update banner is visible', () => {
+    mockUsePwaUpdate.mockReturnValue({
+      needRefresh: true,
+      update: vi.fn(),
+    })
+    const { container } = renderWithRouter(<Layout />)
+    const main = container.querySelector('main') as HTMLElement
+    const pb = main.style.paddingBottom
+    expect(pb).toContain('env(safe-area-inset-bottom)')
+    expect(pb).toMatch(/calc/)
   })
 })

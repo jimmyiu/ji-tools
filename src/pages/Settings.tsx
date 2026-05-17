@@ -12,7 +12,7 @@ export default function Settings() {
         </div>
         <div className="px-6 py-4 flex items-center justify-between border-b border-border">
           <span className="text-sm text-muted-foreground">版本</span>
-          <span className="text-sm text-white">0.0.0</span>
+          <span className="text-sm text-white">{__APP_VERSION__}</span>
         </div>
         <div className="px-6 py-4 flex items-center justify-between border-b border-border">
           <span className="text-sm text-muted-foreground">主題</span>

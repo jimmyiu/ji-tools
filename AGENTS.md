@@ -47,7 +47,6 @@ pnpm run preview                # vite preview
 
 - Vitest + jsdom + @testing-library/react
 - Run focused tests: `pnpm test -- src/hooks/useCalculator.test.ts`
-- Layout tests in `.worktrees/` may fail (worktree dep context mismatch) — ignore
 
 ## OpenSpec workflow
 

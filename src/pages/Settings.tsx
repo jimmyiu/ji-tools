@@ -22,10 +22,10 @@ export default function Settings() {
           href="https://github.com/jimmyiu/ji-tools"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between px-6 py-4 border-b border-border hover:bg-card/90 transition-colors active:opacity-90"
+          className="group flex items-center justify-between px-6 py-4 border-b border-border hover:bg-card/90 active:opacity-90 transition-colors"
         >
           <span className="text-sm text-muted-foreground">GitHub</span>
-          <ExternalLink className="size-4 text-muted-foreground" />
+          <ExternalLink className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
         </a>
         {dismissed && (
           <button

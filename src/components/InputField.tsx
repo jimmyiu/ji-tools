@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -12,11 +13,13 @@ interface InputFieldProps {
 }
 
 export function InputField({ label, value, onChange, suffix, min = 0, step = 0.01, error }: InputFieldProps) {
+  const id = useId()
   return (
-    <div>
-      <Label className="text-xs text-muted-foreground mb-1.5">{label}</Label>
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id} className="text-xs text-muted-foreground">{label}</Label>
       <div className="relative">
         <Input
+          id={id}
           type="number"
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -24,7 +27,7 @@ export function InputField({ label, value, onChange, suffix, min = 0, step = 0.0
           step={step}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+          <span aria-hidden="true" className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
             {suffix}
           </span>
         )}

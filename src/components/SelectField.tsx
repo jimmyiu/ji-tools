@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -15,12 +16,13 @@ interface SelectFieldProps {
 }
 
 export function SelectField({ label, value, onChange, options }: SelectFieldProps) {
+  const id = useId()
   return (
-    <div>
-      <Label className="text-xs text-muted-foreground mb-1.5">{label}</Label>
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id} className="text-xs text-muted-foreground">{label}</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue />
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="請選擇..." />
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (

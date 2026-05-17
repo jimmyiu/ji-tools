@@ -6,7 +6,8 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import TabBar from './TabBar'
 import InstallBanner from './InstallBanner'
 
-const TAB_BAR_HEIGHT = 56
+import { TAB_BAR_HEIGHT } from '../lib/constants'
+
 const SPACING = 16
 
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
@@ -61,7 +62,7 @@ export default function Layout() {
             }}
           >
             <h1
-              className="text-white truncate"
+              className="text-foreground truncate"
               style={{ fontSize: titleFontSize, fontWeight: titleFontWeight }}
             >
               {pageInfo.title}

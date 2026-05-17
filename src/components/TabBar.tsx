@@ -14,7 +14,7 @@ export default function TabBar() {
   const navigate = useNavigate()
   const currentTab = tabs.find((t) => {
     if (t.to === '/') return location.pathname === '/'
-    return location.pathname.startsWith(t.to)
+    return location.pathname === t.to || location.pathname.startsWith(t.to + '/')
   })?.to ?? '/'
 
   return (
@@ -26,7 +26,7 @@ export default function TabBar() {
               <TabsTrigger
                 key={tab.to}
                 value={tab.to}
-                className="flex-1 flex-col gap-0 h-full px-0 py-1 rounded-none data-[state=active]:text-primary data-[state=inactive]:text-muted-foreground"
+                className="flex-1 flex-col gap-0 h-full px-0 py-1 rounded-none data-[state=active]:text-primary not-data-[state=active]:text-muted-foreground"
               >
                 <tab.icon className="size-5" />
                 <span className="text-[10px] leading-none">{tab.label}</span>

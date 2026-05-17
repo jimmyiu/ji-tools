@@ -3,13 +3,15 @@ import { DateField } from '../components/DateField'
 import { SelectField } from '../components/SelectField'
 import { useInputs, useCalculator } from '../hooks/useMarathonSavings'
 import type { Currency } from '../hooks/useMarathonSavings'
+import { fmt, fmtRate } from '../lib/format'
 
-function fmt(n: number) {
-  return n.toLocaleString('zh-HK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+function assertPhaseIndex(i: number): asserts i is 0 | 1 | 2 {
+  if (i < 0 || i > 2) throw new Error(`Invalid phase index: ${i}`)
 }
 
-function fmtRate(n: number) {
-  return n.toFixed(4)
+function parseCurrency(v: string): Currency {
+  if (v === 'HKD' || v === 'USD') return v
+  return 'HKD'
 }
 
 export default function MarathonSavings() {
@@ -35,7 +37,7 @@ export default function MarathonSavings() {
               <SelectField
                 label="存款貨幣"
                 value={inputs.currency}
-                onChange={(v) => inputs.setCurrency(v as Currency)}
+                onChange={(v) => inputs.setCurrency(parseCurrency(v))}
                 options={[
                   { value: 'HKD', label: 'HKD 港元' },
                   { value: 'USD', label: 'USD 美元' },
@@ -53,7 +55,9 @@ export default function MarathonSavings() {
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-sm font-semibold text-white mb-5">階段利率設定</h2>
             <div className="space-y-5">
-              {inputs.phases.map((phase, i) => (
+              {inputs.phases.map((phase, i) => {
+                assertPhaseIndex(i)
+                return (
                 <div key={i} className="space-y-3">
                   <div className="text-xs font-medium text-primary">
                     階段 {i + 1}
@@ -65,33 +69,34 @@ export default function MarathonSavings() {
                     <DateField
                       label="開始日期"
                       value={phase.startDate}
-                      onChange={(v) => inputs.setPhaseStartDate(i as 0 | 1 | 2, v)}
+                      onChange={(v) => inputs.setPhaseStartDate(i, v)}
                     />
                     <DateField
                       label="結束日期"
                       value={phase.endDate}
-                      onChange={(v) => inputs.setPhaseEndDate(i as 0 | 1 | 2, v)}
+                      onChange={(v) => inputs.setPhaseEndDate(i, v)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <InputField
                       label="HKD 年利率"
                       value={phase.hkdRate}
-                      onChange={(v) => inputs.setPhaseHkdRate(i as 0 | 1 | 2, v)}
+                      onChange={(v) => inputs.setPhaseHkdRate(i, v)}
                       suffix="%"
                       step={0.01}
                     />
                     <InputField
                       label="USD 年利率"
                       value={phase.usdRate}
-                      onChange={(v) => inputs.setPhaseUsdRate(i as 0 | 1 | 2, v)}
+                      onChange={(v) => inputs.setPhaseUsdRate(i, v)}
                       suffix="%"
                       step={0.01}
                     />
                   </div>
-                  {i < 2 && <div className="border-t border-border" />}
+                  {i < inputs.phases.length - 1 && <div className="border-t border-border" />}
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

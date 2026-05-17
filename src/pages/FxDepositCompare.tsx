@@ -2,33 +2,33 @@ import { InputField } from '../components/InputField'
 import { DateField } from '../components/DateField'
 import { ReadonlyDateField } from '../components/ReadonlyDateField'
 import { useCalculator } from '../hooks/useCalculator'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { format } from 'date-fns'
+import { fmt } from '../lib/format'
+
+const amountRegex = /^\d+(\.\d+)?$/
+const intRegex = /^\d+$/
 
 const schema = z.object({
   startDate: z.string().min(1, '請選擇開始日期'),
-  initialPrincipal: z.string().min(1, '請輸入本金'),
-  depositMonths: z.string().min(1, '請輸入存款月數'),
-  iterate: z.string().min(1, '請輸入滾存次數'),
-  hkdRate: z.string().min(1, '請輸入港元利率'),
-  usdRate: z.string().min(1, '請輸入美元利率'),
-  bankSellRate: z.string().min(1, '請輸入賣出價'),
-  bankBuyRate: z.string().min(1, '請輸入買入價'),
+  initialPrincipal: z.string().min(1, '請輸入本金').regex(amountRegex, '請輸入有效金額'),
+  depositMonths: z.string().min(1, '請輸入存款月數').regex(amountRegex, '請輸入有效數字'),
+  iterate: z.string().min(1, '請輸入滾存次數').regex(intRegex, '請輸入整數'),
+  hkdRate: z.string().min(1, '請輸入港元利率').regex(amountRegex, '請輸入有效利率'),
+  usdRate: z.string().min(1, '請輸入美元利率').regex(amountRegex, '請輸入有效利率'),
+  bankSellRate: z.string().min(1, '請輸入賣出價').regex(amountRegex, '請輸入有效匯率'),
+  bankBuyRate: z.string().min(1, '請輸入買入價').regex(amountRegex, '請輸入有效匯率'),
 })
 
 type FormData = z.infer<typeof schema>
 
-function fmt(n: number) {
-  return n.toLocaleString('zh-HK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
 export default function FxDepositCompare() {
   const {
-    watch,
+    control,
     setValue,
-    formState: { errors },
+    formState,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -41,22 +41,33 @@ export default function FxDepositCompare() {
       bankSellRate: '7.8468',
       bankBuyRate: '7.8103',
     },
-    mode: 'onChange',
+    mode: 'onTouched',
   })
 
-  const values = watch()
+  const startDate = useWatch({ control, name: 'startDate' })
+  const initialPrincipal = useWatch({ control, name: 'initialPrincipal' })
+  const depositMonths = useWatch({ control, name: 'depositMonths' })
+  const iterate = useWatch({ control, name: 'iterate' })
+  const hkdRate = useWatch({ control, name: 'hkdRate' })
+  const usdRate = useWatch({ control, name: 'usdRate' })
+  const bankSellRate = useWatch({ control, name: 'bankSellRate' })
+  const bankBuyRate = useWatch({ control, name: 'bankBuyRate' })
+
   const result = useCalculator({
-    startDate: values.startDate,
-    initialPrincipal: values.initialPrincipal,
-    depositMonths: values.depositMonths,
-    iterate: values.iterate,
-    hkdRate: values.hkdRate,
-    usdRate: values.usdRate,
-    bankSellRate: values.bankSellRate,
-    bankBuyRate: values.bankBuyRate,
+    startDate,
+    initialPrincipal,
+    depositMonths,
+    iterate,
+    hkdRate,
+    usdRate,
+    bankSellRate,
+    bankBuyRate,
   })
-  const hkdInterest = result.hkdTotal - Number(values.initialPrincipal)
-  const usdInterestInHkd = result.usdTotalInHkd - Number(values.initialPrincipal)
+  const principal = Number(initialPrincipal) || 0
+  const hkdInterest = result.hkdTotal - principal
+  const usdInterestInHkd = result.usdTotalInHkd - principal
+
+  const handleChange = (field: keyof FormData) => (v: string) => setValue(field, v, { shouldValidate: true })
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
@@ -71,8 +82,8 @@ export default function FxDepositCompare() {
             <div className="grid grid-cols-2 gap-4">
               <DateField
                 label="開始日期"
-                value={values.startDate}
-                onChange={(v) => setValue('startDate', v, { shouldValidate: true })}
+                value={startDate}
+                onChange={handleChange('startDate')}
               />
               <ReadonlyDateField
                 label="結束日期"
@@ -81,59 +92,59 @@ export default function FxDepositCompare() {
             </div>
             <InputField
               label="初始本金 (HKD)"
-              value={values.initialPrincipal}
-              onChange={(v) => setValue('initialPrincipal', v, { shouldValidate: true })}
+              value={initialPrincipal}
+              onChange={handleChange('initialPrincipal')}
               step={1000}
-              error={errors.initialPrincipal?.message}
+              error={formState.errors.initialPrincipal?.message}
             />
             <InputField
               label="存款月數"
-              value={values.depositMonths}
-              onChange={(v) => setValue('depositMonths', v, { shouldValidate: true })}
+              value={depositMonths}
+              onChange={handleChange('depositMonths')}
               suffix="個月"
               step={1}
-              error={errors.depositMonths?.message}
+              error={formState.errors.depositMonths?.message}
             />
             <InputField
               label="滾存次數 (Iterate)"
-              value={values.iterate}
-              onChange={(v) => setValue('iterate', v, { shouldValidate: true })}
+              value={iterate}
+              onChange={handleChange('iterate')}
               suffix="次"
               step={1}
               min={1}
-              error={errors.iterate?.message}
+              error={formState.errors.iterate?.message}
             />
             <InputField
               label="港元定存年利率"
-              value={values.hkdRate}
-              onChange={(v) => setValue('hkdRate', v, { shouldValidate: true })}
+              value={hkdRate}
+              onChange={handleChange('hkdRate')}
               suffix="%"
               step={0.01}
-              error={errors.hkdRate?.message}
+              error={formState.errors.hkdRate?.message}
             />
             <InputField
               label="美元定存年利率"
-              value={values.usdRate}
-              onChange={(v) => setValue('usdRate', v, { shouldValidate: true })}
+              value={usdRate}
+              onChange={handleChange('usdRate')}
               suffix="%"
               step={0.01}
-              error={errors.usdRate?.message}
+              error={formState.errors.usdRate?.message}
             />
             <InputField
               label="銀行賣出價 (HKD → USD)"
-              value={values.bankSellRate}
-              onChange={(v) => setValue('bankSellRate', v, { shouldValidate: true })}
+              value={bankSellRate}
+              onChange={handleChange('bankSellRate')}
               suffix="HKD/USD"
               step={0.001}
-              error={errors.bankSellRate?.message}
+              error={formState.errors.bankSellRate?.message}
             />
             <InputField
               label="銀行買入價 (USD → HKD)"
-              value={values.bankBuyRate}
-              onChange={(v) => setValue('bankBuyRate', v, { shouldValidate: true })}
+              value={bankBuyRate}
+              onChange={handleChange('bankBuyRate')}
               suffix="HKD/USD"
               step={0.001}
-              error={errors.bankBuyRate?.message}
+              error={formState.errors.bankBuyRate?.message}
             />
           </div>
         </div>
@@ -142,7 +153,7 @@ export default function FxDepositCompare() {
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-sm font-semibold text-white mb-1">計算結果</h2>
             <p className="text-xs text-muted-foreground mb-5">
-              {values.iterate} 次滾存 · 共 {result.totalDays} 日
+              {iterate} 次滾存 · 共 {result.totalDays} 日
             </p>
             <div className="space-y-4">
               <div className="flex items-start justify-between py-3 border-b border-border">

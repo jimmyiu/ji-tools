@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -8,13 +9,16 @@ interface DateFieldProps {
 }
 
 export function DateField({ label, value, onChange }: DateFieldProps) {
+  const id = useId()
   return (
-    <div>
-      <Label className="text-xs text-muted-foreground mb-1.5">{label}</Label>
+    <div className="flex flex-col h-full">
+      <Label htmlFor={id} className="text-xs text-muted-foreground">{label}</Label>
       <Input
+        id={id}
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        className="flex-1"
       />
     </div>
   )

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Decimal from 'decimal.js'
 import { addMonths, subDays, addDays, differenceInDays, getDate, parseISO, format, isLastDayOfMonth } from 'date-fns'
 
@@ -46,52 +46,6 @@ interface InputState {
   startDate: string
 }
 
-interface InputActions {
-  setInitialPrincipal: (v: string) => void
-  setDepositMonths: (v: string) => void
-  setIterate: (v: string) => void
-  setHkdRate: (v: string) => void
-  setUsdRate: (v: string) => void
-  setBankSellRate: (v: string) => void
-  setBankBuyRate: (v: string) => void
-  setStartDate: (v: string) => void
-}
-
-export function useInputs() {
-  const [initialPrincipal, setInitialPrincipal] = useState<string | number>(100000)
-  const [depositMonths, setDepositMonths] = useState<string | number>(3)
-  const [iterate, setIterate] = useState<string | number>(1)
-  const [hkdRate, setHkdRate] = useState<string | number>(2.25)
-  const [usdRate, setUsdRate] = useState<string | number>(3.2)
-  const [bankSellRate, setBankSellRate] = useState<string | number>(7.8468)
-  const [bankBuyRate, setBankBuyRate] = useState<string | number>(7.8103)
-  const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'))
-
-  const state: InputState = {
-    initialPrincipal,
-    depositMonths,
-    iterate,
-    hkdRate,
-    usdRate,
-    bankSellRate,
-    bankBuyRate,
-    startDate,
-  }
-
-  const actions: InputActions = {
-    setInitialPrincipal,
-    setDepositMonths,
-    setIterate,
-    setHkdRate,
-    setUsdRate,
-    setBankSellRate,
-    setBankBuyRate,
-    setStartDate,
-  }
-
-  return { ...state, ...actions }
-}
-
 export function calculateCompoundDayBased(
   principal: Decimal,
   rate: Decimal,
@@ -108,16 +62,16 @@ export function calculateCompoundDayBased(
 }
 
 export function useCalculator(state: InputState) {
-  return useMemo(() => {
-    const { startDate } = state
-    const initialPrincipal = Number(state.initialPrincipal) || 0
-    const depositMonths = Number(state.depositMonths) || 3
-    const iterate = Number(state.iterate) || 1
-    const hkdRate = Number(state.hkdRate) || 0
-    const usdRate = Number(state.usdRate) || 0
-    const bankSellRate = Number(state.bankSellRate) || 0
-    const bankBuyRate = Number(state.bankBuyRate) || 0
+  const startDate = state.startDate
+  const initialPrincipal = Number(state.initialPrincipal) || 0
+  const depositMonths = Number(state.depositMonths) || 3
+  const iterate = Number(state.iterate) || 1
+  const hkdRate = Number(state.hkdRate) || 0
+  const usdRate = Number(state.usdRate) || 0
+  const bankSellRate = Number(state.bankSellRate) || 0
+  const bankBuyRate = Number(state.bankBuyRate) || 0
 
+  return useMemo(() => {
     const periods = computePeriods(startDate, depositMonths, iterate)
     const totalDays = periods.reduce((sum, p) => sum + p.days, 0)
     const startDateDisplay = format(periods[0].startDate, 'dd-MMM-yyyy')
@@ -165,5 +119,5 @@ export function useCalculator(state: InputState) {
       endDateDisplay,
       totalDays,
     }
-  }, [state])
+  }, [startDate, initialPrincipal, depositMonths, iterate, hkdRate, usdRate, bankSellRate, bankBuyRate])
 }

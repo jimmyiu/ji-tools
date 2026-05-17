@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/jimmyiu/ji-tools/compare/v1.1.0...v1.1.1) (2026-05-17)
+
+
+### Bug Fixes
+
+* **ui:** TabBar simplification ([2223cec](https://github.com/jimmyiu/ji-tools/commit/2223cec2776df7e6586916c0315feb0b4012383c))
+
 # [1.1.0](https://github.com/jimmyiu/ji-tools/compare/v1.0.0...v1.1.0) (2026-05-17)
 
 

@@ -23,6 +23,17 @@ export default defineConfig({
     },
   },
   base: '/ji-tools/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/decimal.js') || id.includes('node_modules/date-fns')) {
+            return 'vendor-calc'
+          }
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),

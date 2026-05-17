@@ -1,21 +1,16 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, Calculator, TrendingUp, Settings } from 'lucide-react'
+import { Home, Settings } from 'lucide-react'
 
 const tabs = [
   { to: '/', label: '首頁', icon: Home },
-  { to: '/fx-deposit-compare', label: '港美定存', icon: Calculator },
-  { to: '/marathon-savings', label: '馬拉松', icon: TrendingUp },
   { to: '/settings', label: '設定', icon: Settings },
 ]
 
 export default function TabBar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const currentTab = tabs.find((t) => {
-    if (t.to === '/') return location.pathname === '/'
-    return location.pathname === t.to || location.pathname.startsWith(t.to + '/')
-  })?.to ?? '/'
+  const currentTab = tabs.find((t) => location.pathname === t.to)?.to ?? ''
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>

@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import { RotateCw, X } from 'lucide-react'
 import { TAB_BAR_HEIGHT } from '../lib/constants'
+import { BannerActionButton } from './ui/banner-action-button'
 
 interface UpdateBannerProps {
   needRefresh: boolean
@@ -28,13 +29,10 @@ const UpdateBanner = forwardRef<HTMLDivElement, UpdateBannerProps>(
               新版本已可用
             </p>
           </div>
-          <button
-            onClick={update}
-            className="shrink-0 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none transition-colors"
-          >
+          <BannerActionButton onClick={update}>
             <RotateCw className="inline-block size-4 mr-1 align-text-bottom" />
             重新整理
-          </button>
+          </BannerActionButton>
           <button
             onClick={dismiss}
             className="shrink-0 p-1 text-muted-foreground hover:text-foreground transition-colors"

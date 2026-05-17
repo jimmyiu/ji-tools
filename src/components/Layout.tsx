@@ -1,10 +1,12 @@
-import { useRef, useState, useLayoutEffect } from 'react'
+import { useRef, useState, useLayoutEffect, useCallback } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useScrollPosition } from '../hooks/useScrollPosition'
 import { useScrollLock } from '../hooks/useScrollLock'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
+import { usePwaUpdate } from '../hooks/usePwaUpdate'
 import TabBar from './TabBar'
 import InstallBanner from './InstallBanner'
+import UpdateBanner from './UpdateBanner'
 
 import { TAB_BAR_HEIGHT } from '../lib/constants'
 
@@ -26,21 +28,28 @@ export default function Layout() {
   const { scrollProgress } = useScrollPosition(44)
   const pageInfo = pageTitles[location.pathname] ?? { title: 'JI Tools' }
   const { canInstall, isIOS, dismiss, install } = useInstallPrompt()
-  const [bannerHeight, setBannerHeight] = useState(0)
+  const { needRefresh, update } = usePwaUpdate()
+  const [dismissedUpdate, setDismissedUpdate] = useState(false)
+  const [installBannerHeight, setInstallBannerHeight] = useState(0)
+  const [updateBannerHeight, setUpdateBannerHeight] = useState(0)
   const bannerRef = useRef<HTMLDivElement>(null)
+  const updateBannerRef = useRef<HTMLDivElement>(null)
 
   useScrollLock(location.pathname)
 
-  useLayoutEffect(() => {
-    if (bannerRef.current) {
-      setBannerHeight(bannerRef.current.offsetHeight)
-    } else {
-      setBannerHeight(0)
-    }
-  }, [canInstall])
+  const hasAnyBanner = canInstall || (needRefresh && !dismissedUpdate)
 
-  const bottomOffset = canInstall
-    ? `calc(${SPACING + bannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
+  useLayoutEffect(() => {
+    setInstallBannerHeight(bannerRef.current?.offsetHeight ?? 0)
+    setUpdateBannerHeight(updateBannerRef.current?.offsetHeight ?? 0)
+  }, [canInstall, needRefresh, dismissedUpdate])
+
+  const dismissUpdate = useCallback(() => setDismissedUpdate(true), [])
+
+  const totalBannerHeight = installBannerHeight + updateBannerHeight
+
+  const bottomOffset = hasAnyBanner
+    ? `calc(${SPACING + totalBannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
     : `calc(${SPACING + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
 
   const titleFontSize = `${lerp(1.5, 1, scrollProgress)}rem`
@@ -87,6 +96,13 @@ export default function Layout() {
         <Outlet />
       </main>
 
+      <UpdateBanner
+        ref={updateBannerRef}
+        needRefresh={needRefresh && !dismissedUpdate}
+        installBannerHeight={installBannerHeight}
+        update={update}
+        dismiss={dismissUpdate}
+      />
       <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismiss} />
       <TabBar />
     </div>

@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jimmyiu/ji-tools/compare/v1.0.0...v1.1.0) (2026-05-17)
+
+
+### Features
+
+* add PWA update prompt with refresh banner ([#3](https://github.com/jimmyiu/ji-tools/issues/3)) ([0e937f1](https://github.com/jimmyiu/ji-tools/commit/0e937f147d66825849edf901d3aa3c24d3c97240))
+
 # 1.0.0 (2026-05-17)
 
 

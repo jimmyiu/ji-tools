@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { differenceInDays, parseISO, format } from 'date-fns'
+import { addDays, differenceInDays, parseISO, format } from 'date-fns'
 import Decimal from 'decimal.js'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
@@ -119,22 +119,34 @@ export interface Result {
 }
 
 export function useCalculator(state: InputState): Result {
+  const depositDate = state.depositDate
+  const principal = Number(state.principal) || 0
+  const currency = state.currency
+  const phases = state.phases
+
   return useMemo(() => {
-    const deposit = parseDateStr(state.depositDate)
-    const principal = Number(state.principal) || 0
+    const deposit = parseDateStr(depositDate)
 
     const phaseDays: number[] = []
     const phaseRatesHKD: number[] = []
     const phaseRatesUSD: number[] = []
 
+    let previousEffectiveEnd: Date | null = null
     for (let i = 0; i < 3; i++) {
-      const p = state.phases[i]
+      const p = phases[i]
       const start = parseDateStr(p.startDate)
       const end = parseDateStr(p.endDate)
-      const days = effectiveDays(deposit, start, end)
+      const clampedStart: Date = previousEffectiveEnd !== null && start <= previousEffectiveEnd
+        ? addDays(previousEffectiveEnd, 1)
+        : start
+      const days = effectiveDays(deposit, clampedStart, end)
       phaseDays.push(days)
       phaseRatesHKD.push(Number(p.hkdRate) || 0)
       phaseRatesUSD.push(Number(p.usdRate) || 0)
+      const effectiveEnd = days > 0
+        ? addDays(clampedStart, days - 1)
+        : null
+      if (effectiveEnd) previousEffectiveEnd = effectiveEnd
     }
 
     let totalWeightedHKD = 0
@@ -149,9 +161,9 @@ export function useCalculator(state: InputState): Result {
     const hkdActualRate = totalDays === 0 ? 0 : totalWeightedHKD / totalDays
     const usdActualRate = totalDays === 0 ? 0 : totalWeightedUSD / totalDays
 
-    const phaseResults: PhaseResult[] = state.phases.map((p, i) => {
-      const rate = state.currency === 'HKD' ? (Number(p.hkdRate) || 0) : (Number(p.usdRate) || 0)
-      const interest = phaseInterest(principal, rate, phaseDays[i], state.currency)
+    const phaseResults: PhaseResult[] = phases.map((p, i) => {
+      const rate = currency === 'HKD' ? (Number(p.hkdRate) || 0) : (Number(p.usdRate) || 0)
+      const interest = phaseInterest(principal, rate, phaseDays[i], currency)
       return { days: phaseDays[i], rate, interest }
     })
 
@@ -164,5 +176,5 @@ export function useCalculator(state: InputState): Result {
       totalDays,
       totalInterest,
     }
-  }, [state])
+  }, [depositDate, principal, currency, phases])
 }

@@ -6,7 +6,8 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import TabBar from './TabBar'
 import InstallBanner from './InstallBanner'
 
-const TAB_BAR_HEIGHT = 56
+import { TAB_BAR_HEIGHT } from '../lib/constants'
+
 const SPACING = 16
 
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
@@ -49,8 +50,8 @@ export default function Layout() {
   const containerMH = `${lerp(0, 2.75, scrollProgress)}rem`
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-[#0f1117] text-[#e2e8f0] flex flex-col">
-      <header className="sticky top-0 z-30 bg-[#0f1117]">
+    <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
+      <header className="sticky top-0 z-30 bg-background">
         <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div
             className="max-w-5xl mx-auto px-4 flex flex-col justify-center"
@@ -61,14 +62,14 @@ export default function Layout() {
             }}
           >
             <h1
-              className="text-white truncate"
+              className="text-foreground truncate"
               style={{ fontSize: titleFontSize, fontWeight: titleFontWeight }}
             >
               {pageInfo.title}
             </h1>
             {pageInfo.subtitle && scrollProgress < 1 && (
               <p
-                className="text-[#9ca3af] text-sm mt-1"
+                className="text-muted-foreground text-sm mt-1"
                 style={{ opacity: 1 - scrollProgress }}
               >
                 {pageInfo.subtitle}
@@ -77,7 +78,7 @@ export default function Layout() {
           </div>
         </div>
         <div
-          className="border-b border-[#2e303a]"
+          className="border-b border-border"
           style={{ opacity: scrollProgress }}
         />
       </header>

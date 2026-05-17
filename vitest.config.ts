@@ -1,10 +1,18 @@
 import { defineConfig } from 'vitest/config'
 import path from 'path'
-import pkg from './package.json'
+import { execSync } from 'child_process'
+
+const getAppVersion = () => {
+  try {
+    return execSync('git describe --tags --abbrev=0').toString().trim().replace(/^v/, '')
+  } catch {
+    return '0.0.0'
+  }
+}
 
 export default defineConfig({
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(getAppVersion()),
   },
   resolve: {
     alias: {

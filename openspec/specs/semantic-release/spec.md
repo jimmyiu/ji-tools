@@ -33,34 +33,12 @@ After determining the next version, `@semantic-release/npm` SHALL write the new 
 
 ---
 
-### Requirement: semantic-release MUST generate and update CHANGELOG.md
-`@semantic-release/changelog` SHALL create or update `CHANGELOG.md` in the repository root with release notes generated from conventional commit messages.
-
-#### Scenario: CHANGELOG.md created on first release
-- **WHEN** semantic-release runs for the first time and no `CHANGELOG.md` exists
-- **THEN** `CHANGELOG.md` is created with an entry for version `1.0.0` containing the release notes
-
-#### Scenario: CHANGELOG.md updated on subsequent release
-- **WHEN** semantic-release creates version `1.1.0` and `CHANGELOG.md` already exists with a `1.0.0` entry
-- **THEN** a new `1.1.0` entry is prepended to `CHANGELOG.md` above the existing `1.0.0` entry
-
----
-
 ### Requirement: semantic-release MUST create a GitHub Release
 `@semantic-release/github` SHALL create a formal GitHub Release on the repository with the version tag and auto-generated release notes.
 
 #### Scenario: GitHub Release created with version tag
 - **WHEN** semantic-release determines the next version is `1.2.0`
 - **THEN** a GitHub Release titled `v1.2.0` is created with a git tag `v1.2.0` and release notes derived from commits
-
----
-
-### Requirement: semantic-release MUST commit version changes back to main
-`@semantic-release/git` SHALL commit the updated `package.json` and `CHANGELOG.md` back to the `main` branch. The commit message MUST include `[skip ci]` to prevent re-triggering the release workflow.
-
-#### Scenario: Version bump commit includes skip ci tag
-- **WHEN** semantic-release commits the updated `package.json` and `CHANGELOG.md` to `main`
-- **THEN** the commit message contains `[skip ci]` and does not trigger the release workflow again
 
 ---
 

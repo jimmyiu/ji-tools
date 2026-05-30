@@ -69,3 +69,4 @@ pnpm run preview                # vite preview
 - Test precision rule: assert calculation results at 8 decimal places via `toBeCloseTo(expected, 8)`; all intermediate steps use full Decimal 40-digit precision
 - Hooks import and compose from `src/lib/*`; never duplicate logic — single source of truth prevents subtle bugs when conventions differ across features
 - Squash merge (`git merge --squash`) for feature branches — clean history. When using `superpowers:finishing-a-development-branch`, always choose squash merge (don't fast-forward).
+- Avoid `as const` on `it.each` test data arrays — creates readonly tuples that can't be passed to functions expecting mutable `number[]` or similar. Use plain arrays instead.

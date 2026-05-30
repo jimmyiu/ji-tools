@@ -1,9 +1,7 @@
 # pwa-update-prompt Specification
 
-## Purpose
+## MODIFIED Requirements
 
-Detect new PWA version via service worker and prompt user to refresh with a dismissible banner positioned at the top of the viewport.
-## Requirements
 ### Requirement: Update Banner Component
 
 The application SHALL render a fixed-bottom `UpdateBanner` component when `needRefresh` is `true`, showing a "重新整理" button and a dismiss button. The banner SHALL use `position: fixed; z-50` positioned above the TabBar capsule with `bottom: calc(TAB_BAR_HEIGHT + 24px + env(safe-area-inset-bottom))` on mobile and `bottom: calc(24px + env(safe-area-inset-bottom))` on desktop. The banner SHALL use `slide-up` animation (`translateY(100%); opacity: 0` → `translateY(0); opacity: 1`) instead of the previous `slide-down` animation. The banner SHALL NOT receive `installBannerHeight` as a prop. The banner SHALL NOT be in the sticky top flow — it renders independently at the bottom of the viewport.
@@ -33,41 +31,7 @@ The application SHALL render a fixed-bottom `UpdateBanner` component when `needR
 - **WHEN** the user taps the dismiss (✕) button
 - **THEN** the banner SHALL hide until the next app session
 
-### Requirement: Service Worker Registration
-
-The application SHALL use `registerType: 'prompt'` in the PWA plugin configuration so the new service worker waits in "installed" state for user confirmation before activating.
-
-#### Scenario: SW waits for user confirmation
-- **WHEN** a new version is deployed and the user visits the app
-- **THEN** the new service worker downloads and enters the "waiting" state without activating
-
-#### Scenario: Config is applied at build time
-- **WHEN** the project is built with `pnpm build`
-- **THEN** the generated service worker uses the prompt-based registration strategy
-
----
-
-### Requirement: Update Detection Hook
-
-The application SHALL provide a `usePwaUpdate` hook that returns `needRefresh: boolean` and `update: () => void`. The hook SHALL manage service worker lifecycle events internally.
-
-#### Scenario: Hook returns needRefresh state
-- **WHEN** a new service worker is waiting
-- **THEN** `needRefresh` SHALL be `true`
-
-#### Scenario: Hook provides update function
-- **WHEN** the user wants to refresh
-- **THEN** calling `update()` SHALL activate the waiting service worker
-
----
-
-### Requirement: TypeScript Type Support
-
-The application SHALL provide type definitions for the `usePwaUpdate` hook and its usage with `vite-plugin-pwa`.
-
-#### Scenario: Types are exported from hooks module
-- **WHEN** TypeScript compiles the project
-- **THEN** no type errors SHALL occur related to PWA update hooks
+## ADDED Requirements
 
 ### Requirement: Settings page SHALL provide a force-show toggle for the update banner
 
@@ -94,4 +58,3 @@ The Settings page SHALL render a "顯示更新提示" / "隱藏更新提示" tog
 #### Scenario: Force-show state is persisted in localStorage
 - **WHEN** the user refreshes the page with force-show enabled
 - **THEN** the banner SHALL reappear on load
-

@@ -13,12 +13,14 @@
   color-scheme: dark;
   --nav-bottom-offset: calc(104px + env(safe-area-inset-bottom));
   --nav-left-offset: 0px;
+  --update-banner-bottom: calc(64px + 24px + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 1024px) {
   :root {
     --nav-bottom-offset: 0px;
     --nav-left-offset: 80px;
+    --update-banner-bottom: calc(24px + env(safe-area-inset-bottom));
   }
 }
 
@@ -61,6 +63,21 @@ a, button, [role="button"] {
 
 .animate-slide-in {
   animation: slide-down 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
 }
 
 .page-enter {

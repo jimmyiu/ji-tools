@@ -77,11 +77,21 @@ describe('Layout padding offsets', () => {
     expect(main.style.paddingLeft).toBe('var(--nav-left-offset)')
   })
 
-  it('sets header top style to totalBannerHeight', () => {
+  it('sets header top style to totalBannerHeight (install height only)', () => {
     const { container } = renderWithRouter(<Layout />)
     const header = container.querySelector('header') as HTMLElement
     expect(header.style.top).toBeDefined()
     expect(header.style.top).not.toBe('')
+  })
+
+  it('header top does not include UpdateBanner height even when update banner is visible', () => {
+    mockUsePwaUpdate.mockReturnValue({
+      needRefresh: true,
+      update: vi.fn(),
+    })
+    const { container } = renderWithRouter(<Layout />)
+    const header = container.querySelector('header') as HTMLElement
+    expect(header.style.top).toBe('0px')
   })
 
   it('sets paddingLeft via var on header', () => {

@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
+import { getUpdateBannerForceShown, toggleUpdateBannerForceShow } from '../hooks/useBannerManager'
 
 export default function Settings() {
   const { dismissed, resetDismissed } = useInstallPrompt()
+  const [forceShowUpdate, setForceShowUpdate] = useState(getUpdateBannerForceShown)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
@@ -23,6 +26,12 @@ export default function Settings() {
           <span className="text-sm text-muted-foreground">GitHub</span>
           <ExternalLink className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
         </a>
+        <button
+          onClick={() => setForceShowUpdate(toggleUpdateBannerForceShow())}
+          className="w-full px-6 py-4 text-left text-sm text-primary hover:bg-card/90 transition-colors active:opacity-90 border-b border-border"
+        >
+          {forceShowUpdate ? '隱藏更新提示' : '顯示更新提示'}
+        </button>
         {dismissed && (
           <button
             onClick={resetDismissed}

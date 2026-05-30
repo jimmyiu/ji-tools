@@ -1,9 +1,7 @@
 # top-positioned-banners Specification
 
-## Purpose
+## MODIFIED Requirements
 
-Defines how PWA install and update banners are positioned at the top of the viewport as sticky in-flow elements. Banners stack vertically at the top, and the header's `top` offset accounts for their combined height so content scrolls naturally beneath them.
-## Requirements
 ### Requirement: Banners SHALL be positioned sticky at the top of the screen
 
 InstallBanner SHALL use `position: sticky; top: 0; z-50` and appear in the normal document flow, placed before the header element in the DOM. InstallBanner SHALL include `paddingTop: env(safe-area-inset-top)` to avoid being hidden behind device notches. UpdateBanner is no longer positioned at the top — it is positioned at the bottom (see `bottom-update-banner` spec). The header's `top` offset SHALL account for `installBannerHeight` only. Banners at the top SHALL use `slide-down` animation (`translateY(-100%); opacity: 0` → `translateY(0); opacity: 1`).
@@ -38,17 +36,3 @@ UpdateBanner SHALL NOT be positioned at the top of the viewport. Only InstallBan
 #### Scenario: totalBannerHeight excludes UpdateBanner
 - **WHEN** both InstallBanner and UpdateBanner are visible
 - **THEN** `totalBannerHeight` SHALL equal `installBannerHeight` only
-
-### Requirement: Banner height SHALL NOT be included in main content bottom padding
-
-The `<main>` element's `paddingBottom` SHALL NOT include `totalBannerHeight`. Banner height is only used for the header's dynamic `top` offset. The `bottomOffset` calculation SHALL only include `--nav-bottom-offset` (which accounts for the capsule + spacing + safe area on mobile, and only spacing on desktop).
-
-#### Scenario: Main paddingBottom excludes banner height
-- **WHEN** a banner is visible
-- **THEN** the `<main>` element's `paddingBottom` SHALL NOT include the banner's height
-- **THEN** the `<main>` element's `paddingBottom` SHALL only equal `var(--nav-bottom-offset)`
-
-#### Scenario: Header top includes banner height
-- **WHEN** a banner is visible
-- **THEN** the header's `top` style SHALL be set to `${totalBannerHeight}px`
-

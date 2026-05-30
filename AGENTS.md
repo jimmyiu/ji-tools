@@ -70,3 +70,6 @@ pnpm run preview                # vite preview
 - Hooks import and compose from `src/lib/*`; never duplicate logic — single source of truth prevents subtle bugs when conventions differ across features
 - Squash merge (`git merge --squash`) for feature branches — clean history. When using `superpowers:finishing-a-development-branch`, always choose squash merge (don't fast-forward).
 - Avoid `as const` on `it.each` test data arrays — creates readonly tuples that can't be passed to functions expecting mutable `number[]` or similar. Use plain arrays instead.
+- Cross-component state sync without React Context: custom `window` events (`app-storage`) are a lightweight alternative when syncing localStorage-based state between unrelated components (Settings ↔ Layout). No context providers, no prop drilling.
+- Delta spec headers must match the format the archive validator expects: new capabilities use `## ADDED Requirements` (not `## Requirements`); MODIFIED requirement headers must match the original spec requirement name exactly — the sync tool matches by header text, not position.
+- For PWA features requiring SW events (which only fire in production/service-worker contexts), a localStorage-based force-show toggle with custom event cross-sync is the practical testing pattern. Mirrors the existing install prompt approach.

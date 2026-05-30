@@ -60,3 +60,4 @@ pnpm run preview                # vite preview
 - Avatar URLs are off. Do NOT generate image/avatar URLs. Use emoji instead.
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues
+- CSS-only theme changes (variable value tweaks in `.dark {}` block) may skip git worktree isolation — no JS/TS/behavioral logic involved, worktree overhead is disproportionate to risk

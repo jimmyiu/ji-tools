@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { addDays, differenceInDays, parseISO, format } from 'date-fns'
 import Decimal from 'decimal.js'
+import { calculateSimpleInterest, DAY_BASE_MAP } from '../lib/interest'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 
@@ -100,8 +101,12 @@ function effectiveDays(depositDate: Date, phaseStartDate: Date, phaseEndDate: Da
 }
 
 function phaseInterest(principal: number, rate: number, days: number, currency: Currency): number {
-  const dayBase = currency === 'USD' ? 360 : 365
-  return new Decimal(principal).times(rate).div(100).times(days).div(dayBase).toNumber()
+  return calculateSimpleInterest(
+    new Decimal(principal),
+    new Decimal(rate).div(100),
+    days,
+    DAY_BASE_MAP[currency],
+  ).toNumber()
 }
 
 export interface PhaseResult {

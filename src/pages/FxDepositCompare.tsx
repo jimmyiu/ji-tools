@@ -212,6 +212,9 @@ export default function FxDepositCompare() {
           </div>
         </div>
       </div>
+      <p className="text-xs text-muted-foreground/50 mt-6 text-center">
+        *利息以每年365日（港元）及360日（美元）計算
+      </p>
     </div>
   )
 }

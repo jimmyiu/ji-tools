@@ -56,7 +56,7 @@ pnpm run preview                # vite preview
 
 ## Conventions
 
-- Conventional commits: `feat:`, `fix:`, `chore:`, etc. Always one-line commit messages, no body.
+- Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, etc. Always one-line commit messages, no body.
 - Avatar URLs are off. Do NOT generate image/avatar URLs. Use emoji instead.
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues

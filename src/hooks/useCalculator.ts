@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import Decimal from 'decimal.js'
 import { addMonths, subDays, addDays, differenceInDays, getDate, parseISO, format, isLastDayOfMonth } from 'date-fns'
+import { calculateSimpleInterest } from '../lib/interest'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 
@@ -52,10 +53,10 @@ export function calculateCompoundDayBased(
   periods: PeriodInfo[],
   iterate: number
 ): Decimal {
-  const dayBase = new Decimal(DAY_BASE)
+  const dayBase = DAY_BASE
   let current = principal
   for (let i = 0; i < iterate; i++) {
-    const interest = current.times(rate).times(periods[i].days).div(dayBase)
+    const interest = calculateSimpleInterest(current, rate, periods[i].days, dayBase)
     current = current.plus(interest)
   }
   return current

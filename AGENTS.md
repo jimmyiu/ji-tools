@@ -65,3 +65,7 @@ pnpm run preview                # vite preview
 
 - CSS-only theme changes (variable value tweaks in `.dark {}` block) may skip git worktree isolation — no JS/TS/behavioral logic involved, worktree overhead is disproportionate to risk
 - When implementation deliberately diverges from plan.md (different approach, simpler solution), update the relevant plan step(s) in-session before moving to the next task — keeps plan accurate as a trace throughout execution
+- Interest calculation primitives (`calculateSimpleInterest`, `DAY_BASE_MAP`) belong in a standalone library module (`src/lib/`), not in feature hooks — enables 100% unit test coverage with parametrized cases
+- Test precision rule: assert calculation results at 8 decimal places via `toBeCloseTo(expected, 8)`; all intermediate steps use full Decimal 40-digit precision
+- Feature hooks should import and compose from `src/lib/*` rather than duplicating formula logic — single source of truth prevents convention bugs (e.g. USD accidentally using 365 instead of 360)
+- Squash merge (`git merge --squash`) for feature branches — clean history

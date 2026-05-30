@@ -1,35 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import Decimal from 'decimal.js'
+import { renderHook } from '@testing-library/react'
 import {
   computeEndDate,
   computePeriods,
-  calculateCompoundDayBased,
-  DAY_BASE,
-  type PeriodInfo,
+  useCalculator,
 } from '../hooks/useCalculator'
 import {
   addDays,
-  parseISO,
   startOfDay,
   format,
 } from 'date-fns'
-
-function makePeriods(periodDays: number[]): PeriodInfo[] {
-  const base = startOfDay(parseISO('2025-01-01'))
-  let current = base
-  return periodDays.map((days) => {
-    const start = current
-    const end = addDays(start, days - 1)
-    current = addDays(end, 1)
-    return { startDate: start, endDate: end, days }
-  })
-}
-
-describe('DAY_BASE', () => {
-  it('should be 365 for both HKD and USD (HK banking convention)', () => {
-    expect(DAY_BASE).toBe(365)
-  })
-})
 
 describe('computeEndDate', () => {
   function checkEndDate(start: Date, months: number, expected: Date) {
@@ -158,64 +138,6 @@ describe('computePeriods', () => {
   })
 })
 
-describe('calculateCompoundDayBased', () => {
-  function fmt(n: number) {
-    return new Decimal(n).toDecimalPlaces(2).toNumber()
-  }
-
-  it('simple interest for 1 period with 365 days equals rate * principal', () => {
-    const periods = makePeriods([365])
-    const p = new Decimal(100000)
-    const r = new Decimal(2.25).div(100)
-    const result = calculateCompoundDayBased(p, r, periods, 1)
-    expect(fmt(result.toNumber())).toBe(102250)
-  })
-
-  it('simple interest: 100k @ 3.65% for 365 days = HK$103650', () => {
-    const periods = makePeriods([365])
-    const p = new Decimal(100000)
-    const r = new Decimal(3.65).div(100)
-    const result = calculateCompoundDayBased(p, r, periods, 1)
-    expect(fmt(result.toNumber())).toBe(103650)
-  })
-
-  it('compound: 100k @ 2.25% for 2 equal 183/182 day periods', () => {
-    const periods = makePeriods([183, 182])
-    const p = new Decimal(100000)
-    const r = new Decimal(2.25).div(100)
-    const result = calculateCompoundDayBased(p, r, periods, 2)
-    const p1Int = new Decimal(100000).times(r).times(183).div(365)
-    const afterP1 = new Decimal(100000).plus(p1Int)
-    const p2Int = afterP1.times(r).times(182).div(365)
-    const expected = afterP1.plus(p2Int)
-    expect(result.toNumber()).toBeCloseTo(expected.toNumber(), 2)
-  })
-
-  it('compound: 100k @ 3% for 3 periods (31, 30, 31 days) accumulates correctly', () => {
-    const periods = makePeriods([31, 30, 31])
-    const p = new Decimal(100000)
-    const r = new Decimal(3.0).div(100)
-    const result = calculateCompoundDayBased(p, r, periods, 3)
-    const p1Int = new Decimal(100000).times(r).times(31).div(365)
-    const afterP1 = new Decimal(100000).plus(p1Int)
-    const p2Int = afterP1.times(r).times(30).div(365)
-    const afterP2 = afterP1.plus(p2Int)
-    const p3Int = afterP2.times(r).times(31).div(365)
-    const expected = afterP2.plus(p3Int)
-    expect(result.toNumber()).toBeCloseTo(expected.toNumber(), 2)
-    expect(result.toNumber()).toBeGreaterThan(100000)
-  })
-
-  it('interest uses DAY_BASE (365) in denominator, not 12', () => {
-    const periods = makePeriods([365])
-    const p = new Decimal(100000)
-    const r = new Decimal(3.65).div(100)
-    const result = calculateCompoundDayBased(p, r, periods, 1)
-    const dayBased = fmt(result.toNumber())
-    expect(dayBased).toBe(103650)
-  })
-})
-
 describe('end-to-end: user example scenarios', () => {
   function fmtDate(d: Date) {
     return format(d, 'yyyy-MM-dd')
@@ -269,5 +191,65 @@ describe('end-to-end: user example scenarios', () => {
     const periods = computePeriods('2025-05-12', 1, 3)
     const overallEnd = computeEndDate(new Date(2025, 4, 12), 3)
     expect(startOfDay(periods[periods.length - 1].endDate)).toEqual(startOfDay(overallEnd))
+  })
+})
+
+describe('useCalculator', () => {
+  const defaults = {
+    startDate: '2025-05-12',
+    initialPrincipal: 100000,
+    depositMonths: 3,
+    iterate: 1,
+    hkdRate: 2.25,
+    usdRate: 3.2,
+    bankSellRate: 7.8468,
+    bankBuyRate: 7.8103,
+  }
+
+  function run(overrides: Partial<typeof defaults>) {
+    return renderHook(() => useCalculator({ ...defaults, ...overrides })).result
+      .current
+  }
+
+  it('returns correct values for default inputs (HKD wins, break-even triggered)', () => {
+    const r = run({})
+    expect(r.hkdTotal).toBeCloseTo(100567.12328767, 8)
+    expect(r.usdTotalInHkd).toBeCloseTo(100348.81604957, 8)
+    expect(r.difference).toBeCloseTo(-218.30723810, 8)
+    expect(r.usdWins).toBe(false)
+    expect(r.breakEvenIterate).toBe(2)
+    expect(r.breakEvenDays).toBe(184)
+    expect(r.breakEvenMonths).toBe(6)
+    expect(r.totalDays).toBe(92)
+  })
+
+  it('returns correct values for iterate=2 (USD wins)', () => {
+    const r = run({ iterate: 2 })
+    expect(r.hkdTotal).toBeCloseTo(101137.46286358, 8)
+    expect(r.usdTotalInHkd).toBeCloseTo(101169.44636749, 8)
+    expect(r.difference).toBeCloseTo(31.98350391, 8)
+    expect(r.usdWins).toBe(true)
+    expect(r.breakEvenIterate).toBeNull()
+    expect(r.totalDays).toBe(184)
+  })
+
+  it('returns correct values for zero rates', () => {
+    const r = run({ hkdRate: 0, usdRate: 0 })
+    expect(r.hkdTotal).toBeCloseTo(100000, 8)
+    expect(r.usdTotalInHkd).toBeCloseTo(99534.84222868, 8)
+    expect(r.difference).toBeCloseTo(-465.15777132, 8)
+    expect(r.usdWins).toBe(false)
+    expect(r.breakEvenIterate).toBeNull()
+    expect(r.totalDays).toBe(92)
+  })
+
+  it('returns 0 for zero principal', () => {
+    const r = run({ initialPrincipal: 0 })
+    expect(r.hkdTotal).toBe(0)
+    expect(r.usdTotalInHkd).toBe(0)
+    expect(r.difference).toBe(0)
+    expect(r.usdWins).toBe(true)
+    expect(r.breakEvenIterate).toBeNull()
+    expect(r.totalDays).toBe(92)
   })
 })

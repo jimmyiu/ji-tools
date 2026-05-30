@@ -56,7 +56,7 @@ pnpm run preview                # vite preview
 
 ## Conventions
 
-- Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, etc. Always one-line commit messages, no body.
+- Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, etc. One-line for fixup commits during development; squash merge commits may include a body summarizing the change.
 - Avatar URLs are off. Do NOT generate image/avatar URLs. Use emoji instead.
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues
@@ -65,7 +65,7 @@ pnpm run preview                # vite preview
 
 - CSS-only theme changes (variable value tweaks in `.dark {}` block) may skip git worktree isolation — no JS/TS/behavioral logic involved, worktree overhead is disproportionate to risk
 - When implementation deliberately diverges from plan.md (different approach, simpler solution), update the relevant plan step(s) in-session before moving to the next task — keeps plan accurate as a trace throughout execution
-- Interest calculation primitives (`calculateSimpleInterest`, `DAY_BASE_MAP`) belong in a standalone library module (`src/lib/`), not in feature hooks — enables 100% unit test coverage with parametrized cases
+- Pure logic (formulas, calculations, transformations) belongs in `src/lib/*`, not in feature hooks — enables 100% unit test coverage with parametrized cases
 - Test precision rule: assert calculation results at 8 decimal places via `toBeCloseTo(expected, 8)`; all intermediate steps use full Decimal 40-digit precision
-- Feature hooks should import and compose from `src/lib/*` rather than duplicating formula logic — single source of truth prevents convention bugs (e.g. USD accidentally using 365 instead of 360)
-- Squash merge (`git merge --squash`) for feature branches — clean history
+- Hooks import and compose from `src/lib/*`; never duplicate logic — single source of truth prevents subtle bugs when conventions differ across features
+- Squash merge (`git merge --squash`) for feature branches — clean history. When using `superpowers:finishing-a-development-branch`, always choose squash merge (don't fast-forward).

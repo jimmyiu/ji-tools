@@ -15,3 +15,17 @@ export function calculateSimpleInterest(
 ): Decimal {
   return principal.times(annualRate).times(days).div(dayBase)
 }
+
+export function calculateCompoundDayBased(
+  principal: Decimal,
+  annualRate: Decimal,
+  dayCounts: number[],
+  dayBase: number,
+): Decimal {
+  let current = principal
+  for (let i = 0; i < dayCounts.length; i++) {
+    const interest = calculateSimpleInterest(current, annualRate, dayCounts[i], dayBase)
+    current = current.plus(interest)
+  }
+  return current
+}

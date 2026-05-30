@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { addDays, differenceInDays, parseISO, format } from 'date-fns'
 import Decimal from 'decimal.js'
-import { calculateSimpleInterest, DAY_BASE_MAP } from '../lib/interest'
+import { calculateSimpleInterest, DAY_BASE_MAP } from '../lib/calculator'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 

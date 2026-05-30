@@ -1,38 +1,11 @@
 import { useMemo } from 'react'
 import Decimal from 'decimal.js'
-import { addMonths, subDays, addDays, differenceInDays, getDate, parseISO, format, isLastDayOfMonth } from 'date-fns'
-import { DAY_BASE_MAP, calculateCompoundDayBased } from '../lib/interest'
-
-Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
-
-export interface PeriodInfo {
-  startDate: Date
-  endDate: Date
-  days: number
-}
-
-export function computeEndDate(startDate: Date, depositMonths: number): Date {
-  const foo = addMonths(startDate, depositMonths)
-  if (getDate(foo) === getDate(startDate)) {
-    if (isLastDayOfMonth(foo)) {
-      return foo
-    }
-    return subDays(foo, 1)
-  }
-  return foo
-}
-
-export function computePeriods(startDateStr: string, depositMonths: number, iterate: number): PeriodInfo[] {
-  const periods: PeriodInfo[] = []
-  let currentStart = parseISO(startDateStr)
-  for (let i = 0; i < iterate; i++) {
-    const endDate = computeEndDate(currentStart, depositMonths)
-    const days = differenceInDays(endDate, currentStart) + 1
-    periods.push({ startDate: currentStart, endDate, days })
-    currentStart = addDays(endDate, 1)
-  }
-  return periods
-}
+import { format } from 'date-fns'
+import {
+  computePeriods,
+  DAY_BASE_MAP,
+  calculateCompoundDayBased,
+} from '../lib/calculator'
 
 interface InputState {
   initialPrincipal: string | number
@@ -57,7 +30,7 @@ export function useCalculator(state: InputState) {
 
   return useMemo(() => {
     const periods = computePeriods(startDate, depositMonths, iterate)
-    const totalDays = periods.reduce((sum, p) => sum + p.days, 0)
+    const totalDays = periods.reduce((sum, p) => sum + p.length, 0)
     const startDateDisplay = format(periods[0].startDate, 'dd-MMM-yyyy')
     const endDateDisplay = format(periods[periods.length - 1].endDate, 'dd-MMM-yyyy')
 
@@ -66,7 +39,7 @@ export function useCalculator(state: InputState) {
     const rU = new Decimal(usdRate).div(100)
     const s = new Decimal(bankSellRate)
     const b = new Decimal(bankBuyRate)
-    const dayCounts = periods.map(per => per.days)
+    const dayCounts = periods.map(per => per.length)
 
     const hkdTotal = calculateCompoundDayBased(p, rH, dayCounts, DAY_BASE_MAP.HKD)
     const usdPrincipal = p.div(s)
@@ -80,7 +53,7 @@ export function useCalculator(state: InputState) {
     if (!usdWins) {
       const maxIterate = Math.min(100, Math.ceil(1200 / depositMonths))
       const allPeriods = computePeriods(startDate, depositMonths, maxIterate)
-      const allDayCounts = allPeriods.map(per => per.days)
+      const allDayCounts = allPeriods.map(per => per.length)
       for (let n = 1; n <= maxIterate; n++) {
         const testDayCounts = allDayCounts.slice(0, n)
         const testHKD = calculateCompoundDayBased(p, rH, testDayCounts, DAY_BASE_MAP.HKD)

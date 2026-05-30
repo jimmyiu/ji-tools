@@ -38,8 +38,8 @@ export default function FxDepositCompare() {
       iterate: '1',
       hkdRate: '2.25',
       usdRate: '3.2',
-      bankSellRate: '7.8468',
-      bankBuyRate: '7.8103',
+      bankSellRate: '7.8574', // HKD -> USD: 7.8574
+      bankBuyRate: '7.8154',  // USD -> HKD: 7.8154
     },
     mode: 'onTouched',
   })

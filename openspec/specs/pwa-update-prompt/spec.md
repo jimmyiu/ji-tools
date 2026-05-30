@@ -2,9 +2,32 @@
 
 ## Purpose
 
-Detect new PWA version via service worker and prompt user to refresh with a dismissible banner.
+Detect new PWA version via service worker and prompt user to refresh with a dismissible banner positioned at the top of the viewport.
 
 ## Requirements
+
+### Requirement: Update Banner Component
+
+The application SHALL render a sticky-top `UpdateBanner` component when `needRefresh` is `true`, showing a "重新整理" button and a dismiss button. The banner SHALL use `position: sticky; z-50` and appear in the document flow before the header. When both UpdateBanner and InstallBanner are visible, UpdateBanner SHALL be positioned at `top: ${installBannerHeight}px` (dynamic value) to stack below InstallBanner. The banner SHALL use `slide-down` animation (`translateY(-100%); opacity: 0` → `translateY(0); opacity: 1`) instead of the previous `slide-up` animation.
+
+#### Scenario: Banner appears at top with slide-down animation
+- **WHEN** `needRefresh` becomes `true`
+- **THEN** the UpdateBanner SHALL slide down from the top of the screen into view
+
+#### Scenario: Banner stacks below InstallBanner
+- **WHEN** both UpdateBanner and InstallBanner are visible
+- **THEN** UpdateBanner SHALL be positioned at `top: ${installBannerHeight}px`
+- **THEN** UpdateBanner SHALL appear directly below InstallBanner
+
+#### Scenario: Refresh button triggers update
+- **WHEN** the user taps "重新整理"
+- **THEN** `update()` SHALL be called and the page SHALL reload with new content
+
+#### Scenario: Dismiss hides banner
+- **WHEN** the user taps the dismiss (✕) button
+- **THEN** the banner SHALL hide until the next app session
+
+---
 
 ### Requirement: Service Worker Registration
 
@@ -22,62 +45,22 @@ The application SHALL use `registerType: 'prompt'` in the PWA plugin configurati
 
 ### Requirement: Update Detection Hook
 
-The application SHALL provide a `usePwaUpdate` hook that wraps `useRegisterSW` from `virtual:pwa-register/react` and exposes `needRefresh: boolean` and `update: () => void`.
+The application SHALL provide a `usePwaUpdate` hook that returns `needRefresh: boolean` and `update: () => void`. The hook SHALL manage service worker lifecycle events internally.
 
-#### Scenario: Hook returns needRefresh as false initially
-- **WHEN** the hook mounts and no new service worker is detected
-- **THEN** `needRefresh` SHALL be `false`
+#### Scenario: Hook returns needRefresh state
+- **WHEN** a new service worker is waiting
+- **THEN** `needRefresh` SHALL be `true`
 
-#### Scenario: Hook detects waiting SW
-- **WHEN** a new service worker enters the waiting state
-- **THEN** `needRefresh` SHALL become `true`
-
-#### Scenario: Update function activates waiting SW
-- **WHEN** `update()` is called while `needRefresh` is `true`
-- **THEN** the waiting service worker SHALL activate via `skipWaiting` and the page SHALL reload
-
----
-
-### Requirement: Update Banner Component
-
-The application SHALL render a fixed-bottom `UpdateBanner` component when `needRefresh` is `true`, showing a "重新整理" button and a dismiss button.
-
-#### Scenario: Banner appears on update detection
-- **WHEN** `needRefresh` becomes `true`
-- **THEN** the UpdateBanner SHALL slide up into view at the bottom of the screen
-
-#### Scenario: Refresh button triggers update
-- **WHEN** the user taps "重新整理"
-- **THEN** `update()` SHALL be called and the page SHALL reload with new content
-
-#### Scenario: Dismiss hides banner
-- **WHEN** the user taps the dismiss (✕) button
-- **THEN** the banner SHALL hide until the next app session
-
-#### Scenario: Banner position adapts to InstallBanner height
-- **WHEN** both UpdateBanner and InstallBanner are visible
-- **THEN** UpdateBanner SHALL be positioned directly above InstallBanner
-
----
-
-### Requirement: Layout Integration
-
-The Layout component SHALL compute the combined height of UpdateBanner and InstallBanner to set the main content area's bottom padding, preventing content from being hidden behind the banners.
-
-#### Scenario: Content padding includes banner heights
-- **WHEN** either banner is visible
-- **THEN** the main content area's `paddingBottom` SHALL include the combined height of all visible banners plus the TabBar height
-
-#### Scenario: No banners leaves default padding
-- **WHEN** no banners are visible
-- **THEN** the main content area SHALL use the default TabBar-only bottom padding
+#### Scenario: Hook provides update function
+- **WHEN** the user wants to refresh
+- **THEN** calling `update()` SHALL activate the waiting service worker
 
 ---
 
 ### Requirement: TypeScript Type Support
 
-The application SHALL reference `vite-plugin-pwa/client` types to resolve the `virtual:pwa-register/react` module for TypeScript.
+The application SHALL provide type definitions for the `usePwaUpdate` hook and its usage with `vite-plugin-pwa`.
 
-#### Scenario: Build succeeds with PWA types
-- **WHEN** `pnpm build` is run
-- **THEN** TypeScript SHALL compile without errors related to the `virtual:pwa-register/react` module
+#### Scenario: Types are exported from hooks module
+- **WHEN** TypeScript compiles the project
+- **THEN** no type errors SHALL occur related to PWA update hooks

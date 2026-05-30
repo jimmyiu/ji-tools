@@ -1,6 +1,5 @@
 import { forwardRef } from 'react'
 import { RotateCw, X } from 'lucide-react'
-import { TAB_BAR_HEIGHT } from '../lib/constants'
 import { BannerActionButton } from './ui/banner-action-button'
 
 interface UpdateBannerProps {
@@ -17,11 +16,9 @@ const UpdateBanner = forwardRef<HTMLDivElement, UpdateBannerProps>(
     return (
       <div
         ref={ref}
-        className="fixed left-0 right-0 z-50 p-4 bg-card border-t border-border animate-slide-up"
+        className="sticky z-50 w-full p-4 bg-card border-b border-border animate-slide-in"
         role="alert"
-        style={{
-          bottom: `calc(${TAB_BAR_HEIGHT}px + ${installBannerHeight}px + env(safe-area-inset-bottom))`,
-        }}
+        style={{ top: `${installBannerHeight}px` }}
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">

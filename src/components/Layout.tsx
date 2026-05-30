@@ -5,12 +5,9 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import { usePwaUpdate } from '../hooks/usePwaUpdate'
 import { useBannerManager } from '../hooks/useBannerManager'
 import TabBar from './TabBar'
+import SideNav from './SideNav'
 import InstallBanner from './InstallBanner'
 import UpdateBanner from './UpdateBanner'
-
-import { TAB_BAR_HEIGHT } from '../lib/constants'
-
-const SPACING = 16
 
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
   '/': { title: 'JI Tools' },
@@ -40,8 +37,6 @@ export default function Layout() {
 
   useScrollLock(location.pathname)
 
-  const bottomOffset = `calc(${SPACING + totalBannerHeight + TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
-
   const titleFontSize = `${lerp(1.5, 1, scrollProgress)}rem`
   const titleFontWeight = Math.round(lerp(700, 600, scrollProgress))
   const containerPT = `${lerp(0.5, 0, scrollProgress)}rem`
@@ -50,42 +45,8 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
-      <header className="sticky top-0 z-30 bg-background">
-        <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <div
-            className="max-w-5xl mx-auto px-4 flex flex-col justify-center"
-            style={{
-              paddingTop: containerPT,
-              paddingBottom: containerPB,
-              minHeight: containerMH,
-            }}
-          >
-            <h1
-              className="text-foreground truncate"
-              style={{ fontSize: titleFontSize, fontWeight: titleFontWeight }}
-            >
-              {pageInfo.title}
-            </h1>
-            {pageInfo.subtitle && scrollProgress < 1 && (
-              <p
-                className="text-muted-foreground text-sm mt-1"
-                style={{ opacity: 1 - scrollProgress }}
-              >
-                {pageInfo.subtitle}
-              </p>
-            )}
-          </div>
-        </div>
-        <div
-          className="border-b border-border"
-          style={{ opacity: scrollProgress }}
-        />
-      </header>
-
-      <main className="page-enter" style={{ paddingBottom: bottomOffset }}>
-        <Outlet />
-      </main>
-
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg">跳到主內容</a>
+      <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismiss} />
       <UpdateBanner
         ref={updateBannerRef}
         needRefresh={showUpdateBanner}
@@ -93,7 +54,41 @@ export default function Layout() {
         update={update}
         dismiss={dismissUpdate}
       />
-      <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismiss} />
+      <header className="sticky z-30 bg-background" style={{ top: totalBannerHeight || 0, paddingLeft: 'var(--nav-left-offset)' }}>
+        <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+            <div
+              className="max-w-5xl mx-auto px-4 flex flex-col justify-center"
+              style={{
+                paddingTop: containerPT,
+                paddingBottom: containerPB,
+                minHeight: containerMH,
+              }}
+            >
+              <h1
+                className="text-foreground truncate"
+                style={{ fontSize: titleFontSize, fontWeight: titleFontWeight }}
+              >
+                {pageInfo.title}
+              </h1>
+              {pageInfo.subtitle && scrollProgress < 1 && (
+                <p
+                  className="text-muted-foreground text-sm mt-1"
+                  style={{ opacity: 1 - scrollProgress }}
+                >
+                  {pageInfo.subtitle}
+                </p>
+              )}
+            </div>
+          </div>
+          <div
+            className="border-b border-border"
+            style={{ opacity: scrollProgress }}
+          />
+      </header>
+      <SideNav />
+      <main id="main-content" className="page-enter transition-[padding] duration-150 ease-out" style={{ paddingBottom: 'var(--nav-bottom-offset)', paddingLeft: 'var(--nav-left-offset)' }}>
+        <Outlet />
+      </main>
       <TabBar />
     </div>
   )

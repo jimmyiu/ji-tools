@@ -8,15 +8,11 @@ export default function Settings() {
     <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
-          <h2 className="text-sm font-semibold text-white">關於</h2>
+          <h2 className="text-sm font-semibold text-foreground">關於</h2>
         </div>
         <div className="px-6 py-4 flex items-center justify-between border-b border-border">
           <span className="text-sm text-muted-foreground">版本</span>
-          <span className="text-sm text-white">{__APP_VERSION__}</span>
-        </div>
-        <div className="px-6 py-4 flex items-center justify-between border-b border-border">
-          <span className="text-sm text-muted-foreground">主題</span>
-          <span className="text-sm text-white">深色（跟隨系統）</span>
+          <span className="text-sm text-foreground">{__APP_VERSION__}</span>
         </div>
         <a
           href="https://github.com/jimmyiu/ji-tools"

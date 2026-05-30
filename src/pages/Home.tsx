@@ -26,7 +26,7 @@ export default function Home() {
             className="group block p-6 rounded-xl border border-border bg-card hover:border-primary hover:bg-card/90 transition-all duration-200 active:scale-[0.97] active:transition-transform"
           >
             <div className="text-3xl mb-3">{tool.emoji}</div>
-            <h2 className="text-base font-semibold text-white mb-2 group-hover:text-primary transition-colors">
+            <h2 className="text-base font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
               {tool.title}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">

@@ -27,7 +27,7 @@ export default function MarathonSavings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-4">
           <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-white mb-5">基本參數</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-5">基本參數</h2>
             <div className="space-y-4">
               <DateField
                 label="實際存款日期"
@@ -53,7 +53,7 @@ export default function MarathonSavings() {
           </div>
 
           <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-white mb-5">階段利率設定</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-5">階段利率設定</h2>
             <div className="space-y-5">
               {inputs.phases.map((phase, i) => {
                 assertPhaseIndex(i)
@@ -105,14 +105,14 @@ export default function MarathonSavings() {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl p-5 border border-primary/30 bg-primary/5">
               <div className="text-xs text-muted-foreground mb-2">HKD 實際等效年利率</div>
-              <div className="text-2xl font-bold text-white mb-1">
+              <div className="text-2xl font-bold text-foreground mb-1">
                 {fmtRate(result.hkdActualRate)}%
               </div>
               <div className="text-xs text-muted-foreground/60">以存款日數加權平均計算</div>
             </div>
             <div className="rounded-xl p-5 border border-green-500/30 bg-green-500/5">
               <div className="text-xs text-muted-foreground mb-2">USD 實際等效年利率</div>
-              <div className="text-2xl font-bold text-white mb-1">
+              <div className="text-2xl font-bold text-foreground mb-1">
                 {fmtRate(result.usdActualRate)}%
               </div>
               <div className="text-xs text-muted-foreground/60">以存款日數加權平均計算</div>
@@ -120,7 +120,7 @@ export default function MarathonSavings() {
           </div>
 
           <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-white mb-4">
+            <h2 className="text-sm font-semibold text-foreground mb-4">
               {inputs.currency === 'HKD' ? '港元' : '美元'} 利息明細
               <span className="ml-2 text-xs font-normal text-muted-foreground/60">
                 (本金 HK$ {fmt(Number(inputs.principal))})
@@ -135,7 +135,7 @@ export default function MarathonSavings() {
                       {pr.days > 0 ? `${pr.days} 日 @ ${pr.rate}%` : '（不在存款期內）'}
                     </span>
                   </div>
-                  <span className={`text-sm font-medium ${pr.interest > 0 ? 'text-white' : 'text-muted-foreground/60'}`}>
+                  <span className={`text-sm font-medium ${pr.interest > 0 ? 'text-foreground' : 'text-muted-foreground/60'}`}>
                     {pr.interest > 0 ? `${inputs.currency === 'HKD' ? 'HK$' : 'US$'}${fmt(pr.interest)}` : '—'}
                   </span>
                 </div>
@@ -147,7 +147,7 @@ export default function MarathonSavings() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-muted-foreground mb-1">總存款日數</div>
-                <div className="text-2xl font-bold text-white">{result.totalDays} 日</div>
+                <div className="text-2xl font-bold text-foreground">{result.totalDays} 日</div>
               </div>
               <div className="w-px h-12 bg-border" />
               <div className="text-right">

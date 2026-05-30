@@ -69,24 +69,47 @@ describe('Layout header', () => {
   })
 })
 
-describe('Layout bottom spacing', () => {
-  it('does not render an h-14 spacer div', () => {
-    const { container: c } = renderWithRouter(<Layout />)
-    expect(c.querySelector('div[class="h-14"]')).not.toBeInTheDocument()
+describe('Layout padding offsets', () => {
+  it('uses CSS custom properties for padding on main', () => {
+    const { container } = renderWithRouter(<Layout />)
+    const main = container.querySelector('main') as HTMLElement
+    expect(main.style.paddingBottom).toBe('var(--nav-bottom-offset)')
+    expect(main.style.paddingLeft).toBe('var(--nav-left-offset)')
   })
 
-  it('renders main without flex-1 class', () => {
-    const { container: c } = renderWithRouter(<Layout />)
-    const main = c.querySelector('main')
-    expect(main).not.toHaveClass('flex-1')
+  it('sets header top style to totalBannerHeight', () => {
+    const { container } = renderWithRouter(<Layout />)
+    const header = container.querySelector('header') as HTMLElement
+    expect(header.style.top).toBeDefined()
+    expect(header.style.top).not.toBe('')
   })
 
-  it('sets paddingBottom on main via inline style', () => {
-    const { container: c } = renderWithRouter(<Layout />)
-    const main = c.querySelector('main') as HTMLElement
-    const pb = main.style.paddingBottom
-    expect(pb).toContain('72px')
-    expect(pb).toContain('env(safe-area-inset-bottom)')
+  it('sets paddingLeft via var on header', () => {
+    const { container } = renderWithRouter(<Layout />)
+    const header = container.querySelector('header') as HTMLElement
+    expect(header.style.paddingLeft).toBe('var(--nav-left-offset)')
+  })
+})
+
+describe('Skip-to-content link', () => {
+  it('renders skip-to-content link with correct href', () => {
+    renderWithRouter(<Layout />)
+    const link = screen.getByText('跳到主內容')
+    expect(link).toHaveAttribute('href', '#main-content')
+  })
+
+  it('has sr-only class by default', () => {
+    renderWithRouter(<Layout />)
+    const link = screen.getByText('跳到主內容')
+    expect(link.className).toContain('sr-only')
+  })
+})
+
+describe('Main element', () => {
+  it('has id="main-content"', () => {
+    const { container } = renderWithRouter(<Layout />)
+    const main = container.querySelector('main')
+    expect(main).toHaveAttribute('id', 'main-content')
   })
 })
 
@@ -124,17 +147,5 @@ describe('UpdateBanner', () => {
     expect(screen.getByText('新版本已可用')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('關閉'))
     expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
-  })
-
-  it('adjusts paddingBottom when update banner is visible', () => {
-    mockUsePwaUpdate.mockReturnValue({
-      needRefresh: true,
-      update: vi.fn(),
-    })
-    const { container } = renderWithRouter(<Layout />)
-    const main = container.querySelector('main') as HTMLElement
-    const pb = main.style.paddingBottom
-    expect(pb).toContain('env(safe-area-inset-bottom)')
-    expect(pb).toMatch(/calc/)
   })
 })

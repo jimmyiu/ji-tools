@@ -1,6 +1,5 @@
 import { forwardRef } from 'react'
 import { X, Share } from 'lucide-react'
-import { TAB_BAR_HEIGHT } from '../lib/constants'
 import { BannerActionButton } from './ui/banner-action-button'
 
 interface InstallBannerProps {
@@ -17,9 +16,9 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(
     return (
       <div
         ref={ref}
-        className="fixed left-0 right-0 z-50 p-4 bg-card border-t border-border"
+        className="sticky top-0 z-50 w-full p-4 bg-card border-b border-border animate-slide-in"
         role="alert"
-        style={{ bottom: `calc(${TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom))` }}
+        style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">

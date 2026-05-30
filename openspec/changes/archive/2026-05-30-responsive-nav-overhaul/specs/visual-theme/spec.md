@@ -1,10 +1,4 @@
-# visual-theme Specification
-
-## Purpose
-
-Defines the CSS custom property values for shadcn/ui design tokens in the dark-only theme at `src/index.css`. Establishes a systematic elevation hierarchy (background → card → input → border) with a purple-tinted palette at approximately 260-270° hue and consistent chroma for a cohesive dark purple look.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Background Surface Color
 

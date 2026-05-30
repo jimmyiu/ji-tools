@@ -77,7 +77,7 @@ export default function FxDepositCompare() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-white mb-5">輸入參數</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-5">輸入參數</h2>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <DateField
@@ -151,7 +151,7 @@ export default function FxDepositCompare() {
 
         <div className="flex flex-col gap-4">
           <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-white mb-1">計算結果</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-1">計算結果</h2>
             <p className="text-xs text-muted-foreground mb-5">
               {iterate} 次滾存 · 共 {result.totalDays} 日
             </p>
@@ -163,7 +163,7 @@ export default function FxDepositCompare() {
                     連本金總額: HK$ {fmt(result.hkdTotal)}
                   </span>
                 </div>
-                <span className="text-base font-semibold text-white whitespace-nowrap ml-2">
+                <span className="text-base font-semibold text-foreground whitespace-nowrap ml-2">
                   HK$ {fmt(hkdInterest)}
                 </span>
               </div>
@@ -174,7 +174,7 @@ export default function FxDepositCompare() {
                     連本金總額: HK$ {fmt(result.usdTotalInHkd)}
                   </span>
                 </div>
-                <span className="text-base font-semibold text-white whitespace-nowrap ml-2">
+                <span className="text-base font-semibold text-foreground whitespace-nowrap ml-2">
                   HK$ {fmt(usdInterestInHkd)}
                 </span>
               </div>
@@ -195,7 +195,7 @@ export default function FxDepositCompare() {
               </div>
               {!result.usdWins && result.breakEvenIterate !== null && (
                 <div>
-                  <p className="text-4xl font-bold text-white mb-1">{result.breakEvenIterate} 次滾存</p>
+                  <p className="text-4xl font-bold text-foreground mb-1">{result.breakEvenIterate} 次滾存</p>
                   <p className="text-sm text-muted-foreground">共 {result.breakEvenDays} 日（約 {result.breakEvenMonths} 個月）後可追平並反超</p>
                   <p className="text-xs text-muted-foreground/60 mt-2">
                     需將美元定存滾存 {result.breakEvenIterate} 次（共 {result.breakEvenDays} 日），才能抵消匯率差價造成的損失

@@ -56,8 +56,12 @@ pnpm run preview                # vite preview
 
 ## Conventions
 
-- Conventional commits: `feat:`, `fix:`, `chore:`, etc.
+- Conventional commits: `feat:`, `fix:`, `chore:`, etc. Always one-line commit messages, no body.
 - Avatar URLs are off. Do NOT generate image/avatar URLs. Use emoji instead.
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues
+
+## Retrospective learning
+
 - CSS-only theme changes (variable value tweaks in `.dark {}` block) may skip git worktree isolation — no JS/TS/behavioral logic involved, worktree overhead is disproportionate to risk
+- When implementation deliberately diverges from plan.md (different approach, simpler solution), update the relevant plan step(s) in-session before moving to the next task — keeps plan accurate as a trace throughout execution

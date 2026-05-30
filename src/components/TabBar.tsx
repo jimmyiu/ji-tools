@@ -1,4 +1,3 @@
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Home, Settings } from 'lucide-react'
 
@@ -13,22 +12,30 @@ export default function TabBar() {
   const currentTab = tabs.find((t) => location.pathname === t.to)?.to ?? ''
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="max-w-5xl mx-auto">
-        <Tabs value={currentTab} onValueChange={(v) => navigate(v)}>
-          <TabsList className="w-full h-14 bg-transparent gap-0 p-0 rounded-none" variant="line">
-            {tabs.map((tab) => (
-              <TabsTrigger
+    <nav
+      aria-label="底部導航"
+      className="desktop-nav:hidden fixed left-4 right-4 z-40"
+      style={{ bottom: 'calc(24px + env(safe-area-inset-bottom))' }}
+    >
+      <div className="mx-auto max-w-[280px] h-16 rounded-2xl bg-card/80 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_12px_0_rgba(0,0,0,0.3)]">
+        <div className="flex h-full">
+          {tabs.map((tab) => {
+            const isActive = currentTab === tab.to
+            const Icon = tab.icon
+            return (
+              <button
                 key={tab.to}
-                value={tab.to}
-                className="flex-1 flex-col gap-0 h-full px-0 py-1 rounded-none data-[state=active]:text-primary not-data-[state=active]:text-muted-foreground"
+                onClick={() => navigate(tab.to)}
+                className={`flex-1 flex flex-col items-center justify-center gap-1 px-0 py-0 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                role="tab"
+                aria-selected={isActive}
               >
-                <tab.icon className="size-5" />
-                <span className="text-[10px] leading-none">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+                <Icon className="size-[22px]" fill={isActive ? 'currentColor' : 'none'} />
+                <span className="text-xs leading-none">{tab.label}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
     </nav>
   )

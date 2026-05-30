@@ -1,10 +1,4 @@
-# tab-bar Specification
-
-## Purpose
-
-Defines the TabBar component that provides bottom navigation as a floating glass capsule on mobile viewports. The capsule is hidden on desktop where the SideNav takes over.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: TabBar SHALL display as a floating capsule on mobile and be hidden on desktop
 
@@ -43,38 +37,28 @@ Active state SHALL be indicated purely through icon and text styling (no backgro
 
 #### Scenario: Tab buttons are perfectly centered
 - **WHEN** a tab button renders
-- **THEN** it SHALL use `flex-1 flex flex-col items-center justify-center` with `gap-1`
-- **THEN** it SHALL have `px-0 py-0` (centering via flexbox, not padding)
-- **THEN** its icon SHALL be 22px and its label SHALL be 12px (text-xs)
+- **THEN** the icon and label SHALL be centered both vertically and horizontally within the button using flexbox centering (not padding)
 
----
+#### Scenario: Tab buttons have no horizontal line indicator
+- **WHEN** a tab button is active
+- **THEN** there SHALL be no `::after` pseudo-element or horizontal line indicator below the active tab
+
+#### Scenario: TabBar has visual separation from scrollable content
+- **WHEN** the TabBar renders
+- **THEN** the capsule SHALL have a semi-transparent background (`bg-card/80`) with backdrop blur (`backdrop-blur-xl`), a top border (`border-t border-white/10`), and an upward drop shadow
+
+## REMOVED Requirements
 
 ### Requirement: TabBar SHALL display exactly 2 navigation items
 
-The TabBar SHALL display exactly 2 tabs: Home (首頁) and Settings (設定).
+**Reason**: Replaced by the more specific floating capsule requirement above that includes responsive behavior, styling, and ARIA details.
 
-#### Scenario: TabBar displays Home and Settings tabs
-- **WHEN** the TabBar is rendered
-- **THEN** it SHALL show exactly 2 tabs: "首頁" with a Home icon and "設定" with a Settings icon
-
-#### Scenario: Calculator tabs are not present in TabBar
-- **WHEN** the TabBar is rendered
-- **THEN** it SHALL NOT show the "港美定存" or "馬拉松" tabs
+**Migration**: Use the new "TabBar SHALL display as a floating capsule on mobile" requirement which subsumes this one.
 
 ---
 
 ### Requirement: TabBar active tab logic SHALL match exactly 2 routes
 
-The TabBar SHALL mark the "首頁" tab as active only when `location.pathname === '/'`, and the "設定" tab as active when `location.pathname === '/settings'`.
+**Reason**: The active tab logic is unchanged but is now defined in the `responsive-navigation` spec under "Active navigation state SHALL highlight the current route" which covers both TabBar and SideNav.
 
-#### Scenario: Home tab is active on root path
-- **WHEN** `location.pathname` is `"/"`
-- **THEN** the "首頁" tab SHALL be in active state
-
-#### Scenario: Settings tab is active on settings path
-- **WHEN** `location.pathname` is `"/settings"`
-- **THEN** the "設定" tab SHALL be in active state
-
-#### Scenario: Neither tab is active on calculator pages
-- **WHEN** `location.pathname` is `"/fx-deposit-compare"` or `"/marathon-savings"`
-- **THEN** neither the "首頁" nor "設定" tab SHALL be in active state
+**Migration**: Use the navigation active state requirement in `responsive-navigation/spec.md`.

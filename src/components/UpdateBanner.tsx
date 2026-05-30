@@ -2,13 +2,13 @@ import { RotateCw, X } from 'lucide-react'
 import { BannerActionButton } from './ui/banner-action-button'
 
 interface UpdateBannerProps {
-  needRefresh: boolean
+  visible: boolean
   update: () => void
   dismiss: () => void
 }
 
-export default function UpdateBanner({ needRefresh, update, dismiss }: UpdateBannerProps) {
-  if (!needRefresh) return null
+export default function UpdateBanner({ visible, update, dismiss }: UpdateBannerProps) {
+  if (!visible) return null
 
   return (
     <div

@@ -19,6 +19,21 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  plugins: [
+    {
+      name: 'pwa-virtual-module',
+      resolveId(id: string) {
+        if (id === 'virtual:pwa-register/react') {
+          return '\0virtual:pwa-register/react'
+        }
+      },
+      load(id: string) {
+        if (id === '\0virtual:pwa-register/react') {
+          return 'export const useRegisterSW = () => ({ needRefresh: [false], updateServiceWorker: (cb) => { cb?.(); return undefined } })'
+        }
+      },
+    },
+  ],
   test: {
     globals: true,
     environment: 'jsdom',

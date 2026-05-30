@@ -3,10 +3,11 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import Layout from './Layout'
 
-const mockUsePwaUpdate = vi.fn()
+const mockUsePwaUpdateContext = vi.fn()
 
-vi.mock('../hooks/usePwaUpdate', () => ({
-  usePwaUpdate: () => mockUsePwaUpdate(),
+vi.mock('../contexts/PwaUpdateContext', () => ({
+  usePwaUpdateContext: () => mockUsePwaUpdateContext(),
+  PwaUpdateProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
 function renderWithRouter(ui: React.ReactElement) {
@@ -28,9 +29,10 @@ beforeEach(() => {
     })),
   })
 
-  mockUsePwaUpdate.mockReturnValue({
-    needRefresh: false,
+  mockUsePwaUpdateContext.mockReturnValue({
+    showUpdateBanner: false,
     update: vi.fn(),
+    dismiss: vi.fn(),
   })
 })
 
@@ -85,9 +87,10 @@ describe('Layout padding offsets', () => {
   })
 
   it('header top does not include UpdateBanner height even when update banner is visible', () => {
-    mockUsePwaUpdate.mockReturnValue({
-      needRefresh: true,
+    mockUsePwaUpdateContext.mockReturnValue({
+      showUpdateBanner: true,
       update: vi.fn(),
+      dismiss: vi.fn(),
     })
     const { container } = renderWithRouter(<Layout />)
     const header = container.querySelector('header') as HTMLElement
@@ -128,20 +131,22 @@ describe('UpdateBanner', () => {
     vi.restoreAllMocks()
   })
 
-  it('renders update banner with refresh button when needRefresh is true', () => {
-    mockUsePwaUpdate.mockReturnValue({
-      needRefresh: true,
+  it('renders update banner with refresh button when showUpdateBanner is true', () => {
+    mockUsePwaUpdateContext.mockReturnValue({
+      showUpdateBanner: true,
       update: vi.fn(),
+      dismiss: vi.fn(),
     })
     renderWithRouter(<Layout />)
     expect(screen.getByText('新版本已可用')).toBeInTheDocument()
     expect(screen.getByText('重新整理')).toBeInTheDocument()
   })
 
-  it('does not render update banner when needRefresh is false', () => {
-    mockUsePwaUpdate.mockReturnValue({
-      needRefresh: false,
+  it('does not render update banner when showUpdateBanner is false', () => {
+    mockUsePwaUpdateContext.mockReturnValue({
+      showUpdateBanner: false,
       update: vi.fn(),
+      dismiss: vi.fn(),
     })
     renderWithRouter(<Layout />)
     expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
@@ -149,13 +154,15 @@ describe('UpdateBanner', () => {
   })
 
   it('hides banner on dismiss click', () => {
-    mockUsePwaUpdate.mockReturnValue({
-      needRefresh: true,
+    const dismiss = vi.fn()
+    mockUsePwaUpdateContext.mockReturnValue({
+      showUpdateBanner: true,
       update: vi.fn(),
+      dismiss,
     })
     renderWithRouter(<Layout />)
     expect(screen.getByText('新版本已可用')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('關閉'))
-    expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
+    expect(dismiss).toHaveBeenCalled()
   })
 })

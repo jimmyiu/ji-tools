@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import UpdateBanner from './UpdateBanner'
 
 const defaultProps = {
-  needRefresh: true,
+  visible: true,
   update: vi.fn(),
   dismiss: vi.fn(),
 }
@@ -15,13 +15,13 @@ function renderBanner(props = {}) {
 }
 
 describe('UpdateBanner', () => {
-  it('renders when needRefresh is true', () => {
+  it('renders when visible is true', () => {
     renderBanner()
     expect(screen.getByText('新版本已可用')).toBeInTheDocument()
   })
 
-  it('returns null when needRefresh is false', () => {
-    const { container } = renderBanner({ needRefresh: false })
+  it('returns null when visible is false', () => {
+    const { container } = renderBanner({ visible: false })
     expect(container.innerHTML).toBe('')
   })
 

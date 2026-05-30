@@ -20,7 +20,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/components/ui/**'],
+    files: ['src/components/ui/**', 'src/contexts/**'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },

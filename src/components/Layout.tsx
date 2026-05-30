@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useScrollPosition } from '../hooks/useScrollPosition'
 import { useScrollLock } from '../hooks/useScrollLock'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
-import { usePwaUpdate } from '../hooks/usePwaUpdate'
+import { PwaUpdateProvider, usePwaUpdateContext } from '../contexts/PwaUpdateContext'
 import { useBannerManager } from '../hooks/useBannerManager'
 import TabBar from './TabBar'
 import SideNav from './SideNav'
@@ -21,17 +21,20 @@ function lerp(a: number, b: number, t: number) {
 }
 
 export default function Layout() {
+  return (
+    <PwaUpdateProvider>
+      <LayoutInner />
+    </PwaUpdateProvider>
+  )
+}
+
+function LayoutInner() {
   const location = useLocation()
   const { scrollProgress } = useScrollPosition(44)
   const pageInfo = pageTitles[location.pathname] ?? { title: 'JI Tools' }
-  const { canInstall, isIOS, dismiss, install } = useInstallPrompt()
-  const { needRefresh, update } = usePwaUpdate()
-  const {
-    bannerRef,
-    totalBannerHeight,
-    showUpdateBanner,
-    dismissUpdate,
-  } = useBannerManager(canInstall, needRefresh)
+  const { canInstall, isIOS, dismiss: dismissInstall, install } = useInstallPrompt()
+  const { showUpdateBanner, update, dismiss: dismissUpdate } = usePwaUpdateContext()
+  const { bannerRef, totalBannerHeight } = useBannerManager(canInstall)
 
   useScrollLock(location.pathname)
 
@@ -44,9 +47,9 @@ export default function Layout() {
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg">跳到主內容</a>
-      <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismiss} />
+      <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismissInstall} />
       <UpdateBanner
-        needRefresh={showUpdateBanner}
+        visible={showUpdateBanner}
         update={update}
         dismiss={dismissUpdate}
       />

@@ -63,6 +63,10 @@ pnpm run preview                # vite preview
 
 ## Retrospective learning
 
+- When adding a retrospective entry, capture the underlying concept at the right level of abstraction — not the specific bug (implementation detail), but the pattern or principle it reveals. Test the phrasing: if the entry makes sense without knowing which project it came from, the abstraction is right. Keep it concise: one sentence, one rule.
+- When a state toggle exists in both a persistent UI element and a settings panel, share state via React context instead of localStorage roundtrips with CustomEvent dispatching — guarantees consistency without wiring coordination.
+- Set optimistic UI state before triggering async operations — user gets instant feedback even if the promise never settles (e.g., SW update on iOS).
+
 - CSS-only theme changes (variable value tweaks in `.dark {}` block) may skip git worktree isolation — no JS/TS/behavioral logic involved, worktree overhead is disproportionate to risk
 - When implementation deliberately diverges from plan.md (different approach, simpler solution), update the relevant plan step(s) in-session before moving to the next task — keeps plan accurate as a trace throughout execution
 - Pure logic (formulas, calculations, transformations) belongs in `src/lib/*`, not in feature hooks — enables 100% unit test coverage with parametrized cases

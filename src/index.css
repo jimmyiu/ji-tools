@@ -171,4 +171,8 @@ a, button, [role="button"] {
     @apply bg-background text-foreground;
   }
 
+  input[type="date"] {
+    min-width: 0;
+    max-width: 100%;
+  }
 }

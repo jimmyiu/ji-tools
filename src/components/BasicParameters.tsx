@@ -18,7 +18,7 @@ export function BasicParameters({
   return (
     <div className="px-4 py-4">
       <SectionHeader title="存款設定" />
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         <DateField
           label="實際存款日期"
           value={depositDate}

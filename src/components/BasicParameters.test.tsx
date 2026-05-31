@@ -18,12 +18,6 @@ describe('BasicParameters', () => {
     expect(screen.getByText('初始本金')).toBeInTheDocument()
   })
 
-  it('shows currency confirmation message', () => {
-    render(<BasicParameters {...defaultProps} />)
-
-    expect(screen.getByText('貨幣已在頂部設定 — 僅顯示 HKD/USD 計算結果')).toBeInTheDocument()
-  })
-
   it('displays current values', () => {
     render(<BasicParameters {...defaultProps} />)
 

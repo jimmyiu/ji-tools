@@ -143,7 +143,7 @@ function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDes
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent hideClose onOpenAutoFocus={(e) => e.preventDefault()}>
+        <DialogContent hideClose aria-describedby={undefined} onOpenAutoFocus={(e) => e.preventDefault()}>
           <DialogTitle className="sr-only">{title}</DialogTitle>
           <SectionHeader
             title={title}
@@ -163,7 +163,7 @@ function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDes
 
   return (
       <Sheet open={isOpen} onOpenChange={handleOpenChange}>
-        <SheetContent hideClose side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
+        <SheetContent hideClose aria-describedby={undefined} side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetTitle className="sr-only">{title}</SheetTitle>
           <SectionHeader
             title={title}

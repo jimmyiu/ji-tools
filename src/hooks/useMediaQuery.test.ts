@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { useMediaQuery } from './useMediaQuery'
 
 describe('useMediaQuery', () => {
@@ -65,7 +65,9 @@ describe('useMediaQuery', () => {
     expect(result.current).toBe(false)
 
     const listener = listeners.get('change')
-    if (listener) listener({ matches: true })
+    if (listener) {
+      act(() => listener({ matches: true }))
+    }
     rerender()
 
     expect(result.current).toBe(true)

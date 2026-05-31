@@ -59,7 +59,7 @@ function EditableSection({ title, children }: EditableSectionProps) {
 
   return (
     <EditableSectionContext.Provider value={contextValue}>
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="px-4 py-4">
         <SectionHeader
           title={title}
           action={

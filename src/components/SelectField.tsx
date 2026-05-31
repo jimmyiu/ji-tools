@@ -27,7 +27,7 @@ export function SelectField({ label, value, onChange, options }: SelectFieldProp
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
           aria-label={label}
-          className="mt-0.5 w-full border-none bg-transparent shadow-none p-0 text-base font-semibold text-foreground h-auto hover:bg-transparent focus-visible:ring-0 focus-visible:border-0 data-placeholder:text-muted-foreground [&_svg:not([class*='size-'])]:size-5 [&_svg]:text-muted-foreground/50 [&_svg]:ml-auto [&_svg]:transition-colors data-[state=open]:[&_svg]:text-muted-foreground">
+          className="mt-0.5 w-full border-none bg-transparent shadow-none p-0 text-base font-semibold text-foreground hover:bg-transparent focus-visible:ring-0 focus-visible:border-0 data-placeholder:text-muted-foreground [&_svg:not([class*='size-'])]:size-5 [&_svg]:text-muted-foreground/50 [&_svg]:ml-auto [&_svg]:transition-colors data-[state=open]:[&_svg]:text-muted-foreground">
           <SelectValue placeholder="請選擇..." />
         </SelectTrigger>
         <SelectContent className="rounded-lg bg-card border border-border shadow-lg">

@@ -10,17 +10,22 @@ describe('PhaseRateTimeline', () => {
     { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.2, usdRate: 3.3 },
   ]
 
-  it('renders dual-label bar with HKD and USD rates', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" />)
+  it('shows HKD rates when currency is HKD', () => {
+    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
 
     expect(screen.getByText('HKD 1.85%')).toBeInTheDocument()
-    expect(screen.getByText('USD 3%')).toBeInTheDocument()
     expect(screen.getByText('HKD 2%')).toBeInTheDocument()
+  })
+
+  it('shows USD rates when currency is USD', () => {
+    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="USD" />)
+
+    expect(screen.getByText('USD 3%')).toBeInTheDocument()
     expect(screen.getByText('USD 3.1%')).toBeInTheDocument()
   })
 
   it('renders boundary dates', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" />)
+    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
 
     expect(screen.getByText('04-May')).toBeInTheDocument()
     expect(screen.getByText('02-Jul')).toBeInTheDocument()
@@ -30,7 +35,7 @@ describe('PhaseRateTimeline', () => {
 
   it('renders phase with zero effective days with muted styling', () => {
     const { container } = render(
-      <PhaseRateTimeline phases={mockPhases} depositDate="2026-07-15" />
+      <PhaseRateTimeline phases={mockPhases} depositDate="2026-07-15" currency="HKD" />
     )
 
     const mutedSegment = container.querySelector('[style*="opacity: 0.4"]')
@@ -38,7 +43,7 @@ describe('PhaseRateTimeline', () => {
   })
 
   it('shows zero days message when deposit date is after all phases', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-12-01" />)
+    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-12-01" currency="HKD" />)
 
     expect(screen.getByText('存款日期在所有階段之後')).toBeInTheDocument()
   })

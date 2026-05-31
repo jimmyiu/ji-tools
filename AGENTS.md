@@ -61,7 +61,44 @@ pnpm run preview                # vite preview
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues
 - When adding new UI components or customizing library primitives (including shadcn components added via CLI), never use hardcoded color literals (e.g., `green-500`, `red-400`, inline `rgba()`/hex) or redundant `dark:` modifiers. Always reference the project's CSS custom property tokens (`bg-card`, `border-border`, `text-foreground`, etc.), or define new semantic tokens in `src/index.css` when no existing token fits. Clean up any default palette classes and `dark:` modifiers after running `npx shadcn add`.
-- Form inputs use the **floating label bounded box** style: each field is a visible box (`bg-input/30 border border-border rounded-lg`), with a small muted label (`text-[10px]`) inside at the top and the value in `text-base font-semibold` below. Editability is signaled by the box boundary (strong affordance) plus hover/focus border color change + ring glow. All forms must use the shared field components (`InputField`, `DateField`, `SelectField`, `ReadonlyDateField`) from `src/components/` — do not create page-specific form fields.
+
+## Frontend Development Guidelines
+
+Rules to keep the entire app visually consistent. **Consistency is the priority** — one rule, applied the same way everywhere.
+
+### Section Spacing
+- Every major section container uses `px-4 py-4` — applied directly on each element. No vertical margins (`mb-*`, `mt-*`) on sections themselves.
+- Between sections, use `<SectionSeparator />` which renders a `border-b border-border mx-4` divider. Pass `className="lg:hidden"` to hide it on desktop in multi-column layouts.
+- The `py-4` (16px) on each section creates equal spacing above and below the separator — perfectly balanced.
+- No per-column or per-layout spacing rules. `px-4 py-4` works identically in 1-column, 2-column grid, or stacked layouts.
+- Within-section dividers (`border-b` on list items, result rows) are fine — only section-to-section dividers are forbidden.
+- The last `py-4` on the final section intentionally adds trailing space before page bottom — provides visual breathing room.
+
+### Section Headers
+- Every section must use the `SectionHeader` component. Never use bare `<h2>` for section titles.
+- `SectionHeader` renders: `text-lg font-bold` title, `h-5` accent bar, `mb-2` spacing below.
+- Optional `description` prop for supplementary text (e.g., principal amount in interest breakdown).
+- Optional `action` prop for edit buttons or other header-level controls.
+
+### Visual Cards Within Sections
+- Some content needs distinct visual card styling (border, background tint, rounded corners) — e.g., `DepositSummary`, the verdict card on FxDepositCompare.
+- Wrap these in a `px-4 py-4` div (consistent section wrapper), then place the styled card inside with its own `p-4`/`p-6` and visual classes. This preserves consistent outer spacing while allowing internal visual variety.
+
+### Form Input Fields
+- All form inputs use the **floating label bounded box** style.
+- Each field is a visible box: `bg-input/30 border border-border rounded-lg`.
+- Label is small and muted: `text-[10px]` inside at the top.
+- Value is prominent: `text-base font-semibold` below the label.
+- Editability is signaled by the box boundary (strong affordance) plus hover/focus border color change + ring glow.
+- All forms must use the shared field components from `src/components/` — never create page-specific field components.
+- All field types (InputField, DateField, SelectField, ReadonlyDateField) render at identical heights.
+
+### Colors & Tokens
+- App background is `oklch(0.17 0.015 260)` (warm dark grey), not pure black.
+- All surface tokens are lifted proportionally from this baseline to preserve hierarchy.
+- Never use hardcoded color literals or `dark:` modifiers. Always reference CSS custom property tokens (`bg-card`, `border-border`, `text-foreground`, etc.).
+- Define new semantic tokens in `src/index.css` when no existing token fits a use case.
+- When Tailwind can't express a value (needs `env()`, dynamic calc, or JS constants), use CSS custom properties via `:root` blocks + media queries instead of inline styles — keeps the styling layer unified and responsive variants work naturally.
 
 ## Retrospective learning
 
@@ -76,7 +113,6 @@ pnpm run preview                # vite preview
 - Hooks import and compose from `src/lib/*`; never duplicate logic — single source of truth prevents subtle bugs when conventions differ across features
 - Squash merge (`git merge --squash`) for feature branches — clean history. When using `superpowers:finishing-a-development-branch`, always choose squash merge (don't fast-forward).
 - Avoid `as const` on `it.each` test data arrays — creates readonly tuples that can't be passed to functions expecting mutable `number[]` or similar. Use plain arrays instead.
-- When Tailwind can't express a value (needs `env()`, dynamic calc, or JS constants), use CSS custom properties via `:root` blocks + media queries instead of inline styles — keeps the styling layer unified and responsive variants work naturally.
 - For feature states gated on system events (SW updates, install prompts), surface a dev toggle in app settings that simulates the state rather than relying on the real event — enables visual testing in dev without waiting for native events.
 - TDD refactoring: write parametrized tests for the *new* location first (RED — fails on import resolution), implement minimal code in the new location (GREEN), then update consumers and delete old files (REFACTOR). This avoids testing-after bias and proves tests catch real gaps before wiring consumers.
 - `erasableSyntaxOnly` in TypeScript config disallows constructor parameter properties — use explicit `readonly` field declarations instead of `constructor(readonly foo: T) {}`.

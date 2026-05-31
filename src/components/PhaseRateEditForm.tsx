@@ -30,7 +30,7 @@ export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) 
                 ({phase.startDate} ~ {phase.endDate})
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <DateField
                 label="開始日期"
                 value={phase.startDate}
@@ -42,7 +42,7 @@ export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) 
                 onChange={(v) => updatePhase(i, { endDate: v })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <InputField
                 label="HKD 年利率"
                 value={phase.hkdRate}

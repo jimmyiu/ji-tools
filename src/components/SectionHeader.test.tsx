@@ -12,7 +12,7 @@ describe('SectionHeader', () => {
     render(<SectionHeader title="Test" />)
     const accentBar = screen.getByTestId('accent-bar')
     expect(accentBar).toBeInTheDocument()
-    expect(accentBar).toHaveClass('h-4', 'bg-muted-foreground/20', 'rounded-sm')
+    expect(accentBar).toHaveClass('h-5', 'bg-muted-foreground/20', 'rounded-sm')
   })
 
   it('renders action element when provided', () => {
@@ -36,9 +36,9 @@ describe('SectionHeader', () => {
     expect(screen.queryByText('(本金')).not.toBeInTheDocument()
   })
 
-  it('has mb-5 bottom spacing', () => {
+  it('has mb-2 bottom spacing', () => {
     const { container } = render(<SectionHeader title="Test" />)
     const root = container.firstChild as HTMLElement
-    expect(root).toHaveClass('mb-5')
+    expect(root).toHaveClass('mb-2')
   })
 })

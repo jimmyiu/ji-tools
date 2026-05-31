@@ -1,4 +1,6 @@
 import { InputField } from '../components/InputField'
+import { SectionHeader } from '../components/SectionHeader'
+import { SectionSeparator } from '../components/SectionSeparator'
 import { DateField } from '../components/DateField'
 import { ReadonlyDateField } from '../components/ReadonlyDateField'
 import { useCalculator } from '../hooks/useCalculator'
@@ -70,16 +72,16 @@ export default function FxDepositCompare() {
   const handleChange = (field: keyof FormData) => (v: string) => setValue(field, v, { shouldValidate: true })
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
-      <p className="text-sm text-muted-foreground mb-8">
-        比較港元定存與美元定存的實際淨回報，計算匯率差價影響及追平所需時間。
+    <div className="max-w-5xl mx-auto py-4 page-enter">
+      <p className="text-sm text-muted-foreground mb-4 px-4">
+        比較港元與美元定存的實際淨回報
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-card border border-border rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-foreground mb-5">輸入參數</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-3">
+        <div className="px-4 py-4">
+          <SectionHeader title="輸入參數" />
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <DateField
                 label="開始日期"
                 value={startDate}
@@ -114,7 +116,7 @@ export default function FxDepositCompare() {
               min={1}
               error={formState.errors.iterate?.message}
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <InputField
                 label="港元定存年利率"
                 value={hkdRate}
@@ -132,7 +134,7 @@ export default function FxDepositCompare() {
                 error={formState.errors.usdRate?.message}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <InputField
                 label="銀行賣出價 (HKD → USD)"
                 value={bankSellRate}
@@ -153,10 +155,12 @@ export default function FxDepositCompare() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-foreground mb-1">計算結果</h2>
-            <p className="text-xs text-muted-foreground mb-5">
+        <SectionSeparator className="lg:hidden" />
+
+        <div>
+          <div className="px-4 py-4">
+            <SectionHeader title="計算結果" />
+            <p className="text-xs text-muted-foreground mb-3">
               {iterate} 次滾存 · 共 {result.totalDays} 日
             </p>
             <div className="space-y-4">
@@ -191,7 +195,10 @@ export default function FxDepositCompare() {
             </div>
           </div>
 
-          <div className={`rounded-xl p-6 border ${result.usdWins ? 'border-positive/30 bg-positive/5' : 'border-negative/30 bg-negative/5'}`}>
+          <SectionSeparator />
+
+          <div className="px-4 py-4">
+          <div className={`rounded-xl border p-4 ${result.usdWins ? 'border-positive/30 bg-positive/5' : 'border-negative/30 bg-negative/5'}`}>
             <div className="text-center">
               <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-3 ${result.usdWins ? 'bg-positive/15 text-positive' : 'bg-negative/15 text-negative'}`}>
                 <span>{result.usdWins ? '🏆' : '📉'}</span>
@@ -213,6 +220,7 @@ export default function FxDepositCompare() {
                 </div>
               )}
             </div>
+          </div>
           </div>
         </div>
       </div>

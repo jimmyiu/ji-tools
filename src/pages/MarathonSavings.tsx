@@ -1,11 +1,13 @@
 import { useInputs, useCalculator } from '../hooks/useMarathonSavings'
 import type { PhaseState } from '../hooks/useMarathonSavings'
-import { HeroMetrics } from '../components/HeroMetrics'
+import { CurrencyToggle } from '../components/CurrencyToggle'
 import { BasicParameters } from '../components/BasicParameters'
-import { ResultsPanel } from '../components/ResultsPanel'
+import { InterestBreakdown } from '../components/InterestBreakdown'
+import { DepositSummary } from '../components/DepositSummary'
 import { PhaseRateTimeline } from '../components/PhaseRateTimeline'
 import { PhaseRateEditForm } from '../components/PhaseRateEditForm'
 import { EditableSection } from '../components/EditableSection'
+import { SectionSeparator } from '../components/SectionSeparator'
 
 export default function MarathonSavings() {
   const inputs = useInputs()
@@ -22,24 +24,29 @@ export default function MarathonSavings() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-4 page-enter">
-      <p className="text-sm text-muted-foreground mb-8">
-        揭示階梯式利率活期存款的「實際等效年利率」，擺脫銀行最高息宣傳迷思。
+    <div className="max-w-5xl mx-auto py-4 page-enter">
+      <p className="text-sm text-muted-foreground mb-4 px-4">
+        計算階梯式利率活期存款的實際等效年利率
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="space-y-4">
-          <HeroMetrics
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-3">
+        <div>
+          <CurrencyToggle
             hkdActualRate={result.hkdActualRate}
             usdActualRate={result.usdActualRate}
+            currency={inputs.currency}
             depositDate={inputs.depositDate}
+            onCurrencyChange={inputs.setCurrency}
           />
+
+          <SectionSeparator />
 
           <EditableSection title="階段利率">
             <EditableSection.Summary>
               <PhaseRateTimeline
                 phases={inputs.phases}
                 depositDate={inputs.depositDate}
+                currency={inputs.currency}
               />
             </EditableSection.Summary>
             <EditableSection.Form
@@ -53,23 +60,33 @@ export default function MarathonSavings() {
             </EditableSection.Form>
           </EditableSection>
 
+          <SectionSeparator />
+
           <BasicParameters
             depositDate={inputs.depositDate}
-            currency={inputs.currency}
             principal={inputs.principal}
             onDepositDateChange={inputs.setDepositDate}
-            onCurrencyChange={inputs.setCurrency}
             onPrincipalChange={inputs.setPrincipal}
           />
         </div>
 
-        <ResultsPanel
-          currency={inputs.currency}
-          principal={inputs.principal}
-          phaseResults={result.phaseResults}
-          totalDays={result.totalDays}
-          totalInterest={result.totalInterest}
-        />
+        <SectionSeparator className="lg:hidden" />
+
+        <div>
+          <InterestBreakdown
+            currency={inputs.currency}
+            principal={inputs.principal}
+            phaseResults={result.phaseResults}
+          />
+
+          <SectionSeparator />
+
+          <DepositSummary
+            currency={inputs.currency}
+            totalDays={result.totalDays}
+            totalInterest={result.totalInterest}
+          />
+        </div>
       </div>
     </div>
   )

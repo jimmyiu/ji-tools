@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
 import { parseISO, differenceInDays, addDays } from 'date-fns'
 import { fmtDateShort } from '@/lib/format'
-import type { PhaseState } from '@/hooks/useMarathonSavings'
+import type { PhaseState, Currency } from '@/hooks/useMarathonSavings'
 
 interface PhaseRateTimelineProps {
   phases: PhaseState[]
   depositDate: string
+  currency: Currency
 }
 
 function effectiveDays(depositDate: Date, phaseStartDate: Date, phaseEndDate: Date): number {
@@ -18,7 +19,7 @@ function phaseDuration(startDate: string, endDate: string): number {
   return Math.max(differenceInDays(parseISO(endDate), parseISO(startDate)) + 1, 1)
 }
 
-export function PhaseRateTimeline({ phases, depositDate }: PhaseRateTimelineProps) {
+export function PhaseRateTimeline({ phases, depositDate, currency }: PhaseRateTimelineProps) {
   const phaseData = useMemo(() => {
     const deposit = parseISO(depositDate)
 
@@ -87,7 +88,7 @@ export function PhaseRateTimeline({ phases, depositDate }: PhaseRateTimelineProp
           return (
             <div
               key={phase.startDate + '-' + phase.endDate}
-              className="flex flex-col items-center justify-center rounded-md min-w-[4.5rem] whitespace-nowrap overflow-hidden h-11"
+              className="flex flex-col items-center justify-center rounded-md min-w-[4.5rem] whitespace-nowrap overflow-hidden p-2 min-h-11"
               style={{
                 flex: phase.duration,
                 backgroundColor: `color-mix(in oklab, var(--color-phase-bar) ${opacity * 100}%, transparent)`,
@@ -95,10 +96,7 @@ export function PhaseRateTimeline({ phases, depositDate }: PhaseRateTimelineProp
               }}
             >
               <span className="text-xs font-bold text-phase-bar-foreground">
-                HKD {phase.hkdRate}%
-              </span>
-              <span className="text-xs text-phase-rate-usd">
-                USD {phase.usdRate}%
+                {currency === 'HKD' ? `HKD ${phase.hkdRate}%` : `USD ${phase.usdRate}%`}
               </span>
             </div>
           )

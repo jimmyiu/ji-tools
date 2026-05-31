@@ -85,24 +85,24 @@ a, button, [role="button"] {
 }
 
 .dark {
-  --background: oklch(0.13 0.028 265);
-  --foreground: oklch(0.88 0.01 260);
-  --card: oklch(0.17 0.028 265);
-  --card-foreground: oklch(0.88 0.01 260);
-  --popover: oklch(0.17 0.024 265);
-  --popover-foreground: oklch(0.88 0.01 260);
+  --background: oklch(0.17 0.015 260);
+  --foreground: oklch(0.90 0.008 260);
+  --card: oklch(0.21 0.015 260);
+  --card-foreground: oklch(0.90 0.008 260);
+  --popover: oklch(0.21 0.015 260);
+  --popover-foreground: oklch(0.90 0.008 260);
   --primary: oklch(0.53 0.19 270);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.20 0.028 265);
-  --secondary-foreground: oklch(0.88 0.01 260);
-  --muted: oklch(0.16 0.028 265);
-  --muted-foreground: oklch(0.58 0.03 265);
-  --accent: oklch(0.20 0.028 265);
-  --accent-foreground: oklch(0.88 0.01 260);
+  --secondary: oklch(0.24 0.015 260);
+  --secondary-foreground: oklch(0.90 0.008 260);
+  --muted: oklch(0.20 0.015 260);
+  --muted-foreground: oklch(0.62 0.025 260);
+  --accent: oklch(0.24 0.015 260);
+  --accent-foreground: oklch(0.90 0.008 260);
   --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.22 0.028 265);
-  --input: oklch(0.19 0.028 265);
+  --input: oklch(0.23 0.015 260);
   --ring: oklch(0.53 0.19 270);
   --positive: oklch(0.6 0.18 150);
   --positive-foreground: oklch(0.98 0 0);

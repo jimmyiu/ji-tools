@@ -61,6 +61,7 @@ pnpm run preview                # vite preview
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues
 - When adding new UI components or customizing library primitives (including shadcn components added via CLI), never use hardcoded color literals (e.g., `green-500`, `red-400`, inline `rgba()`/hex) or redundant `dark:` modifiers. Always reference the project's CSS custom property tokens (`bg-card`, `border-border`, `text-foreground`, etc.), or define new semantic tokens in `src/index.css` when no existing token fits. Clean up any default palette classes and `dark:` modifiers after running `npx shadcn add`.
+- Form inputs use the **floating label bounded box** style: each field is a visible box (`bg-input/30 border border-border rounded-lg`), with a small muted label (`text-[10px]`) inside at the top and the value in `text-base font-semibold` below. Editability is signaled by the box boundary (strong affordance) plus hover/focus border color change + ring glow. All forms must use the shared field components (`InputField`, `DateField`, `SelectField`, `ReadonlyDateField`) from `src/components/` — do not create page-specific form fields.
 
 ## Retrospective learning
 

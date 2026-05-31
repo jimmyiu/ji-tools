@@ -114,38 +114,42 @@ export default function FxDepositCompare() {
               min={1}
               error={formState.errors.iterate?.message}
             />
-            <InputField
-              label="港元定存年利率"
-              value={hkdRate}
-              onChange={handleChange('hkdRate')}
-              suffix="%"
-              step={0.01}
-              error={formState.errors.hkdRate?.message}
-            />
-            <InputField
-              label="美元定存年利率"
-              value={usdRate}
-              onChange={handleChange('usdRate')}
-              suffix="%"
-              step={0.01}
-              error={formState.errors.usdRate?.message}
-            />
-            <InputField
-              label="銀行賣出價 (HKD → USD)"
-              value={bankSellRate}
-              onChange={handleChange('bankSellRate')}
-              suffix="HKD/USD"
-              step={0.001}
-              error={formState.errors.bankSellRate?.message}
-            />
-            <InputField
-              label="銀行買入價 (USD → HKD)"
-              value={bankBuyRate}
-              onChange={handleChange('bankBuyRate')}
-              suffix="HKD/USD"
-              step={0.001}
-              error={formState.errors.bankBuyRate?.message}
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <InputField
+                label="港元定存年利率"
+                value={hkdRate}
+                onChange={handleChange('hkdRate')}
+                suffix="%"
+                step={0.01}
+                error={formState.errors.hkdRate?.message}
+              />
+              <InputField
+                label="美元定存年利率"
+                value={usdRate}
+                onChange={handleChange('usdRate')}
+                suffix="%"
+                step={0.01}
+                error={formState.errors.usdRate?.message}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <InputField
+                label="銀行賣出價 (HKD → USD)"
+                value={bankSellRate}
+                onChange={handleChange('bankSellRate')}
+                suffix="HKD/USD"
+                step={0.001}
+                error={formState.errors.bankSellRate?.message}
+              />
+              <InputField
+                label="銀行買入價 (USD → HKD)"
+                value={bankBuyRate}
+                onChange={handleChange('bankBuyRate')}
+                suffix="HKD/USD"
+                step={0.001}
+                error={formState.errors.bankBuyRate?.message}
+              />
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import { fmt } from '@/lib/format'
+import { SectionHeader } from './SectionHeader'
 import type { Currency, PhaseResult } from '@/hooks/useMarathonSavings'
 
 interface ResultsPanelProps {
@@ -19,12 +20,10 @@ export function ResultsPanel({
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="text-sm font-semibold text-foreground mb-4">
-          {currency === 'HKD' ? '港元' : '美元'} 利息明細
-          <span className="ml-2 text-xs font-normal text-muted-foreground/60">
-            (本金 {currency === 'HKD' ? 'HK$' : 'US$'} {fmt(Number(principal))})
-          </span>
-        </h2>
+        <SectionHeader
+          title={`${currency === 'HKD' ? '港元' : '美元'} 利息明細`}
+          description={`(本金 ${currency === 'HKD' ? 'HK$' : 'US$'} ${fmt(Number(principal))})`}
+        />
         <div className="space-y-3">
           {phaseResults.map((pr, i) => (
             <div key={i} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">

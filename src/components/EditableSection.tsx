@@ -1,16 +1,17 @@
 import { useState, createContext, useContext, type ReactNode } from 'react'
-import { Pencil } from 'lucide-react'
+import { Pencil, X } from 'lucide-react'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { SectionHeader } from './SectionHeader'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
-  SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
 
@@ -59,17 +60,19 @@ function EditableSection({ title, children }: EditableSectionProps) {
   return (
     <EditableSectionContext.Provider value={contextValue}>
       <div className="bg-card border border-border rounded-xl p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-          <button
-            type="button"
-            onClick={contextValue.open}
-            aria-label={`編輯${title}`}
-            className="text-primary hover:text-primary/80 transition-colors"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-        </div>
+        <SectionHeader
+          title={title}
+          action={
+            <button
+              type="button"
+              onClick={contextValue.open}
+              aria-label={`編輯${title}`}
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          }
+        />
         {children}
       </div>
     </EditableSectionContext.Provider>
@@ -140,10 +143,18 @@ function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDes
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
+        <DialogContent hideClose onOpenAutoFocus={(e) => e.preventDefault()}>
+          <DialogTitle className="sr-only">{title}</DialogTitle>
+          <SectionHeader
+            title={title}
+            action={
+              <DialogClose asChild>
+                <button type="button" aria-label="關閉" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </DialogClose>
+            }
+          />
           {overlayContent}
         </DialogContent>
       </Dialog>
@@ -151,14 +162,22 @@ function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDes
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
-      <SheetContent side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-        {overlayContent}
-      </SheetContent>
-    </Sheet>
+      <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+        <SheetContent hideClose side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
+          <SheetTitle className="sr-only">{title}</SheetTitle>
+          <SectionHeader
+            title={title}
+            action={
+              <SheetClose asChild>
+                <button type="button" aria-label="關閉" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </SheetClose>
+            }
+          />
+          {overlayContent}
+        </SheetContent>
+      </Sheet>
   )
 }
 

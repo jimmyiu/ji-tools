@@ -15,7 +15,7 @@ describe('BasicParameters', () => {
   it('renders all input labels', () => {
     render(<BasicParameters {...defaultProps} />)
 
-    expect(screen.getByText('基本參數')).toBeInTheDocument()
+    expect(screen.getByText('存款設定')).toBeInTheDocument()
     expect(screen.getByText('實際存款日期')).toBeInTheDocument()
     expect(screen.getByText('存款貨幣')).toBeInTheDocument()
     expect(screen.getByText('初始本金')).toBeInTheDocument()

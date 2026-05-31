@@ -104,6 +104,14 @@ a, button, [role="button"] {
   --border: oklch(0.22 0.028 265);
   --input: oklch(0.19 0.028 265);
   --ring: oklch(0.53 0.19 270);
+  --positive: oklch(0.6 0.18 150);
+  --positive-foreground: oklch(0.98 0 0);
+  --negative: oklch(0.6 0.2 25);
+  --negative-foreground: oklch(0.98 0 0);
+  --tab-bar-shadow: 0 -4px 12px 0 oklch(0 0 0 / 0.3);
+  --phase-bar: oklch(0.563 0.243 302);
+  --phase-bar-foreground: oklch(0.889 0.101 302);
+  --phase-rate-usd: oklch(0.856 0.159 160);
   --radius: 0.625rem;
 }
 
@@ -128,6 +136,14 @@ a, button, [role="button"] {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-positive: var(--positive);
+  --color-positive-foreground: var(--positive-foreground);
+  --color-negative: var(--negative);
+  --color-negative-foreground: var(--negative-foreground);
+  --shadow-tab-bar: var(--tab-bar-shadow);
+  --color-phase-bar: var(--phase-bar);
+  --color-phase-bar-foreground: var(--phase-bar-foreground);
+  --color-phase-rate-usd: var(--phase-rate-usd);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

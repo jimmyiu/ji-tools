@@ -215,3 +215,6 @@ sketch
 .env.*
 secrets.json
 keys/
+
+### Review artifacts ###
+.review-changes.diff

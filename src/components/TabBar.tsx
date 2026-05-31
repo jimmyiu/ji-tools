@@ -17,7 +17,7 @@ export default function TabBar() {
       className="desktop-nav:hidden fixed left-4 right-4 z-40"
       style={{ bottom: 'calc(24px + env(safe-area-inset-bottom))' }}
     >
-      <div className="mx-auto max-w-[280px] h-16 rounded-2xl bg-card/80 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_12px_0_rgba(0,0,0,0.3)]">
+      <div className="mx-auto max-w-[280px] h-16 rounded-2xl bg-card/80 backdrop-blur-xl border-t border-border/10 shadow-tab-bar">
         <div className="flex h-full">
           {tabs.map((tab) => {
             const isActive = currentTab === tab.to

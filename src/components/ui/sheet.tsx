@@ -61,7 +61,7 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-open:animate-in data-closed:animate-out data-open:duration-200 data-closed:duration-200",
+          "fixed z-50 gap-4 bg-card p-6 shadow-lg transition ease-in-out data-open:animate-in data-closed:animate-out data-open:duration-200 data-closed:duration-200",
           side === "top" &&
             "inset-x-0 top-0 border-b data-open:slide-in-from-top data-closed:slide-out-to-top",
           side === "bottom" &&

@@ -86,18 +86,18 @@ export function PhaseRateTimeline({ phases, depositDate }: PhaseRateTimelineProp
 
           return (
             <div
-              key={i}
+              key={phase.startDate + '-' + phase.endDate}
               className="flex flex-col items-center justify-center rounded-md min-w-[4.5rem] whitespace-nowrap overflow-hidden h-11"
               style={{
                 flex: phase.duration,
-                backgroundColor: `rgba(124, 58, 237, ${opacity})`,
+                backgroundColor: `color-mix(in oklab, var(--color-phase-bar) ${opacity * 100}%, transparent)`,
                 opacity: isMuted ? 0.4 : 1,
               }}
             >
-              <span className="text-xs font-bold text-purple-200">
+              <span className="text-xs font-bold text-phase-bar-foreground">
                 HKD {phase.hkdRate}%
               </span>
-              <span className="text-xs text-green-300">
+              <span className="text-xs text-phase-rate-usd">
                 USD {phase.usdRate}%
               </span>
             </div>
@@ -108,7 +108,7 @@ export function PhaseRateTimeline({ phases, depositDate }: PhaseRateTimelineProp
       <div className="relative text-xs mt-1 min-h-4 text-muted-foreground pointer-events-none">
         {phaseData.data.map((phase, i) => (
           <span
-            key={i}
+            key={phase.startDate + '-' + phase.endDate}
             className="absolute"
             style={{
               left: `${phaseData.boundaries[i]}%`,

@@ -38,8 +38,8 @@ export default function FxDepositCompare() {
       iterate: '1',
       hkdRate: '2.25',
       usdRate: '3.2',
-      bankSellRate: '7.8574', // HKD -> USD: 7.8574
-      bankBuyRate: '7.8154',  // USD -> HKD: 7.8154
+      bankSellRate: '7.8574',
+      bankBuyRate: '7.8154',
     },
     mode: 'onTouched',
   })
@@ -180,16 +180,16 @@ export default function FxDepositCompare() {
               </div>
               <div className="flex items-center justify-between py-3">
                 <span className="text-sm text-muted-foreground">兩者淨差額</span>
-                <span className={`text-base font-semibold whitespace-nowrap ml-2 ${result.usdWins ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-base font-semibold whitespace-nowrap ml-2 ${result.usdWins ? 'text-positive' : 'text-negative'}`}>
                   {result.difference >= 0 ? '+' : ''}HK$ {fmt(result.difference)}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className={`rounded-xl p-6 border ${result.usdWins ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'}`}>
+          <div className={`rounded-xl p-6 border ${result.usdWins ? 'border-positive/30 bg-positive/5' : 'border-negative/30 bg-negative/5'}`}>
             <div className="text-center">
-              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-3 ${result.usdWins ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
+              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-3 ${result.usdWins ? 'bg-positive/15 text-positive' : 'bg-negative/15 text-negative'}`}>
                 <span>{result.usdWins ? '🏆' : '📉'}</span>
                 <span>{result.usdWins ? '美元定存較佳' : '港元定存較佳'}</span>
               </div>
@@ -204,7 +204,7 @@ export default function FxDepositCompare() {
               )}
               {result.usdWins && (
                 <div>
-                  <p className="text-3xl font-bold text-green-400 mb-1">+HK$ {fmt(result.difference)}</p>
+                  <p className="text-3xl font-bold text-positive mb-1">+HK$ {fmt(result.difference)}</p>
                   <p className="text-sm text-muted-foreground">美元定存實際回報更高</p>
                 </div>
               )}

@@ -60,6 +60,7 @@ pnpm run preview                # vite preview
 - Avatar URLs are off. Do NOT generate image/avatar URLs. Use emoji instead.
 - `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
 - `decline-to-act-on-violation` should be used judiciously; only for real non-issues
+- When adding new UI components or customizing library primitives (including shadcn components added via CLI), never use hardcoded color literals (e.g., `green-500`, `red-400`, inline `rgba()`/hex) or redundant `dark:` modifiers. Always reference the project's CSS custom property tokens (`bg-card`, `border-border`, `text-foreground`, etc.), or define new semantic tokens in `src/index.css` when no existing token fits. Clean up any default palette classes and `dark:` modifiers after running `npx shadcn add`.
 
 ## Retrospective learning
 

@@ -41,18 +41,18 @@ interface InputActions {
 
 const defaultDates = {
   depositDate: toDateStr(new Date()),
-  phase1Start: '2026-05-04',
-  phase1End: '2026-07-01',
-  phase2Start: '2026-07-02',
-  phase2End: '2026-08-02',
-  phase3Start: '2026-08-03',
-  phase3End: '2026-08-31',
+  phase1Start: '2026-06-01',
+  phase1End: '2026-08-02',
+  phase2Start: '2026-08-03',
+  phase2End: '2026-08-31',
+  phase3Start: '2026-09-01',
+  phase3End: '2026-10-05',
 }
 
 const defaultPhases: [PhaseState, PhaseState, PhaseState] = [
-  { startDate: '2026-05-04', endDate: '2026-07-01', hkdRate: 1.85, usdRate: 3.0 },
-  { startDate: '2026-07-02', endDate: '2026-08-02', hkdRate: 2.0, usdRate: 3.1 },
-  { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.2, usdRate: 3.3 },
+  { startDate: '2026-06-01', endDate: '2026-08-02', hkdRate: 2.2, usdRate: 3.0 },
+  { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.3, usdRate: 3.2 },
+  { startDate: '2026-09-01', endDate: '2026-10-05', hkdRate: 2.5, usdRate: 3.5 },
 ]
 
 export function useInputs() {

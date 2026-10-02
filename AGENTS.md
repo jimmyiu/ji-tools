@@ -2,6 +2,21 @@
 
 Hong Kong-focused, mobile-first calculators for FX deposit comparison and marathon savings.
 
+## Quick commands
+
+```sh
+pnpm install
+pnpm dev
+pnpm build
+pnpm test
+pnpm test:watch
+pnpm run lint
+pnpm run preview
+```
+
+- Focused test: `pnpm test -- src/hooks/useCalculator.test.ts`
+- CI install: `pnpm install --frozen-lockfile`
+
 ## Project conventions
 
 - The UI is Traditional Chinese (`zh-Hant`) and dark-only. Preserve mobile safe-area and touch behavior, and the `/ji-tools/` GitHub Pages base, when changing the app shell or routing.

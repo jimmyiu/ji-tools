@@ -4,9 +4,10 @@ interface DateFieldProps {
   label: string
   value: string
   onChange: (v: string) => void
+  min?: string
 }
 
-export function DateField({ label, value, onChange }: DateFieldProps) {
+export function DateField({ label, value, onChange, min }: DateFieldProps) {
   const id = useId()
   return (
     <div
@@ -25,6 +26,7 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
         id={id}
         type="date"
         value={value}
+        min={min}
         onChange={(e) => onChange(e.target.value)}
         className="mt-0.5 w-full bg-transparent text-base font-semibold text-foreground outline-none border-0 p-0 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-40 [&::-webkit-calendar-picker-indicator]:transition-opacity focus:[&::-webkit-calendar-picker-indicator]:opacity-100"
       />

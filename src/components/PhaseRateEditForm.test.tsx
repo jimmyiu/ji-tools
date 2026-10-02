@@ -44,4 +44,97 @@ describe('PhaseRateEditForm', () => {
     expect(screen.queryByText('確認')).not.toBeInTheDocument()
     expect(screen.queryByText('取消')).not.toBeInTheDocument()
   })
+
+  describe('contiguous date linkage', () => {
+    const startInputs = () => screen.getAllByLabelText('開始日期')
+    const endInputs = () => screen.getAllByLabelText('結束日期')
+
+    const change = (el: HTMLElement, value: string) =>
+      fireEvent.change(el, { target: { value } })
+
+    it('setting phase 2 end date moves phase 3 start to end + 1 day', () => {
+      const onChange = vi.fn()
+      render(<PhaseRateEditForm phases={mockPhases} onChange={onChange} />)
+
+      change(endInputs()[1], '2026-08-20')
+
+      const updated = onChange.mock.calls[0][0] as PhaseState[]
+      expect(updated[1].endDate).toBe('2026-08-20')
+      expect(updated[2].startDate).toBe('2026-08-21')
+      expect(updated[2].endDate).toBe('2026-08-31')
+    })
+
+    it('setting phase 2 end beyond phase 3 end unsets phase 3 end', () => {
+      const onChange = vi.fn()
+      render(<PhaseRateEditForm phases={mockPhases} onChange={onChange} />)
+
+      change(endInputs()[1], '2026-09-10')
+
+      const updated = onChange.mock.calls[0][0] as PhaseState[]
+      expect(updated[2].startDate).toBe('2026-09-11')
+      expect(updated[2].endDate).toBe('')
+    })
+
+    it('setting phase 3 start date moves phase 2 end to start - 1 day', () => {
+      const onChange = vi.fn()
+      render(<PhaseRateEditForm phases={mockPhases} onChange={onChange} />)
+
+      change(startInputs()[2], '2026-09-01')
+
+      const updated = onChange.mock.calls[0][0] as PhaseState[]
+      expect(updated[1].endDate).toBe('2026-08-31')
+      expect(updated[2].startDate).toBe('2026-09-01')
+    })
+
+    it('setting phase 1 end date moves phase 2 start and leaves later ends alone', () => {
+      const onChange = vi.fn()
+      render(<PhaseRateEditForm phases={mockPhases} onChange={onChange} />)
+
+      change(endInputs()[0], '2026-06-15')
+
+      const updated = onChange.mock.calls[0][0] as PhaseState[]
+      expect(updated[1].startDate).toBe('2026-06-16')
+      expect(updated[1].endDate).toBe('2026-08-02')
+      expect(updated[2].endDate).toBe('2026-08-31')
+    })
+
+    it('setting phase 1 start date does not move phase 1 end date', () => {
+      const onChange = vi.fn()
+      render(<PhaseRateEditForm phases={mockPhases} onChange={onChange} />)
+
+      change(startInputs()[0], '2026-05-10')
+
+      const updated = onChange.mock.calls[0][0] as PhaseState[]
+      expect(updated[0].startDate).toBe('2026-05-10')
+      expect(updated[0].endDate).toBe('2026-07-01')
+      expect(updated[1].startDate).toBe('2026-07-02')
+    })
+
+    it('unsets an end date earlier than its own start date', () => {
+      const onChange = vi.fn()
+      render(<PhaseRateEditForm phases={mockPhases} onChange={onChange} />)
+
+      change(endInputs()[0], '2026-05-01')
+
+      const updated = onChange.mock.calls[0][0] as PhaseState[]
+      expect(updated[0].endDate).toBe('')
+      expect(updated[1].startDate).toBe('')
+    })
+
+    it('gives end date fields a min of their own start date', () => {
+      render(<PhaseRateEditForm phases={mockPhases} onChange={vi.fn()} />)
+
+      expect(endInputs()[0]).toHaveAttribute('min', '2026-05-04')
+      expect(endInputs()[1]).toHaveAttribute('min', '2026-07-02')
+      expect(endInputs()[2]).toHaveAttribute('min', '2026-08-03')
+    })
+
+    it('gives derived start fields a min of previous start + 1 day', () => {
+      render(<PhaseRateEditForm phases={mockPhases} onChange={vi.fn()} />)
+
+      expect(startInputs()[0]).not.toHaveAttribute('min')
+      expect(startInputs()[1]).toHaveAttribute('min', '2026-05-05')
+      expect(startInputs()[2]).toHaveAttribute('min', '2026-07-03')
+    })
+  })
 })

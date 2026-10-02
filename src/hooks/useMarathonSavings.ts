@@ -2,6 +2,14 @@ import { useMemo, useState } from 'react'
 import { addDays, differenceInDays, parseISO, format } from 'date-fns'
 import Decimal from 'decimal.js'
 import { calculateSimpleInterest, DAY_BASE_MAP } from '../lib/calculator'
+import {
+  applyPhaseEndDate,
+  applyPhaseStartDate,
+  type PhaseIndex,
+  type Phases,
+} from '../lib/phases'
+
+export type { PhaseIndex, PhaseState } from '../lib/phases'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 
@@ -15,35 +23,28 @@ function parseDateStr(str: string): Date {
 
 export type Currency = 'HKD' | 'USD'
 
-export interface PhaseState {
-  startDate: string
-  endDate: string
-  hkdRate: string | number
-  usdRate: string | number
-}
-
 export interface InputState {
   depositDate: string
   currency: Currency
   principal: string | number
-  phases: [PhaseState, PhaseState, PhaseState]
+  phases: Phases
 }
 
 interface InputActions {
   setDepositDate: (v: string) => void
   setCurrency: (v: Currency) => void
   setPrincipal: (v: string) => void
-  setPhaseStartDate: (index: 0 | 1 | 2, v: string) => void
-  setPhaseEndDate: (index: 0 | 1 | 2, v: string) => void
-  setPhaseHkdRate: (index: 0 | 1 | 2, v: string) => void
-  setPhaseUsdRate: (index: 0 | 1 | 2, v: string) => void
+  setPhaseStartDate: (index: PhaseIndex, v: string) => void
+  setPhaseEndDate: (index: PhaseIndex, v: string) => void
+  setPhaseHkdRate: (index: PhaseIndex, v: string) => void
+  setPhaseUsdRate: (index: PhaseIndex, v: string) => void
 }
 
 const defaultDates = {
   depositDate: toDateStr(new Date()),
 }
 
-const defaultPhases: [PhaseState, PhaseState, PhaseState] = [
+const defaultPhases: Phases = [
   { startDate: '2026-10-02', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
   { startDate: '2026-12-01', endDate: '2027-01-03', hkdRate: 3.0, usdRate: 3.5 },
   { startDate: '2027-01-04', endDate: '2027-02-01', hkdRate: 3.2, usdRate: 3.6 },
@@ -53,33 +54,25 @@ export function useInputs() {
   const [depositDate, setDepositDate] = useState(defaultDates.depositDate)
   const [currency, setCurrency] = useState<Currency>('HKD')
   const [principal, setPrincipal] = useState<string | number>(100000)
-  const [phases, setPhases] = useState<[PhaseState, PhaseState, PhaseState]>(defaultPhases)
+  const [phases, setPhases] = useState<Phases>(defaultPhases)
 
   const actions: InputActions = {
     setDepositDate,
     setCurrency,
     setPrincipal,
     setPhaseStartDate: (index, v) =>
-      setPhases((prev) => {
-        const next = [...prev] as [PhaseState, PhaseState, PhaseState]
-        next[index] = { ...next[index], startDate: v }
-        return next
-      }),
+      setPhases((prev) => applyPhaseStartDate(prev, index, v)),
     setPhaseEndDate: (index, v) =>
-      setPhases((prev) => {
-        const next = [...prev] as [PhaseState, PhaseState, PhaseState]
-        next[index] = { ...next[index], endDate: v }
-        return next
-      }),
+      setPhases((prev) => applyPhaseEndDate(prev, index, v)),
     setPhaseHkdRate: (index, v) =>
       setPhases((prev) => {
-        const next = [...prev] as [PhaseState, PhaseState, PhaseState]
+        const next = [...prev] as Phases
         next[index] = { ...next[index], hkdRate: v }
         return next
       }),
     setPhaseUsdRate: (index, v) =>
       setPhases((prev) => {
-        const next = [...prev] as [PhaseState, PhaseState, PhaseState]
+        const next = [...prev] as Phases
         next[index] = { ...next[index], usdRate: v }
         return next
       }),

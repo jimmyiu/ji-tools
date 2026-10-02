@@ -1,27 +1,52 @@
+import { addDays, format, parseISO } from 'date-fns'
 import { InputField } from './InputField'
 import { DateField } from './DateField'
-import type { PhaseState } from '@/hooks/useMarathonSavings'
+import {
+  applyPhaseEndDate,
+  applyPhaseStartDate,
+  type PhaseIndex,
+  type PhaseState,
+  type Phases,
+} from '@/lib/phases'
 
 interface PhaseRateEditFormProps {
   phases: PhaseState[]
   onChange: (updatedPhases: PhaseState[]) => void
 }
 
-function assertPhaseIndex(i: number): asserts i is 0 | 1 | 2 {
+function assertPhaseIndex(i: number): asserts i is PhaseIndex {
   if (i < 0 || i > 2) throw new Error(`Invalid phase index: ${i}`)
 }
 
+function nextDay(date: string): string {
+  return format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
+}
+
+// Empty string min would block nothing; use undefined so the attribute is omitted.
+function minOrUndefined(date: string): string | undefined {
+  return date === '' ? undefined : date
+}
+
 export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) {
-  const updatePhase = (index: number, updates: Partial<PhaseState>) => {
+  const updatePhase = (index: PhaseIndex, updates: Partial<PhaseState>) => {
     const next = [...phases]
     next[index] = { ...next[index], ...updates }
     onChange(next)
+  }
+
+  const updateStartDate = (index: PhaseIndex, v: string) => {
+    onChange(applyPhaseStartDate(phases as Phases, index, v))
+  }
+
+  const updateEndDate = (index: PhaseIndex, v: string) => {
+    onChange(applyPhaseEndDate(phases as Phases, index, v))
   }
 
   return (
     <div className="space-y-5">
       {phases.map((phase, i) => {
         assertPhaseIndex(i)
+        const prevStart = i > 0 ? phases[i - 1].startDate : ''
         return (
           <div key={i} className="space-y-3">
             <div className="text-xs font-medium text-primary">
@@ -34,12 +59,14 @@ export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) 
               <DateField
                 label="開始日期"
                 value={phase.startDate}
-                onChange={(v) => updatePhase(i, { startDate: v })}
+                onChange={(v) => updateStartDate(i, v)}
+                min={i === 0 ? undefined : prevStart === '' ? undefined : nextDay(prevStart)}
               />
               <DateField
                 label="結束日期"
                 value={phase.endDate}
-                onChange={(v) => updatePhase(i, { endDate: v })}
+                onChange={(v) => updateEndDate(i, v)}
+                min={minOrUndefined(phase.startDate)}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">

@@ -1,13 +1,19 @@
 # JI TOOLS
 
-## OpenSpec schema
+This is a playground for experiencing harness engineering.
 
-This project uses a custom `superpowers-bridge` schema for spec-driven development.
-Source: https://github.com/JiangWay/openspec-schemas
+## Tools
 
-To install or update:
+### Primary
 
-```sh
-# clone the schemas repo, then copy the subdirectory:
-cp -r /path/to/openspec-schemas/superpowers-bridge openspec/schemas/superpowers-bridge
-```
+- Pi Coding Agent
+- https://github.com/mattpocock/skills
+- https://github.com/obra/superpowers
+
+### Others
+
+- OpenCode
+
+### Not Using
+- OpenSpec
+- https://github.com/JiangWay/openspec-schemas

@@ -1,122 +1,45 @@
 # ji-tools
 
-Hong Kong-focused frontend toolset: FX deposit comparison, marathon savings calculator.
+Hong Kong-focused, mobile-first calculators for FX deposit comparison and marathon savings.
 
-## Quick start
+## Project conventions
 
-```sh
-pnpm install        # may prompt for pnpm approve-builds
-pnpm dev            # vite --host
-pnpm build          # tsc -b && vite build && cp dist/index.html dist/404.html
-pnpm test           # vitest run
-pnpm test:watch     # vitest
-```
+- The UI is Traditional Chinese (`zh-Hant`) and dark-only. Preserve mobile safe-area and touch behavior, and the `/ji-tools/` GitHub Pages base, when changing the app shell or routing.
+- Use `pnpm` for project commands and dependency updates.
+- For features gated by browser or system events (such as PWA updates or install prompts), add a Settings developer toggle so the state can be tested on demand.
+- Use emoji for avatar placeholders instead of remote avatar URLs.
+- Use Conventional Commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, etc.). Keep development fixups one-line and squash-merge feature branches; a merge commit may include a summary body.
 
-## Tech stack
+## Calculations and tests
 
-React 19, TypeScript 6, Vite 8, Tailwind CSS 4, shadcn/ui (radix-nova style), pnpm 10, Vitest.
-Uses `@/` path alias → `src/`.
+- Keep formulas and calculations as pure functions in `src/lib/`. Hooks own UI state and compose these functions rather than duplicating logic.
+- `DAY_BASE_MAP` in `src/lib/calculator.ts` is the source of truth for day-count bases: HKD uses 365 days and USD uses 360.
+- Keep intermediate Decimal calculations at 40-digit precision; assert calculation results to 8 decimal places with `toBeCloseTo(expected, 8)`.
+- Turn explicit calculation rules into standalone pure functions with parameterized unit tests before adding rendering.
+- For TDD refactors, test the new location first (RED), implement it (GREEN), then update callers and remove the old implementation (REFACTOR).
+- With `erasableSyntaxOnly`, declare class fields explicitly rather than using constructor parameter properties. In `it.each`, use mutable test-data arrays when consumers require them; avoid `as const` in that case.
 
-## Project structure
+## UI consistency
 
-- `src/pages/` — 4 routes: Home, FxDepositCompare, MarathonSavings, Settings
-- `src/hooks/` — business logic calculators in `useCalculator.ts` and `useMarathonSavings.ts`
-- `src/components/` — shared form fields, Layout with scroll-collapsing header, TabBar, InstallBanner
-- `src/components/ui/` — shadcn primitives (input, label, select, tabs)
-- `src/lib/` — `constants.ts` (TAB_BAR_HEIGHT=56), `format.ts`, `utils.ts` (cn helper)
-- `src/test/setup.ts` — imports @testing-library/jest-dom, mocks ResizeObserver
+### Theme
 
-## Architecture notes
+- Use semantic color tokens from `src/index.css`; add a token there when existing tokens do not fit. Avoid hardcoded palette colors and redundant `dark:` variants.
+- Put values requiring `env()` or responsive `calc()` in CSS custom properties in `src/index.css`, with media queries as needed, instead of scattering inline styles.
 
-- Dark-only design — `<html class="dark">`, no light mode
-- Router uses `<BrowserRouter basename="/ji-tools/">` — matching GitHub Pages subpath
-- Build copies `index.html → dist/404.html` for SPA fallback routing
-- PWA via vite-plugin-pwa (auto-update, precaches 8 entries, Workbox SW)
-- SPA: zh-Hant locale, `overscroll-behavior-y: contain`, `touch-action: manipulation`, `viewport-fit=cover`
-- Day count conventions: HKD uses 365-day base, USD uses 360-day base (in marathon savings)
+### Sections and cards
 
-## Commands
+- Give every major section its own `px-4 py-4` wrapper. Section containers have no vertical margins.
+- Use `<SectionHeader>` for every section title; pass supplementary text and controls through its `description` and `action` props.
+- Separate sections with `<SectionSeparator />`. In multi-column desktop layouts, use `className="lg:hidden"` when a divider should appear only on mobile. Dividers within a section are fine.
+- Put card styling inside the section wrapper so outer section spacing stays consistent; give the inner card its own padding, border, background, and radius.
 
-```sh
-pnpm install --frozen-lockfile  # CI only
-pnpm run lint                   # eslint
-pnpm run preview                # vite preview
-```
+### Fields
 
-## Testing
+- Use the shared field components in `src/components/` rather than creating page-specific fields.
+- Keep fields in the floating-label bounded-box style: `bg-input/30 border border-border rounded-lg`, a muted `text-[10px]` label, a prominent `text-base font-semibold` value, hover/focus border and ring feedback, and identical heights across field types.
 
-- Vitest + jsdom + @testing-library/react
-- Run focused tests: `pnpm test -- src/hooks/useCalculator.test.ts`
+## State and workflow
 
-## OpenSpec workflow
-
-- Specs in `openspec/specs/` — `openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change` skills
-- Commands: `opsx-explore`, `opsx-propose`, `opsx-apply`, `opsx-archive`
-- Uses custom `superpowers-bridge` schema (see `openspec/schemas/`) for spec-driven workflow
-
-## Conventions
-
-- Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, etc. One-line for fixup commits during development; squash merge commits may include a body summarizing the change.
-- Avatar URLs are off. Do NOT generate image/avatar URLs. Use emoji instead.
-- `eslint.config.js` disables `react-refresh/only-export-components` for `src/components/ui/`
-- `decline-to-act-on-violation` should be used judiciously; only for real non-issues
-- When adding new UI components or customizing library primitives (including shadcn components added via CLI), never use hardcoded color literals (e.g., `green-500`, `red-400`, inline `rgba()`/hex) or redundant `dark:` modifiers. Always reference the project's CSS custom property tokens (`bg-card`, `border-border`, `text-foreground`, etc.), or define new semantic tokens in `src/index.css` when no existing token fits. Clean up any default palette classes and `dark:` modifiers after running `npx shadcn add`.
-
-## Frontend Development Guidelines
-
-Rules to keep the entire app visually consistent. **Consistency is the priority** — one rule, applied the same way everywhere.
-
-### Section Spacing
-- Every major section container uses `px-4 py-4` — applied directly on each element. No vertical margins (`mb-*`, `mt-*`) on sections themselves.
-- Between sections, use `<SectionSeparator />` which renders a `border-b border-border mx-4` divider. Pass `className="lg:hidden"` to hide it on desktop in multi-column layouts.
-- The `py-4` (16px) on each section creates equal spacing above and below the separator — perfectly balanced.
-- No per-column or per-layout spacing rules. `px-4 py-4` works identically in 1-column, 2-column grid, or stacked layouts.
-- Within-section dividers (`border-b` on list items, result rows) are fine — only section-to-section dividers are forbidden.
-- The last `py-4` on the final section intentionally adds trailing space before page bottom — provides visual breathing room.
-
-### Section Headers
-- Every section must use the `SectionHeader` component. Never use bare `<h2>` for section titles.
-- `SectionHeader` renders: `text-lg font-bold` title, `h-5` accent bar, `mb-2` spacing below.
-- Optional `description` prop for supplementary text (e.g., principal amount in interest breakdown).
-- Optional `action` prop for edit buttons or other header-level controls.
-
-### Visual Cards Within Sections
-- Some content needs distinct visual card styling (border, background tint, rounded corners) — e.g., `DepositSummary`, the verdict card on FxDepositCompare.
-- Wrap these in a `px-4 py-4` div (consistent section wrapper), then place the styled card inside with its own `p-4`/`p-6` and visual classes. This preserves consistent outer spacing while allowing internal visual variety.
-
-### Form Input Fields
-- All form inputs use the **floating label bounded box** style.
-- Each field is a visible box: `bg-input/30 border border-border rounded-lg`.
-- Label is small and muted: `text-[10px]` inside at the top.
-- Value is prominent: `text-base font-semibold` below the label.
-- Editability is signaled by the box boundary (strong affordance) plus hover/focus border color change + ring glow.
-- All forms must use the shared field components from `src/components/` — never create page-specific field components.
-- All field types (InputField, DateField, SelectField, ReadonlyDateField) render at identical heights.
-
-### Colors & Tokens
-- App background is `oklch(0.17 0.015 260)` (warm dark grey), not pure black.
-- All surface tokens are lifted proportionally from this baseline to preserve hierarchy.
-- Never use hardcoded color literals or `dark:` modifiers. Always reference CSS custom property tokens (`bg-card`, `border-border`, `text-foreground`, etc.).
-- Define new semantic tokens in `src/index.css` when no existing token fits a use case.
-- When Tailwind can't express a value (needs `env()`, dynamic calc, or JS constants), use CSS custom properties via `:root` blocks + media queries instead of inline styles — keeps the styling layer unified and responsive variants work naturally.
-
-## Retrospective learning
-
-- When adding a retrospective entry, capture the underlying concept at the right level of abstraction — not the specific bug (implementation detail), but the pattern or principle it reveals. Test the phrasing: if the entry makes sense without knowing which project it came from, the abstraction is right. Keep it concise: one sentence, one rule.
-- When a state toggle exists in both a persistent UI element and a settings panel, share state via React context instead of localStorage roundtrips with CustomEvent dispatching — guarantees consistency without wiring coordination.
-- Set optimistic UI state before triggering async operations — user gets instant feedback even if the promise never settles (e.g., SW update on iOS).
-
-- CSS-only theme changes (variable value tweaks in `.dark {}` block) may skip git worktree isolation — no JS/TS/behavioral logic involved, worktree overhead is disproportionate to risk
-- When implementation deliberately diverges from plan.md (different approach, simpler solution), update the relevant plan step(s) in-session before moving to the next task — keeps plan accurate as a trace throughout execution
-- Pure logic (formulas, calculations, transformations) belongs in `src/lib/*`, not in feature hooks — enables 100% unit test coverage with parametrized cases
-- Test precision rule: assert calculation results at 8 decimal places via `toBeCloseTo(expected, 8)`; all intermediate steps use full Decimal 40-digit precision
-- Hooks import and compose from `src/lib/*`; never duplicate logic — single source of truth prevents subtle bugs when conventions differ across features
-- Squash merge (`git merge --squash`) for feature branches — clean history. When using `superpowers:finishing-a-development-branch`, always choose squash merge (don't fast-forward).
-- Avoid `as const` on `it.each` test data arrays — creates readonly tuples that can't be passed to functions expecting mutable `number[]` or similar. Use plain arrays instead.
-- For feature states gated on system events (SW updates, install prompts), surface a dev toggle in app settings that simulates the state rather than relying on the real event — enables visual testing in dev without waiting for native events.
-- TDD refactoring: write parametrized tests for the *new* location first (RED — fails on import resolution), implement minimal code in the new location (GREEN), then update consumers and delete old files (REFACTOR). This avoids testing-after bias and proves tests catch real gaps before wiring consumers.
-- `erasableSyntaxOnly` in TypeScript config disallows constructor parameter properties — use explicit `readonly` field declarations instead of `constructor(readonly foo: T) {}`.
-- When a spec provides an explicit formula or calculation rule, extract it as a standalone pure function and write a parametrized unit test before any rendering code — catches metric mismatches (wrong variable, wrong unit, wrong divisor) at the calculation layer before they propagate into markup.
-- When a child component must re-initialize local state from parent data on each open/trigger event, remount via an incrementing `key` prop instead of syncing with `useEffect` and state setters — deterministic, eliminates stale closures and dependency tracking.
-- When post-implementation verification reveals a mismatch between a spec formula and actual calculation output, fix the root cause immediately in the same task rather than deferring to a post-completion fixup commit — deferred fixes accumulate structural risk and obscure change history.
-- During pre-archive verification, fix artifact gaps (missing spec coverage for implemented features) by updating artifacts to match the code — keeps the archived change trail accurate rather than silently diverging.
+- When a toggle appears in both persistent UI and Settings, share state through React context rather than coordinating through localStorage and custom events.
+- Set optimistic UI state before starting async work so the interface responds even if the operation stalls.
+- CSS-only changes to theme variables in `.dark` may skip worktree isolation; use isolation for JavaScript, TypeScript, or behavior changes.

@@ -1,5 +1,5 @@
 import { fmt } from '@/lib/format'
-import type { Currency } from '@/hooks/useMarathonSavings'
+import type { Currency } from '@/lib/calculator'
 
 interface DepositSummaryProps {
   currency: Currency

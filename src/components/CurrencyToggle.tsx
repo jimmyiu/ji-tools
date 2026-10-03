@@ -1,5 +1,5 @@
 import { fmtRate, fmtDateShort } from '@/lib/format'
-import type { Currency } from '@/hooks/useMarathonSavings'
+import type { Currency } from '@/lib/calculator'
 
 interface CurrencyToggleProps {
   hkdActualRate: number

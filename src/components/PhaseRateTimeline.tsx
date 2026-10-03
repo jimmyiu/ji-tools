@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { fmtDateShort } from '@/lib/format'
 import { computePhaseDays } from '@/lib/marathon'
-import type { PhaseState, Currency } from '@/hooks/useMarathonSavings'
+import type { PhaseState } from '@/lib/phases'
+import type { Currency } from '@/lib/calculator'
 
 interface PhaseRateTimelineProps {
   phases: PhaseState[]

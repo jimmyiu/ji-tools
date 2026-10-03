@@ -36,7 +36,7 @@ function clone(phases: Phases): Phases {
 // - any end date earlier than its own start date is unset to ''
 // - an empty end date cascades: the next start becomes '' (later end dates stay)
 // Runs to a fixed point because clearing an end can make a derived start move.
-function normalize(input: Phases): Phases {
+export function normalizePhases(input: Phases): Phases {
   const out = clone(input)
   let changed = true
   let guard = 0
@@ -72,7 +72,7 @@ export function applyPhaseStartDate(phases: Phases, index: PhaseIndex, value: st
   } else {
     out[index - 1].endDate = prevDay(value)
   }
-  return normalize(out)
+  return normalizePhases(out)
 }
 
 // Edit phase i end: next phase start follows to end + 1 day.
@@ -80,5 +80,5 @@ export function applyPhaseStartDate(phases: Phases, index: PhaseIndex, value: st
 export function applyPhaseEndDate(phases: Phases, index: PhaseIndex, value: string): Phases {
   const out = clone(phases)
   out[index].endDate = value
-  return normalize(out)
+  return normalizePhases(out)
 }

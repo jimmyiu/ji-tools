@@ -2,12 +2,7 @@ import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { computeMarathonSavings, type MarathonSavingsResult } from '../lib/marathon'
 import type { Currency } from '../lib/calculator'
-import {
-  applyPhaseEndDate,
-  applyPhaseStartDate,
-  type PhaseIndex,
-  type Phases,
-} from '../lib/phases'
+import { normalizePhases, type Phases } from '../lib/phases'
 
 function toDateStr(date: Date): string {
   return format(date, 'yyyy-MM-dd')
@@ -24,10 +19,7 @@ interface InputActions {
   setDepositDate: (v: string) => void
   setCurrency: (v: Currency) => void
   setPrincipal: (v: string) => void
-  setPhaseStartDate: (index: PhaseIndex, v: string) => void
-  setPhaseEndDate: (index: PhaseIndex, v: string) => void
-  setPhaseHkdRate: (index: PhaseIndex, v: string) => void
-  setPhaseUsdRate: (index: PhaseIndex, v: string) => void
+  setPhases: (phases: Phases) => void
 }
 
 const defaultDates = {
@@ -50,22 +42,7 @@ export function useInputs() {
     setDepositDate,
     setCurrency,
     setPrincipal,
-    setPhaseStartDate: (index, v) =>
-      setPhases((prev) => applyPhaseStartDate(prev, index, v)),
-    setPhaseEndDate: (index, v) =>
-      setPhases((prev) => applyPhaseEndDate(prev, index, v)),
-    setPhaseHkdRate: (index, v) =>
-      setPhases((prev) => {
-        const next = [...prev] as Phases
-        next[index] = { ...next[index], hkdRate: v }
-        return next
-      }),
-    setPhaseUsdRate: (index, v) =>
-      setPhases((prev) => {
-        const next = [...prev] as Phases
-        next[index] = { ...next[index], usdRate: v }
-        return next
-      }),
+    setPhases: (next) => setPhases(normalizePhases(next)),
   }
 
   return { depositDate, currency, principal, phases, ...actions }

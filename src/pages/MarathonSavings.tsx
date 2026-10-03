@@ -1,5 +1,4 @@
 import { useInputs, useCalculator } from '../hooks/useMarathonSavings'
-import type { PhaseState } from '../lib/phases'
 import { CurrencyToggle } from '../components/CurrencyToggle'
 import { BasicParameters } from '../components/BasicParameters'
 import { InterestBreakdown } from '../components/InterestBreakdown'
@@ -12,16 +11,6 @@ import { SectionSeparator } from '../components/SectionSeparator'
 export default function MarathonSavings() {
   const inputs = useInputs()
   const result = useCalculator(inputs)
-
-  const handlePhaseConfirm = (updatedPhases: PhaseState[]) => {
-    updatedPhases.forEach((phase, i) => {
-      const index = i as 0 | 1 | 2
-      inputs.setPhaseStartDate(index, phase.startDate)
-      inputs.setPhaseEndDate(index, phase.endDate)
-      inputs.setPhaseHkdRate(index, String(phase.hkdRate))
-      inputs.setPhaseUsdRate(index, String(phase.usdRate))
-    })
-  }
 
   return (
     <div className="max-w-5xl mx-auto py-4 page-enter">
@@ -50,8 +39,8 @@ export default function MarathonSavings() {
               />
             </EditableSection.Summary>
             <EditableSection.Form
-              data={[...inputs.phases]}
-              onConfirm={handlePhaseConfirm}
+              data={inputs.phases}
+              onConfirm={inputs.setPhases}
               onCancel={() => {}}
             >
               {(draft, setDraft) => (

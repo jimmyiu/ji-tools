@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PhaseRateEditForm } from './PhaseRateEditForm'
-import type { PhaseState } from '@/lib/phases'
+import type { PhaseState, Phases } from '@/lib/phases'
 
 describe('PhaseRateEditForm', () => {
-  const mockPhases: PhaseState[] = [
+  const mockPhases: Phases = [
     { startDate: '2026-05-04', endDate: '2026-07-01', hkdRate: 1.85, usdRate: 3.0 },
     { startDate: '2026-07-02', endDate: '2026-08-02', hkdRate: 2.0, usdRate: 3.1 },
     { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.2, usdRate: 3.3 },

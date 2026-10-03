@@ -10,8 +10,8 @@ import {
 } from '@/lib/phases'
 
 interface PhaseRateEditFormProps {
-  phases: PhaseState[]
-  onChange: (updatedPhases: PhaseState[]) => void
+  phases: Phases
+  onChange: (updatedPhases: Phases) => void
 }
 
 function assertPhaseIndex(i: number): asserts i is PhaseIndex {
@@ -29,17 +29,17 @@ function minOrUndefined(date: string): string | undefined {
 
 export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) {
   const updatePhase = (index: PhaseIndex, updates: Partial<PhaseState>) => {
-    const next = [...phases]
+    const next = [...phases] as Phases
     next[index] = { ...next[index], ...updates }
     onChange(next)
   }
 
   const updateStartDate = (index: PhaseIndex, v: string) => {
-    onChange(applyPhaseStartDate(phases as Phases, index, v))
+    onChange(applyPhaseStartDate(phases, index, v))
   }
 
   const updateEndDate = (index: PhaseIndex, v: string) => {
-    onChange(applyPhaseEndDate(phases as Phases, index, v))
+    onChange(applyPhaseEndDate(phases, index, v))
   }
 
   return (

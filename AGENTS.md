@@ -7,6 +7,7 @@ Hong Kong-focused, mobile-first calculators for FX deposit comparison and marath
 ```sh
 pnpm install
 pnpm dev
+pnpm typecheck
 pnpm build
 pnpm test
 pnpm test:watch
@@ -14,7 +15,7 @@ pnpm run lint
 pnpm run preview
 ```
 
-- Focused test: `pnpm test -- src/hooks/useCalculator.test.ts`
+- Focused test: `pnpm test src/hooks/useCalculator.test.ts`
 - CI install: `pnpm install --frozen-lockfile`
 
 ## Project conventions

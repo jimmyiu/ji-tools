@@ -44,6 +44,20 @@ describe('computePhaseDays', () => {
     expect(r.totalDuration).toBe(60)
   })
 
+  it('treats invalid dates as 0 days and 0 duration', () => {
+    const phases: PhaseState[] = [
+      { startDate: 'invalid', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
+      { startDate: '2026-12-01', endDate: 'not-a-date', hkdRate: 3.0, usdRate: 3.5 },
+    ]
+    const r = computePhaseDays(phases, '2026-10-02')
+    expect(r.phases.map(({ days, duration }) => ({ days, duration }))).toEqual([
+      { days: 0, duration: 0 },
+      { days: 0, duration: 0 },
+    ])
+    expect(r.totalDays).toBe(0)
+    expect(r.totalDuration).toBe(0)
+  })
+
   it('clamps an overlapping phase so no day is counted twice', () => {
     const phases: PhaseState[] = [
       { startDate: '2026-10-02', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
@@ -116,6 +130,21 @@ describe('computeMarathonSavings', () => {
     expect(r.hkdActualRate).toBeCloseTo(2.8, 8)
     expect(r.usdActualRate).toBeCloseTo(3.3, 8)
     expect(r.totalInterest).toBeCloseTo(460.2739726027397, 8)
+  })
+
+  it('keeps totals finite when phase dates are invalid', () => {
+    const phases: PhaseState[] = [
+      { startDate: 'invalid', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
+      { startDate: '2026-12-01', endDate: 'not-a-date', hkdRate: 3.0, usdRate: 3.5 },
+    ]
+    const r = computeMarathonSavings(phases, '2026-10-02', 100000, 'HKD')
+    expect(r.totalDays).toBe(0)
+    expect(r.totalInterest).toBe(0)
+    expect(r.hkdActualRate).toBe(0)
+    expect(r.usdActualRate).toBe(0)
+    expect(r.phaseResults.every(({ days, rate, interest }) =>
+      Number.isFinite(days) && Number.isFinite(rate) && Number.isFinite(interest),
+    )).toBe(true)
   })
 
   it('treats a blank rate as 0', () => {

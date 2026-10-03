@@ -39,13 +39,12 @@ export function computePhaseDays(
 
   for (let i = 0; i < phases.length; i++) {
     const p = phases[i]
-    if (p.startDate === '' || p.endDate === '') {
+    const start = parseISO(p.startDate)
+    const end = parseISO(p.endDate)
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       out.push({ index: i, startDate: p.startDate, endDate: p.endDate, days: 0, duration: 0 })
       continue
     }
-
-    const start = parseISO(p.startDate)
-    const end = parseISO(p.endDate)
     const clampedStart =
       previousEffectiveEnd !== null && start <= previousEffectiveEnd
         ? addDays(previousEffectiveEnd, 1)

@@ -1,5 +1,7 @@
 # Marathon Savings Engine Implementation Plan
 
+**Status:** Completed.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Extract the Marathon savings calculation into one deep pure module in `src/lib/` so the hook and the timeline become thin adapters with the duplicated day-allocation fold deleted.

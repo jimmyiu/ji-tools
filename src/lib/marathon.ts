@@ -1,5 +1,9 @@
 import { addDays, differenceInDays, parseISO } from 'date-fns'
+import Decimal from 'decimal.js'
+import { calculateSimpleInterest, DAY_BASE_MAP, type Currency } from './calculator'
 import type { PhaseState } from './phases'
+
+Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 
 export interface PhaseDays {
   index: number
@@ -58,4 +62,55 @@ export function computePhaseDays(
   }
 
   return { phases: out, totalDays, totalDuration }
+}
+
+export interface PhaseResult {
+  days: number
+  rate: number
+  interest: number
+}
+
+export interface MarathonSavingsResult {
+  hkdActualRate: number
+  usdActualRate: number
+  phaseResults: PhaseResult[]
+  totalDays: number
+  totalInterest: number
+}
+
+// Composes the day allocation into money: per-phase interest at the selected
+// currency's rate, weighted actual rates per currency, and the total.
+// Blank/non-numeric rates are coerced to 0 so NaN never escapes.
+export function computeMarathonSavings(
+  phases: readonly PhaseState[],
+  depositDate: string,
+  principal: number,
+  currency: Currency,
+): MarathonSavingsResult {
+  const { phases: allocation, totalDays } = computePhaseDays(phases, depositDate)
+
+  let weightedHKD = 0
+  let weightedUSD = 0
+  for (let i = 0; i < phases.length; i++) {
+    weightedHKD += allocation[i].days * (Number(phases[i].hkdRate) || 0)
+    weightedUSD += allocation[i].days * (Number(phases[i].usdRate) || 0)
+  }
+
+  const hkdActualRate = totalDays === 0 ? 0 : weightedHKD / totalDays
+  const usdActualRate = totalDays === 0 ? 0 : weightedUSD / totalDays
+
+  const phaseResults: PhaseResult[] = phases.map((p, i) => {
+    const rate = currency === 'HKD' ? Number(p.hkdRate) || 0 : Number(p.usdRate) || 0
+    const interest = calculateSimpleInterest(
+      new Decimal(principal),
+      new Decimal(rate).div(100),
+      allocation[i].days,
+      DAY_BASE_MAP[currency],
+    ).toNumber()
+    return { days: allocation[i].days, rate, interest }
+  })
+
+  const totalInterest = phaseResults.reduce((sum, r) => sum + r.interest, 0)
+
+  return { hkdActualRate, usdActualRate, phaseResults, totalDays, totalInterest }
 }

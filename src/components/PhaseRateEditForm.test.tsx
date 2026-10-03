@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PhaseRateEditForm } from './PhaseRateEditForm'
-import type { PhaseState } from '@/hooks/useMarathonSavings'
+import type { PhaseState } from '@/lib/phases'
 
 describe('PhaseRateEditForm', () => {
   const mockPhases: PhaseState[] = [

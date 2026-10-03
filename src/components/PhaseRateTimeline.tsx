@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { parseISO, differenceInDays, addDays } from 'date-fns'
 import { fmtDateShort } from '@/lib/format'
-import type { PhaseState, Currency } from '@/hooks/useMarathonSavings'
+import { computePhaseDays } from '@/lib/marathon'
+import type { PhaseState } from '@/lib/phases'
+import type { Currency } from '@/lib/calculator'
 
 interface PhaseRateTimelineProps {
   phases: PhaseState[]
@@ -9,50 +10,14 @@ interface PhaseRateTimelineProps {
   currency: Currency
 }
 
-function effectiveDays(depositDate: Date, phaseStartDate: Date, phaseEndDate: Date): number {
-  const effectiveStart = depositDate > phaseStartDate ? depositDate : phaseStartDate
-  if (effectiveStart > phaseEndDate) return 0
-  return differenceInDays(phaseEndDate, effectiveStart) + 1
-}
-
-function phaseDuration(startDate: string, endDate: string): number {
-  return Math.max(differenceInDays(parseISO(endDate), parseISO(startDate)) + 1, 1)
-}
-
 export function PhaseRateTimeline({ phases, depositDate, currency }: PhaseRateTimelineProps) {
   const phaseData = useMemo(() => {
-    const deposit = parseISO(depositDate)
-
-    const { data } = phases.reduce<{
-      data: Array<PhaseState & { days: number; duration: number }>
-      previousEffectiveEnd: Date | null
-    }>(
-      (acc, phase) => {
-        const start = parseISO(phase.startDate)
-        const end = parseISO(phase.endDate)
-        const clampedStart = acc.previousEffectiveEnd !== null && start <= acc.previousEffectiveEnd
-          ? addDays(acc.previousEffectiveEnd, 1)
-          : start
-        const days = effectiveDays(deposit, clampedStart, end)
-        const duration = phaseDuration(phase.startDate, phase.endDate)
-        const effectiveEnd = days > 0 ? addDays(clampedStart, days - 1) : null
-
-        acc.data.push({
-          ...phase,
-          startDate: phase.startDate,
-          endDate: phase.endDate,
-          days,
-          duration,
-        })
-        if (effectiveEnd) acc.previousEffectiveEnd = effectiveEnd
-
-        return acc
-      },
-      { data: [], previousEffectiveEnd: null }
-    )
-
-    const totalDuration = data.reduce((sum, p) => sum + p.duration, 0)
-    const totalDays = data.reduce((sum, p) => sum + p.days, 0)
+    const { phases: allocation, totalDays, totalDuration } = computePhaseDays(phases, depositDate)
+    const data = phases.map((phase, i) => ({
+      ...phase,
+      days: allocation[i].days,
+      duration: allocation[i].duration,
+    }))
     const computedBoundaries = data.reduce<{ runningTotal: number; boundaries: number[] }>(
       (acc, p) => {
         acc.boundaries.push(
@@ -104,27 +69,31 @@ export function PhaseRateTimeline({ phases, depositDate, currency }: PhaseRateTi
       </div>
 
       <div className="relative text-xs mt-1 min-h-4 text-muted-foreground pointer-events-none">
-        {phaseData.data.map((phase, i) => (
+        {phaseData.data.map((phase, i) =>
+          phase.startDate !== '' ? (
+            <span
+              key={phase.startDate + '-' + phase.endDate}
+              className="absolute"
+              style={{
+                left: `${phaseData.boundaries[i]}%`,
+                transform: i === 0 ? 'translateX(0)' : 'translateX(-50%)',
+              }}
+            >
+              {fmtDateShort(phase.startDate)}
+            </span>
+          ) : null
+        )}
+        {phaseData.data[phaseData.data.length - 1].endDate !== '' && (
           <span
-            key={phase.startDate + '-' + phase.endDate}
             className="absolute"
             style={{
-              left: `${phaseData.boundaries[i]}%`,
-              transform: i === 0 ? 'translateX(0)' : 'translateX(-50%)',
+              right: '0',
+              transform: 'translateX(0)',
             }}
           >
-            {fmtDateShort(phase.startDate)}
+            {fmtDateShort(phaseData.data[phaseData.data.length - 1].endDate)}
           </span>
-        ))}
-        <span
-          className="absolute"
-          style={{
-            right: '0',
-            transform: 'translateX(0)',
-          }}
-        >
-          {fmtDateShort(phaseData.data[phaseData.data.length - 1].endDate)}
-        </span>
+        )}
       </div>
     </div>
   )

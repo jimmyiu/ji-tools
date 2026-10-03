@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { InterestBreakdown } from './InterestBreakdown'
-import type { PhaseResult } from '@/hooks/useMarathonSavings'
+import type { PhaseResult } from '@/lib/marathon'
 
 describe('InterestBreakdown', () => {
   const mockPhaseResults: PhaseResult[] = [

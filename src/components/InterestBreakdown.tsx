@@ -1,6 +1,7 @@
 import { fmt } from '@/lib/format'
 import { SectionHeader } from './SectionHeader'
-import type { Currency, PhaseResult } from '@/hooks/useMarathonSavings'
+import type { Currency } from '@/lib/calculator'
+import type { PhaseResult } from '@/lib/marathon'
 
 interface InterestBreakdownProps {
   currency: Currency

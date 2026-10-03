@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { PhaseRateTimeline } from './PhaseRateTimeline'
-import type { PhaseState } from '@/hooks/useMarathonSavings'
+import type { PhaseState } from '@/lib/phases'
 
 describe('PhaseRateTimeline', () => {
   const mockPhases: PhaseState[] = [
@@ -46,5 +46,17 @@ describe('PhaseRateTimeline', () => {
     render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-12-01" currency="HKD" />)
 
     expect(screen.getByText('存款日期在所有階段之後')).toBeInTheDocument()
+  })
+
+  it('omits date labels for blank phase boundaries', () => {
+    const blankPhases: PhaseState[] = [
+      { startDate: '2026-10-02', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
+      { startDate: '2026-12-01', endDate: '', hkdRate: 3.0, usdRate: 3.5 },
+      { startDate: '', endDate: '2027-02-01', hkdRate: 3.2, usdRate: 3.6 },
+    ]
+    render(<PhaseRateTimeline phases={blankPhases} depositDate="2026-10-02" currency="HKD" />)
+
+    const labels = screen.getAllByText(/^[0-9]{2}-[A-Za-z]{3}$/)
+    expect(labels.map((l) => l.textContent)).toEqual(['02-Oct', '01-Dec', '01-Feb'])
   })
 })

@@ -1,5 +1,5 @@
 import { useInputs, useCalculator } from '../hooks/useMarathonSavings'
-import type { PhaseState } from '../hooks/useMarathonSavings'
+import type { PhaseState } from '../lib/phases'
 import { CurrencyToggle } from '../components/CurrencyToggle'
 import { BasicParameters } from '../components/BasicParameters'
 import { InterestBreakdown } from '../components/InterestBreakdown'

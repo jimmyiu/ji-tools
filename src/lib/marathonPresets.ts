@@ -5,9 +5,7 @@ export interface MarathonSavingsPreset {
   phases: Phases
 }
 
-// History is reference data: recursive freezing turns "immutable" from a
-// convention into an invariant. A preset that doubles as live state and gets
-// edited in place would silently rewrite the shipped record.
+// Freeze history recursively: an in-place edit must throw, not rewrite the shipped record.
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.freeze(value)

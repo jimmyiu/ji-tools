@@ -1,19 +1,7 @@
 import { useState, createContext, useContext, type ReactNode } from 'react'
-import { Pencil, X } from 'lucide-react'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { Pencil } from 'lucide-react'
 import { SectionHeader } from './SectionHeader'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { ResponsiveOverlay } from './ResponsiveOverlay'
 
 interface EditableSectionContextValue {
   isOpen: boolean
@@ -98,11 +86,10 @@ interface FormInnerProps<T> {
   children: (draft: T, setDraft: (d: T) => void) => ReactNode
   close: () => void
   title: string
-  isDesktop: boolean
   isOpen: boolean
 }
 
-function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDesktop, isOpen }: FormInnerProps<T>) {
+function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isOpen }: FormInnerProps<T>) {
   const [draft, setDraft] = useState<T>(() => structuredClone(data))
 
   const handleOpenChange = (open: boolean) => {
@@ -122,8 +109,8 @@ function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDes
     close()
   }
 
-  const overlayContent = (
-    <>
+  return (
+    <ResponsiveOverlay open={isOpen} onOpenChange={handleOpenChange} title={title}>
       <div>{children(draft, setDraft)}</div>
       <div className="flex justify-end gap-2 pt-4">
         <button
@@ -141,47 +128,7 @@ function FormInner<T>({ data, onConfirm, onCancel, children, close, title, isDes
           確認
         </button>
       </div>
-    </>
-  )
-
-  if (isDesktop) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent hideClose aria-describedby={undefined} onOpenAutoFocus={(e) => e.preventDefault()}>
-          <DialogTitle className="sr-only">{title}</DialogTitle>
-          <SectionHeader
-            title={title}
-            action={
-              <DialogClose asChild>
-                <button type="button" aria-label="關閉" className="text-muted-foreground hover:text-foreground transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </DialogClose>
-            }
-          />
-          {overlayContent}
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
-  return (
-      <Sheet open={isOpen} onOpenChange={handleOpenChange}>
-        <SheetContent hideClose aria-describedby={undefined} side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
-          <SheetTitle className="sr-only">{title}</SheetTitle>
-          <SectionHeader
-            title={title}
-            action={
-              <SheetClose asChild>
-                <button type="button" aria-label="關閉" className="text-muted-foreground hover:text-foreground transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </SheetClose>
-            }
-          />
-          {overlayContent}
-        </SheetContent>
-      </Sheet>
+    </ResponsiveOverlay>
   )
 }
 
@@ -194,7 +141,6 @@ interface FormProps<T> {
 
 function Form<T>({ data, onConfirm, onCancel, children }: FormProps<T>) {
   const { isOpen, close, title, openVersion } = useEditableSectionContext()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   return (
     <FormInner
@@ -204,7 +150,6 @@ function Form<T>({ data, onConfirm, onCancel, children }: FormProps<T>) {
       onCancel={onCancel}
       close={close}
       title={title}
-      isDesktop={isDesktop}
       isOpen={isOpen}
     >
       {children}

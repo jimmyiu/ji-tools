@@ -63,3 +63,17 @@ pnpm run preview
 - When a toggle appears in both persistent UI and Settings, share state through React context rather than coordinating through localStorage and custom events.
 - Set optimistic UI state before starting async work so the interface responds even if the operation stalls.
 - CSS-only changes to theme variables in `.dark` may skip worktree isolation; use isolation for JavaScript, TypeScript, or behavior changes.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues via `gh`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default five triage labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use single-context domain docs. See `docs/agents/domain.md`.

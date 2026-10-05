@@ -31,7 +31,11 @@ export function useInputs() {
   const [depositDate, setDepositDate] = useState(defaultDates.depositDate)
   const [currency, setCurrency] = useState<Currency>('HKD')
   const [principal, setPrincipal] = useState<string | number>(100000)
-  const [phases, setPhases] = useState(DEFAULT_MARATHON_PHASES)
+  // Seed from a copy: live state must never share identity with the frozen
+  // history record, so editing the calculator can't reach the preset.
+  const [phases, setPhases] = useState<Phases>(() =>
+    DEFAULT_MARATHON_PHASES.map((phase) => ({ ...phase })) as Phases,
+  )
 
   const actions: InputActions = {
     setDepositDate,

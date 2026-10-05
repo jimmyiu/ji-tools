@@ -35,10 +35,11 @@ function useEditableSectionContext() {
 
 interface EditableSectionProps {
   title: string
+  actions?: ReactNode
   children: ReactNode
 }
 
-function EditableSection({ title, children }: EditableSectionProps) {
+function EditableSection({ title, actions, children }: EditableSectionProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [openVersion, setOpenVersion] = useState(0)
 
@@ -63,14 +64,17 @@ function EditableSection({ title, children }: EditableSectionProps) {
         <SectionHeader
           title={title}
           action={
-            <button
-              type="button"
-              onClick={contextValue.open}
-              aria-label={`編輯${title}`}
-              className="text-primary hover:text-primary/80 transition-colors"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              {actions}
+              <button
+                type="button"
+                onClick={contextValue.open}
+                aria-label={`編輯${title}`}
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            </div>
           }
         />
         {children}

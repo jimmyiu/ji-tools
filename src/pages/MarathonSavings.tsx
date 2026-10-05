@@ -5,6 +5,7 @@ import { InterestBreakdown } from '../components/InterestBreakdown'
 import { DepositSummary } from '../components/DepositSummary'
 import { PhaseRateTimeline } from '../components/PhaseRateTimeline'
 import { PhaseRateEditForm } from '../components/PhaseRateEditForm'
+import { PhaseRateHistory } from '../components/PhaseRateHistory'
 import { EditableSection } from '../components/EditableSection'
 import { SectionSeparator } from '../components/SectionSeparator'
 
@@ -30,7 +31,17 @@ export default function MarathonSavings() {
 
           <SectionSeparator />
 
-          <EditableSection title="階段利率">
+          <EditableSection
+            title="階段利率"
+            actions={
+              <PhaseRateHistory
+                onLoad={(preset) => {
+                  inputs.setPhases(preset.phases)
+                  inputs.setDepositDate(preset.phases[0].startDate)
+                }}
+              />
+            }
+          >
             <EditableSection.Summary>
               <PhaseRateTimeline
                 phases={inputs.phases}

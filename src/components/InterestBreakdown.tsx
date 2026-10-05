@@ -1,4 +1,4 @@
-import { fmt } from '@/lib/format'
+import { fmt, fmtPhaseRate } from '@/lib/format'
 import { SectionHeader } from './SectionHeader'
 import type { Currency } from '@/lib/calculator'
 import type { PhaseResult } from '@/lib/marathon'
@@ -22,7 +22,7 @@ export function InterestBreakdown({ currency, principal, phaseResults }: Interes
             <div>
               <span className="text-sm text-muted-foreground">階段 {i + 1}</span>
               <span className="ml-2 text-xs text-muted-foreground/60">
-                {pr.days > 0 ? `${pr.days} 日 @ ${pr.rate}%` : '（不在存款期內）'}
+                {pr.days > 0 ? `${pr.days} 日 @ ${fmtPhaseRate(pr.rate)}%` : '（不在存款期內）'}
               </span>
             </div>
             <span className={`text-sm font-medium ${pr.interest > 0 ? 'text-foreground' : 'text-muted-foreground/60'}`}>

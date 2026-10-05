@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { fmtDateShort } from '@/lib/format'
+import { fmtDateShort, fmtPhaseRate } from '@/lib/format'
 import { computePhaseDays } from '@/lib/marathon'
 import type { PhaseState } from '@/lib/phases'
 import type { Currency } from '@/lib/calculator'
@@ -61,7 +61,9 @@ export function PhaseRateTimeline({ phases, depositDate, currency }: PhaseRateTi
               }}
             >
               <span className="text-xs font-bold text-phase-bar-foreground">
-                {currency === 'HKD' ? `HKD ${phase.hkdRate}%` : `USD ${phase.usdRate}%`}
+                {currency === 'HKD'
+                  ? `HKD ${fmtPhaseRate(phase.hkdRate)}%`
+                  : `USD ${fmtPhaseRate(phase.usdRate)}%`}
               </span>
             </div>
           )

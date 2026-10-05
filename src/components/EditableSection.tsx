@@ -2,6 +2,7 @@ import { useState, createContext, useContext, type ReactNode } from 'react'
 import { Pencil } from 'lucide-react'
 import { SectionHeader } from './SectionHeader'
 import { ResponsiveOverlay } from './ResponsiveOverlay'
+import { IconButton } from './IconButton'
 
 interface EditableSectionContextValue {
   isOpen: boolean
@@ -52,16 +53,11 @@ function EditableSection({ title, actions, children }: EditableSectionProps) {
         <SectionHeader
           title={title}
           action={
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {actions}
-              <button
-                type="button"
-                onClick={contextValue.open}
-                aria-label={`編輯${title}`}
-                className="text-primary hover:text-primary/80 transition-colors"
-              >
+              <IconButton onClick={contextValue.open} aria-label={`編輯${title}`}>
                 <Pencil className="h-4 w-4" />
-              </button>
+              </IconButton>
             </div>
           }
         />

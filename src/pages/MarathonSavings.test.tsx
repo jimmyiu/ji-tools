@@ -1,8 +1,20 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import MarathonSavings from './MarathonSavings'
+import { ToastProvider } from '@/contexts/ToastContext'
 
-const PRESET_ROW = '2026-10-02 ~ 2027-02-01 (2.8% / 3% / 3.2%)'
+const PRESET_ROW =
+  '2026-10-02 ~ 2027-02-01 (HKD 2.8% / 3.0% / 3.2%；USD 3.3% / 3.5% / 3.6%)'
+const PRESET_HKD_ROW = 'preset-default-marathon-period-hkd'
+const PRESET_USD_ROW = 'preset-default-marathon-period-usd'
+
+function renderPage() {
+  return render(
+    <ToastProvider>
+      <MarathonSavings />
+    </ToastProvider>
+  )
+}
 
 function selectCurrency(label: 'HKD 實際等效年利率' | 'USD 實際等效年利率') {
   fireEvent.click(screen.getByText(label))
@@ -31,34 +43,34 @@ function seedEditedInputs() {
 }
 
 function openHistory() {
-  fireEvent.click(screen.getByRole('button', { name: '載入歷史利率' }))
+  fireEvent.click(screen.getByRole('button', { name: '歷史階段利率' }))
 }
 
 function loadPreset() {
   openHistory()
   fireEvent.click(screen.getByRole('radio', { name: PRESET_ROW }))
-  fireEvent.click(screen.getByRole('button', { name: '載入' }))
+  fireEvent.click(screen.getByRole('button', { name: '套用' }))
 }
 
 describe('MarathonSavings history', () => {
   it('does not apply a preset on selection alone, and 取消 preserves current values', () => {
-    render(<MarathonSavings />)
+    renderPage()
     seedEditedInputs()
 
     openHistory()
     fireEvent.click(screen.getByRole('radio', { name: PRESET_ROW }))
 
     expect(screen.getByLabelText('實際存款日期')).toHaveValue('2026-10-10')
-    expect(screen.getByText('USD 7%')).toBeInTheDocument()
+    expect(screen.getByText('USD 7.0%')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '取消' }))
 
     expect(screen.getByLabelText('實際存款日期')).toHaveValue('2026-10-10')
-    expect(screen.getByText('USD 7%')).toBeInTheDocument()
+    expect(screen.getByText('USD 7.0%')).toBeInTheDocument()
   })
 
   it('starts with no pending selection when reopened after cancel', () => {
-    render(<MarathonSavings />)
+    renderPage()
 
     openHistory()
     fireEvent.click(screen.getByRole('radio', { name: PRESET_ROW }))
@@ -66,11 +78,11 @@ describe('MarathonSavings history', () => {
 
     openHistory()
 
-    expect(screen.getByRole('button', { name: '載入' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '套用' })).toBeDisabled()
   })
 
-  it('載入 replaces both currencies, sets the deposit date, and keeps unrelated inputs', () => {
-    render(<MarathonSavings />)
+  it('套用 replaces both currencies, sets the deposit date, and keeps unrelated inputs', () => {
+    renderPage()
     seedEditedInputs()
 
     loadPreset()
@@ -83,7 +95,7 @@ describe('MarathonSavings history', () => {
 
     selectCurrency('HKD 實際等效年利率')
     expect(screen.getByText('HKD 2.8%')).toBeInTheDocument()
-    expect(screen.getByText('HKD 3%')).toBeInTheDocument()
+    expect(screen.getByText('HKD 3.0%')).toBeInTheDocument()
     expect(screen.getByText('HKD 3.2%')).toBeInTheDocument()
 
     selectCurrency('USD 實際等效年利率')
@@ -92,7 +104,7 @@ describe('MarathonSavings history', () => {
   })
 
   it('shows the preset schedule and HKD rates after calculator edits', () => {
-    render(<MarathonSavings />)
+    renderPage()
     seedEditedInputs()
 
     openHistory()
@@ -100,13 +112,42 @@ describe('MarathonSavings history', () => {
     expect(screen.getByRole('radio', { name: PRESET_ROW })).toBeInTheDocument()
   })
 
+  it('shows both currencies and highlights the active currency in the history list', () => {
+    renderPage()
+
+    openHistory()
+
+    expect(screen.getByText('2.8% / 3.0% / 3.2%')).toBeInTheDocument()
+    expect(screen.getByText('3.3% / 3.5% / 3.6%')).toBeInTheDocument()
+    expect(screen.getByTestId(PRESET_HKD_ROW)).toHaveAttribute('data-active', 'true')
+    expect(screen.getByTestId(PRESET_USD_ROW)).toHaveAttribute('data-active', 'false')
+  })
+
+  it('highlights USD when the global toggle is set to USD', () => {
+    renderPage()
+    selectCurrency('USD 實際等效年利率')
+
+    openHistory()
+
+    expect(screen.getByTestId(PRESET_HKD_ROW)).toHaveAttribute('data-active', 'false')
+    expect(screen.getByTestId(PRESET_USD_ROW)).toHaveAttribute('data-active', 'true')
+  })
+
+  it('confirms with a toast after applying a preset', () => {
+    renderPage()
+
+    loadPreset()
+
+    expect(screen.getByText('已成功套用歷史利率')).toBeInTheDocument()
+  })
+
   it('reloading restores the preset after edits', () => {
-    render(<MarathonSavings />)
+    renderPage()
     seedEditedInputs()
     loadPreset()
 
     editFirstPhase('9', '8')
-    expect(screen.getByText('USD 8%')).toBeInTheDocument()
+    expect(screen.getByText('USD 8.0%')).toBeInTheDocument()
 
     loadPreset()
 

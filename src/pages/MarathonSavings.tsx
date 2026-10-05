@@ -35,6 +35,7 @@ export default function MarathonSavings() {
             title="階段利率"
             actions={
               <PhaseRateHistory
+                currency={inputs.currency}
                 onLoad={(preset) => {
                   inputs.setPhases(preset.phases)
                   inputs.setDepositDate(preset.phases[0].startDate)

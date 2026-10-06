@@ -54,7 +54,7 @@ export function ResponsiveOverlay({ open, onOpenChange, title, children }: Respo
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent hideClose aria-describedby={undefined} onOpenAutoFocus={(e) => e.preventDefault()}>
+        <DialogContent hideClose aria-describedby={undefined}>
           <DialogTitle className="sr-only">{title}</DialogTitle>
           {body}
         </DialogContent>
@@ -64,7 +64,7 @@ export function ResponsiveOverlay({ open, onOpenChange, title, children }: Respo
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent hideClose aria-describedby={undefined} side="bottom" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <SheetContent hideClose aria-describedby={undefined} side="bottom">
         <SheetTitle className="sr-only">{title}</SheetTitle>
         {body}
       </SheetContent>

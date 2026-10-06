@@ -4,7 +4,7 @@ Hong Kong-focused, mobile-first calculators for FX deposit comparison and marath
 
 ## Environment setup
 
-Node.js 26 (`.node-version`) and pnpm 10.8.1 (`packageManager`) are required. With [fnm](https://github.com/Schniz/fnm) `--use-on-cd` enabled, run `fnm install && fnm use && corepack enable && pnpm install`.
+Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. With [fnm](https://github.com/Schniz/fnm) `--use-on-cd` enabled, run `fnm install && fnm use && npm install -g pnpm@12.9.1 && pnpm install`.
 
 ## Quick commands
 

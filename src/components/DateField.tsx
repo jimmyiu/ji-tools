@@ -1,20 +1,29 @@
 import { useId } from 'react'
+import { FLASH_FADE_MS } from '@/lib/feedback'
+import { cn } from '@/lib/utils'
 
 interface DateFieldProps {
   label: string
   value: string
   onChange: (v: string) => void
   min?: string
+  flash?: boolean
 }
 
-export function DateField({ label, value, onChange, min }: DateFieldProps) {
+export function DateField({ label, value, onChange, min, flash }: DateFieldProps) {
   const id = useId()
   return (
     <div
-      className="rounded-lg border p-3 transition-all cursor-text group
-        bg-input/30 border-border
-        hover:bg-input/40
-        has-[input:focus-visible]:border-ring has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring/40 has-[input:focus-visible]:ring-offset-0"
+      data-flash={flash ? '' : undefined}
+      style={flash ? undefined : { transitionDuration: `${FLASH_FADE_MS}ms` }}
+      className={cn(
+        'rounded-lg border p-3 cursor-text group',
+        'bg-input/30 border-border',
+        'has-[input:focus-visible]:border-ring has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring/40 has-[input:focus-visible]:ring-offset-0',
+        flash
+          ? 'border-flash bg-flash/25 ring-2 ring-flash/50'
+          : 'transition-colors hover:bg-input/40'
+      )}
     >
       <label
         htmlFor={id}

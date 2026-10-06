@@ -149,12 +149,24 @@ describe('MarathonSavings history', () => {
     expect(row).toHaveClass('border-primary')
   })
 
-  it('confirms with a toast after applying a preset', () => {
-    renderPage()
+  it('confirms with a success toast and checkmark after applying a preset', () => {
+    const { container } = renderPage()
 
     loadPreset()
 
     expect(screen.getByText('已成功套用歷史利率')).toBeInTheDocument()
+    expect(container.querySelector('.lucide-circle-check')).toBeInTheDocument()
+  })
+
+  it('flashes the deposit date field after applying a preset', () => {
+    renderPage()
+
+    const field = screen.getByLabelText('實際存款日期').parentElement
+    expect(field).not.toHaveAttribute('data-flash')
+
+    loadPreset()
+
+    expect(field).toHaveAttribute('data-flash', '')
   })
 
   it('reloading restores the preset after edits', () => {

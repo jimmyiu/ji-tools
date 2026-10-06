@@ -54,7 +54,7 @@ export function PhaseRateHistory({ currency, onLoad }: PhaseRateHistoryProps) {
     if (!preset) return
     onLoad(preset)
     close()
-    toast({ title: '已成功套用歷史利率' })
+    toast({ title: '已成功套用歷史利率', variant: 'success' })
   }
 
   return (

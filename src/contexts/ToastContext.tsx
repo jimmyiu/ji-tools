@@ -6,6 +6,9 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { CircleCheck } from 'lucide-react'
+import { FEEDBACK_DURATION_MS } from '@/lib/feedback'
+import { cn } from '@/lib/utils'
 import {
   Toast,
   ToastDescription,
@@ -17,6 +20,7 @@ import {
 export interface ToastOptions {
   title: string
   description?: string
+  variant?: 'default' | 'success'
 }
 
 interface ToastItem extends ToastOptions {
@@ -36,7 +40,7 @@ interface ToastProviderProps {
   duration?: number
 }
 
-export function ToastProvider({ children, duration = 3000 }: ToastProviderProps) {
+export function ToastProvider({ children, duration = FEEDBACK_DURATION_MS }: ToastProviderProps) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
 
   const toast = useCallback((options: ToastOptions) => {
@@ -58,15 +62,24 @@ export function ToastProvider({ children, duration = 3000 }: ToastProviderProps)
           <Toast
             key={item.id}
             open
+            className={cn(
+              item.variant === 'success' &&
+                'border-positive bg-positive text-positive-foreground'
+            )}
             onOpenChange={(open) => {
               if (!open) dismiss(item.id)
             }}
           >
-            <div className="grid gap-1">
-              <ToastTitle>{item.title}</ToastTitle>
-              {item.description && (
-                <ToastDescription>{item.description}</ToastDescription>
+            <div className="flex items-center gap-2">
+              {item.variant === 'success' && (
+                <CircleCheck aria-hidden="true" className="h-4 w-4 shrink-0" />
               )}
+              <div className="grid gap-1">
+                <ToastTitle>{item.title}</ToastTitle>
+                {item.description && (
+                  <ToastDescription>{item.description}</ToastDescription>
+                )}
+              </div>
             </div>
           </Toast>
         ))}

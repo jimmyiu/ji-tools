@@ -69,16 +69,19 @@ describe('MarathonSavings history', () => {
     expect(screen.getByText('USD 7.0%')).toBeInTheDocument()
   })
 
-  it('starts with no pending selection when reopened after cancel', () => {
+  it('preselects the first preset by default, including after reopening', () => {
     renderPage()
 
     openHistory()
-    fireEvent.click(screen.getByRole('radio', { name: PRESET_ROW }))
-    fireEvent.click(screen.getByRole('button', { name: '取消' }))
 
+    expect(screen.getByRole('radio', { name: PRESET_ROW })).toBeChecked()
+    expect(screen.getByRole('button', { name: '套用' })).toBeEnabled()
+
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
     openHistory()
 
-    expect(screen.getByRole('button', { name: '套用' })).toBeDisabled()
+    expect(screen.getByRole('radio', { name: PRESET_ROW })).toBeChecked()
+    expect(screen.getByRole('button', { name: '套用' })).toBeEnabled()
   })
 
   it('套用 replaces both currencies, sets the deposit date, and keeps unrelated inputs', () => {
@@ -131,6 +134,19 @@ describe('MarathonSavings history', () => {
 
     expect(screen.getByTestId(PRESET_HKD_ROW)).toHaveAttribute('data-active', 'false')
     expect(screen.getByTestId(PRESET_USD_ROW)).toHaveAttribute('data-active', 'true')
+  })
+
+  it('marks the selected preset with a primary border', () => {
+    renderPage()
+
+    openHistory()
+
+    const radio = screen.getByRole('radio', { name: PRESET_ROW })
+    expect(radio).toBeChecked()
+
+    const row = radio.closest('label')
+    expect(row).toHaveAttribute('data-selected', 'true')
+    expect(row).toHaveClass('border-primary')
   })
 
   it('confirms with a toast after applying a preset', () => {

@@ -53,7 +53,7 @@ function EditableSection({ title, actions, children }: EditableSectionProps) {
         <SectionHeader
           title={title}
           action={
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               {actions}
               <IconButton onClick={contextValue.open} aria-label={`編輯${title}`}>
                 <Pencil className="h-4 w-4" />

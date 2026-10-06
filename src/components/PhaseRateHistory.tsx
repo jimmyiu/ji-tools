@@ -40,7 +40,7 @@ export function PhaseRateHistory({ currency, onLoad }: PhaseRateHistoryProps) {
   }
 
   const open = () => {
-    setSelectedPresetId(null)
+    setSelectedPresetId(MARATHON_SAVINGS_HISTORY[0]?.id ?? null)
     setIsOpen(true)
   }
 
@@ -70,11 +70,12 @@ export function PhaseRateHistory({ currency, onLoad }: PhaseRateHistoryProps) {
             return (
               <label
                 key={preset.id}
+                data-selected={isSelected}
                 className={cn(
                   'flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring',
                   isSelected
                     ? 'border-primary bg-primary/5'
-                    : 'border-border bg-input/30 hover:bg-accent'
+                    : 'border-transparent bg-input/30 hover:bg-accent'
                 )}
               >
                 <input

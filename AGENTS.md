@@ -11,6 +11,7 @@ Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. Wi
 ```sh
 pnpm install
 pnpm dev
+pnpm verify
 pnpm typecheck
 pnpm build
 pnpm test
@@ -19,6 +20,7 @@ pnpm run lint
 pnpm run preview
 ```
 
+- `pnpm verify` runs the full CI check suite (lint, typecheck, test, build) in CI order; use it before committing.
 - Focused test: `pnpm test src/hooks/useCalculator.test.ts`
 - CI install: `pnpm install --frozen-lockfile`
 

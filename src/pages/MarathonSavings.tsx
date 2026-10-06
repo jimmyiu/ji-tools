@@ -1,16 +1,19 @@
 import { useInputs, useCalculator } from '../hooks/useMarathonSavings'
+import { useTransientFlag } from '../hooks/useTransientFlag'
 import { CurrencyToggle } from '../components/CurrencyToggle'
 import { BasicParameters } from '../components/BasicParameters'
 import { InterestBreakdown } from '../components/InterestBreakdown'
 import { DepositSummary } from '../components/DepositSummary'
 import { PhaseRateTimeline } from '../components/PhaseRateTimeline'
 import { PhaseRateEditForm } from '../components/PhaseRateEditForm'
+import { PhaseRateHistory } from '../components/PhaseRateHistory'
 import { EditableSection } from '../components/EditableSection'
 import { SectionSeparator } from '../components/SectionSeparator'
 
 export default function MarathonSavings() {
   const inputs = useInputs()
   const result = useCalculator(inputs)
+  const depositDateFlash = useTransientFlag()
 
   return (
     <div className="max-w-5xl mx-auto py-4 page-enter">
@@ -30,7 +33,19 @@ export default function MarathonSavings() {
 
           <SectionSeparator />
 
-          <EditableSection title="階段利率">
+          <EditableSection
+            title="階段利率"
+            actions={
+              <PhaseRateHistory
+                currency={inputs.currency}
+                onLoad={(preset) => {
+                  inputs.setPhases(preset.phases)
+                  inputs.setDepositDate(preset.phases[0].startDate)
+                  depositDateFlash.trigger()
+                }}
+              />
+            }
+          >
             <EditableSection.Summary>
               <PhaseRateTimeline
                 phases={inputs.phases}
@@ -56,6 +71,7 @@ export default function MarathonSavings() {
             principal={inputs.principal}
             onDepositDateChange={inputs.setDepositDate}
             onPrincipalChange={inputs.setPrincipal}
+            flashDepositDate={depositDateFlash.active}
           />
         </div>
 

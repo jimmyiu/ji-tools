@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { computeMarathonSavings, type MarathonSavingsResult } from '../lib/marathon'
 import type { Currency } from '../lib/calculator'
 import { normalizePhases, type Phases } from '../lib/phases'
+import { DEFAULT_MARATHON_PHASES } from '../lib/marathonPresets'
 
 function toDateStr(date: Date): string {
   return format(date, 'yyyy-MM-dd')
@@ -26,17 +27,13 @@ const defaultDates = {
   depositDate: toDateStr(new Date()),
 }
 
-const defaultPhases: Phases = [
-  { startDate: '2026-10-02', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
-  { startDate: '2026-12-01', endDate: '2027-01-03', hkdRate: 3.0, usdRate: 3.5 },
-  { startDate: '2027-01-04', endDate: '2027-02-01', hkdRate: 3.2, usdRate: 3.6 },
-]
-
 export function useInputs() {
   const [depositDate, setDepositDate] = useState(defaultDates.depositDate)
   const [currency, setCurrency] = useState<Currency>('HKD')
   const [principal, setPrincipal] = useState<string | number>(100000)
-  const [phases, setPhases] = useState<Phases>(defaultPhases)
+  const [phases, setPhases] = useState<Phases>(() =>
+    DEFAULT_MARATHON_PHASES.map((phase) => ({ ...phase })) as Phases,
+  )
 
   const actions: InputActions = {
     setDepositDate,

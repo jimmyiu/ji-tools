@@ -14,13 +14,13 @@ describe('PhaseRateTimeline', () => {
     render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
 
     expect(screen.getByText('HKD 1.85%')).toBeInTheDocument()
-    expect(screen.getByText('HKD 2%')).toBeInTheDocument()
+    expect(screen.getByText('HKD 2.0%')).toBeInTheDocument()
   })
 
   it('shows USD rates when currency is USD', () => {
     render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="USD" />)
 
-    expect(screen.getByText('USD 3%')).toBeInTheDocument()
+    expect(screen.getByText('USD 3.0%')).toBeInTheDocument()
     expect(screen.getByText('USD 3.1%')).toBeInTheDocument()
   })
 

@@ -4,13 +4,14 @@ Hong Kong-focused, mobile-first calculators for FX deposit comparison and marath
 
 ## Environment setup
 
-Node.js 26 (`.node-version`) and pnpm 10.8.1 (`packageManager`) are required. With [fnm](https://github.com/Schniz/fnm) `--use-on-cd` enabled, run `fnm install && fnm use && corepack enable && pnpm install`.
+Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. With [fnm](https://github.com/Schniz/fnm) `--use-on-cd` enabled, run `fnm install && fnm use && npm install -g pnpm@12.9.1 && pnpm install`.
 
 ## Quick commands
 
 ```sh
 pnpm install
 pnpm dev
+pnpm verify
 pnpm typecheck
 pnpm build
 pnpm test
@@ -19,7 +20,9 @@ pnpm run lint
 pnpm run preview
 ```
 
+- `pnpm verify` runs the full CI check suite (lint, typecheck, test, build) in CI order; use it before committing.
 - Focused test: `pnpm test src/hooks/useCalculator.test.ts`
+- Visual check: `pnpm dev`, then drive the printed `http://localhost:<port>/ji-tools/<route>` with the `playwright` MCP tools.
 - CI install: `pnpm install --frozen-lockfile`
 
 ## Project conventions
@@ -52,6 +55,10 @@ pnpm run preview
 - Use `<SectionHeader>` for every section title; pass supplementary text and controls through its `description` and `action` props.
 - Separate sections with `<SectionSeparator />`. In multi-column desktop layouts, use `className="lg:hidden"` when a divider should appear only on mobile. Dividers within a section are fine.
 - Put card styling inside the section wrapper so outer section spacing stays consistent; give the inner card its own padding, border, background, and radius.
+
+### Visual checks
+
+- For visual or layout changes, verify the rendered screen with the `playwright` MCP before finishing: start `pnpm dev` and open the `http://localhost:<port>/ji-tools/<route>` it prints. Capture before/after with `browser_take_screenshot`; use `browser_snapshot` when spacing, alignment, or hierarchy matters. Check a mobile viewport (about 390x844) and desktop.
 
 ### Fields
 

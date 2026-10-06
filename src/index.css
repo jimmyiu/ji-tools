@@ -106,6 +106,7 @@ a, button, [role="button"] {
   --ring: oklch(0.53 0.19 270);
   --positive: oklch(0.6 0.18 150);
   --positive-foreground: oklch(0.98 0 0);
+  --flash: oklch(0.85 0.24 150);
   --negative: oklch(0.6 0.2 25);
   --negative-foreground: oklch(0.98 0 0);
   --tab-bar-shadow: 0 -4px 12px 0 oklch(0 0 0 / 0.3);
@@ -138,6 +139,7 @@ a, button, [role="button"] {
   --color-background: var(--background);
   --color-positive: var(--positive);
   --color-positive-foreground: var(--positive-foreground);
+  --color-flash: var(--flash);
   --color-negative: var(--negative);
   --color-negative-foreground: var(--negative-foreground);
   --shadow-tab-bar: var(--tab-bar-shadow);

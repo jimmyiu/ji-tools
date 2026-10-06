@@ -219,5 +219,8 @@ keys/
 ### Review artifacts ###
 .review-changes.diff
 
+### Playwright MCP artifacts ###
+.playwright-mcp/
+
 ### Superpowers brainstorming mockups ###
 .superpowers/

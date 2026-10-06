@@ -7,6 +7,7 @@ interface BasicParametersProps {
   principal: string | number
   onDepositDateChange: (v: string) => void
   onPrincipalChange: (v: string) => void
+  flashDepositDate?: boolean
 }
 
 export function BasicParameters({
@@ -14,6 +15,7 @@ export function BasicParameters({
   principal,
   onDepositDateChange,
   onPrincipalChange,
+  flashDepositDate,
 }: BasicParametersProps) {
   return (
     <div className="px-4 py-4">
@@ -23,6 +25,7 @@ export function BasicParameters({
           label="實際存款日期"
           value={depositDate}
           onChange={onDepositDateChange}
+          flash={flashDepositDate}
         />
         <InputField
           label="初始本金"

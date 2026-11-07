@@ -17,17 +17,17 @@ The rendered notification that carries a prompt, occupying page space above or b
 _Avoid_: toast, alert, snackbar
 
 **Phase**:
-One rate window in the marathon savings schedule, carrying an HKD rate and a USD rate for its own span of days. A phase sits next to the next phase, never apart from it.
-_Avoid_: tier, leg, segment, period
+One rate window in the marathon savings schedule, carrying an HKD rate and a USD rate for its own span of days. Phases are always contiguous; see the contiguity invariant.
+_Avoid_: tier, leg, segment. "Period" stays available for the FX calculator's rollover terms; never use it for a marathon phase.
 
 **Phase schedule**:
-The allocation of phases against the deposit date: how many days of each phase fall inside the deposit window, how long each phase lasts, and where each phase sits on the timeline.
+The loaded schedule — a phase set together with its deposit date. After it is computed, the same term also names the allocation of that schedule: how many days of each phase fall inside the deposit window, how long each phase lasts, and where each phase sits on the timeline. The computed allocation is the sense most mentions use; the loaded sense is what a preset applies in one step.
 _Avoid_: ladder, plan, forecast
 
 **Contiguity invariant**:
-Each phase starts the day after the previous phase ends. No day belongs to two phases and no day between phases goes unassigned.
+Each phase starts the day after the previous phase ends. No day belongs to two phases, and while a phase's dates are set, no day between phases goes unassigned. A phase with a blank date breaks this temporarily — its own span and the next phase's start stay blank until dates are entered again.
 _Avoid_: adjacency, ordering
 
 **Deposit date**:
-The first day inside the deposit window, and the day the schedule starts earning. It clamps every phase's contribution: days before it do not count.
+The first day of the deposit window: each phase contributes only on and after whichever is later, its own start or the deposit date, so days before it do not count. A deposit date before every phase still leaves earning to begin at the first phase's start; a deposit date after every phase leaves no phase earning.
 _Avoid_: start date, entry date, value date

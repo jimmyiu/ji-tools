@@ -25,7 +25,3 @@ pnpm install
 ### Others
 
 - OpenCode
-
-### Not Using
-- OpenSpec
-- https://github.com/JiangWay/openspec-schemas

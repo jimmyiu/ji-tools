@@ -16,6 +16,9 @@ interface WindowCase {
   durations: number[]
   totalDays: number
   totalDuration: number
+  // Optional concrete percentages, asserted at 8 decimal places when present.
+  positions?: number[]
+  widths?: number[]
 }
 
 const windowCases: WindowCase[] = [
@@ -27,6 +30,8 @@ const windowCases: WindowCase[] = [
     durations: [60, 34, 29],
     totalDays: 123,
     totalDuration: 123,
+    positions: [0, 48.780487804878, 76.422764227642],
+    widths: [48.780487804878, 27.642276422764, 23.577235772358],
   },
   {
     name: 'deposit date inside a phase',
@@ -97,7 +102,7 @@ describe('phase schedule', () => {
 
   it.each(windowCases.filter((c) => c.totalDuration > 0))(
     'tiles the timeline for $name',
-    ({ phases, depositDate }) => {
+    ({ phases, depositDate, positions, widths }) => {
       const schedule = computeMarathonSavings(phases, depositDate, 100000, 'HKD')
       const bands = schedule.phaseResults
       expect(bands[0].position).toBe(0)
@@ -106,6 +111,8 @@ describe('phase schedule', () => {
         if (next) expect(band.position + band.width).toBeCloseTo(next.position, 8)
       })
       expect(bands.at(-1)!.position + bands.at(-1)!.width).toBeCloseTo(100, 8)
+      positions?.forEach((p, i) => expect(bands[i].position).toBeCloseTo(p, 8))
+      widths?.forEach((w, i) => expect(bands[i].width).toBeCloseTo(w, 8))
     },
   )
 
@@ -118,19 +125,6 @@ describe('phase schedule', () => {
       ).toBe(true)
     },
   )
-
-  it('reports contiguous timeline positions for the default schedule', () => {
-    const schedule = computeMarathonSavings(defaultPhases, '2026-10-02', 100000, 'HKD')
-    const positions = schedule.phaseResults.map((p) => p.position)
-    expect(positions[0]).toBeCloseTo(0, 8)
-    expect(positions[1]).toBeCloseTo(48.780487804878, 8)
-    expect(positions[2]).toBeCloseTo(76.422764227642, 8)
-
-    const widths = schedule.phaseResults.map((p) => p.width)
-    expect(widths[0]).toBeCloseTo(48.780487804878, 8)
-    expect(widths[1]).toBeCloseTo(27.642276422764, 8)
-    expect(widths[2]).toBeCloseTo(23.577235772358, 8)
-  })
 
   it.each([{ currency: 'HKD' }, { currency: 'USD' }] as { currency: 'HKD' | 'USD' }[])(
     'sums per-phase interest to total interest ($currency)',

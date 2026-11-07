@@ -76,6 +76,9 @@ export interface PhaseResult {
 }
 
 export interface MarathonSavingsResult {
+  // The currency the schedule was computed for: every `rate` and `interest` in
+  // `phaseResults` follows it, so consumers never re-select a currency.
+  currency: Currency
   hkdActualRate: number
   usdActualRate: number
   phaseResults: PhaseResult[]
@@ -140,6 +143,7 @@ export function computeMarathonSavings(
   const totalInterest = phaseResults.reduce((sum, r) => sum + r.interest, 0)
 
   return {
+    currency,
     hkdActualRate,
     usdActualRate,
     phaseResults,

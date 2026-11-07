@@ -1,16 +1,15 @@
 import { fmtDateShort, fmtPhaseRate } from '@/lib/format'
 import type { MarathonSavingsResult } from '@/lib/marathon'
-import type { Currency } from '@/lib/calculator'
 
 interface PhaseRateTimelineProps {
   schedule: MarathonSavingsResult
-  currency: Currency
 }
 
 const OPACITIES = [0.2, 0.35, 0.5]
 
-export function PhaseRateTimeline({ schedule, currency }: PhaseRateTimelineProps) {
+export function PhaseRateTimeline({ schedule }: PhaseRateTimelineProps) {
   const phases = schedule.phaseResults
+  const currency = schedule.currency
 
   if (schedule.totalDays === 0) {
     return (
@@ -30,6 +29,7 @@ export function PhaseRateTimeline({ schedule, currency }: PhaseRateTimelineProps
           return (
             <div
               key={phase.index}
+              data-testid="phase-band"
               className="flex flex-col items-center justify-center rounded-md min-w-[4.5rem] whitespace-nowrap overflow-hidden p-2 min-h-11"
               style={{
                 flex: phase.width,

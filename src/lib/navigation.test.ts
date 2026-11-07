@@ -53,6 +53,15 @@ describe('navigation metrics match the stylesheet', () => {
     expect(value).toContain(`${TAB_BAR_BOTTOM_INSET}px`)
   })
 
+  it('tab bar bottom on mobile keeps the tab bar inset', () => {
+    const value = declaration(mobileScope, 'tab-bar-bottom')
+    expect(value).toContain(`${TAB_BAR_BOTTOM_INSET}px`)
+  })
+
+  it('tab bar bottom on mobile clears the tab bar height and shadow', () => {
+    expect(firstPx(declaration(mobileScope, 'tab-bar-bottom'))).toBe(TAB_BAR_BOTTOM_INSET)
+  })
+
   it('desktop side nav offset equals the side nav width', () => {
     expect(firstPx(declaration(desktopScope, 'nav-left-offset'))).toBe(SIDE_NAV_WIDTH)
   })
@@ -63,6 +72,16 @@ describe('navigation metrics match the stylesheet', () => {
 
   it('desktop media query equals the desktop navigation width', () => {
     const match = css.match(/@media \(min-width: (\d+)px\)/)
+    expect(Number(match?.[1])).toBe(DESKTOP_NAV_PX)
+  })
+
+  it('desktop-nav custom variant equals the desktop navigation width', () => {
+    const match = css.match(/@custom-variant desktop-nav \{\s*@media \(width >= (\d+)px\)/)
+    expect(Number(match?.[1])).toBe(DESKTOP_NAV_PX)
+  })
+
+  it('desktop-nav theme breakpoint equals the desktop navigation width', () => {
+    const match = css.match(/--breakpoint-desktop-nav: (\d+)px;/)
     expect(Number(match?.[1])).toBe(DESKTOP_NAV_PX)
   })
 })

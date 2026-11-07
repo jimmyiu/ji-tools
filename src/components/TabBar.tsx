@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Home, Settings } from 'lucide-react'
-import { TAB_BAR_BOTTOM_INSET, TAB_BAR_HEIGHT } from '@/lib/navigation'
+import { TAB_BAR_HEIGHT } from '@/lib/navigation'
 
 const tabs = [
   { to: '/', label: '首頁', icon: Home },
@@ -16,7 +16,7 @@ export default function TabBar() {
     <nav
       aria-label="底部導航"
       className="desktop-nav:hidden fixed left-4 right-4 z-40"
-      style={{ bottom: `calc(${TAB_BAR_BOTTOM_INSET}px + env(safe-area-inset-bottom))` }}
+      style={{ bottom: 'var(--tab-bar-bottom)' }}
     >
       <div
         className="mx-auto max-w-[280px] rounded-2xl bg-card/80 backdrop-blur-xl border-t border-border/10 shadow-tab-bar"

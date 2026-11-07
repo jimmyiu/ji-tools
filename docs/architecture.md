@@ -11,7 +11,7 @@ Changes flow downward: a page composes sections, sections render field component
 | Pure calculation | `src/lib/` | Formulas, dates, formatting, presets. No React. |
 | State hooks | `src/hooks/` | React state and effects. Compose `src/lib/`; no formulas of their own. |
 | Shared state | `src/contexts/` | Cross-page state behind a provider: toasts, PWA prompts. |
-| Presentation | `src/components/` | Sections and fields. `components/ui/` holds unstyled primitives (dialog, sheet, select). |
+| Presentation | `src/components/` | Sections and fields. `components/ui/` holds unstyled primitives (dialog, sheet, toast). |
 | Pages | `src/pages/` | Route targets, lazy-loaded from `src/App.tsx`. Compose sections; hold no formulas. |
 
 ## Deep modules
@@ -32,4 +32,4 @@ Two independent calculators, one per route. They share only the interest primiti
 
 ## App shell
 
-`src/components/Layout.tsx` owns the header, banners, navigation, and scroll behaviour; `src/App.tsx` owns routing, the `/ji-tools/` base, and the providers. Nav metrics must match the `--nav-left-offset` and `--nav-bottom-offset` custom properties in `src/index.css`.
+`src/components/Layout.tsx` owns the header, banners, navigation, and scroll behaviour; `src/App.tsx` owns routing, the `/ji-tools/` base, and the providers. Navigation metrics are declared once in `src/lib/navigation.ts` and must match the `--nav-left-offset`, `--nav-bottom-offset`, `--tab-bar-bottom`, and `--update-banner-bottom` custom properties in `src/index.css`; a test in `src/lib/navigation.test.ts` fails when they drift.

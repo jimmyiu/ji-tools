@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { DESKTOP_NAV_PX } from '@/lib/navigation'
 import { SectionHeader } from './SectionHeader'
 import {
   Dialog,
@@ -23,7 +24,7 @@ interface ResponsiveOverlayProps {
 }
 
 export function ResponsiveOverlay({ open, onOpenChange, title, children }: ResponsiveOverlayProps) {
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const isDesktop = useMediaQuery(`(min-width: ${DESKTOP_NAV_PX}px)`)
 
   const closeButton = (
     <button

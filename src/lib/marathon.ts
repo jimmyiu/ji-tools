@@ -5,7 +5,7 @@ import type { PhaseState } from './phases'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 
-export interface PhaseDays {
+interface PhaseDays {
   index: number
   startDate: string
   endDate: string

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Home, Settings } from 'lucide-react'
+import { SIDE_NAV_WIDTH } from '@/lib/navigation'
 
 export default function SideNav() {
   const location = useLocation()
@@ -7,8 +8,9 @@ export default function SideNav() {
   return (
     <nav
       aria-label="主導航"
-      className="hidden desktop-nav:flex fixed left-0 top-0 bottom-0 w-20 z-40 bg-muted border-r border-border flex-col items-center"
+      className="hidden desktop-nav:flex fixed left-0 top-0 bottom-0 z-40 bg-muted border-r border-border flex-col items-center"
       style={{
+        width: SIDE_NAV_WIDTH,
         paddingTop: 'env(safe-area-inset-top)',
         paddingBottom: 'env(safe-area-inset-bottom)',
         paddingLeft: 'env(safe-area-inset-left)',

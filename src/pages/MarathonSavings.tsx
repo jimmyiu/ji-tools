@@ -47,11 +47,7 @@ export default function MarathonSavings() {
             }
           >
             <EditableSection.Summary>
-              <PhaseRateTimeline
-                phases={inputs.phases}
-                depositDate={inputs.depositDate}
-                currency={inputs.currency}
-              />
+              <PhaseRateTimeline schedule={result} currency={inputs.currency} />
             </EditableSection.Summary>
             <EditableSection.Form
               data={inputs.phases}

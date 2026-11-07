@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { PhaseRateTimeline } from './PhaseRateTimeline'
+import { computeMarathonSavings } from '@/lib/marathon'
 import type { PhaseState } from '@/lib/phases'
 
 describe('PhaseRateTimeline', () => {
@@ -10,22 +11,26 @@ describe('PhaseRateTimeline', () => {
     { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.2, usdRate: 3.3 },
   ]
 
+  function scheduleFor(depositDate: string) {
+    return computeMarathonSavings(mockPhases, depositDate, 100000, 'HKD')
+  }
+
   it('shows HKD rates when currency is HKD', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} currency="HKD" />)
 
     expect(screen.getByText('HKD 1.85%')).toBeInTheDocument()
     expect(screen.getByText('HKD 2.0%')).toBeInTheDocument()
   })
 
   it('shows USD rates when currency is USD', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="USD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} currency="USD" />)
 
     expect(screen.getByText('USD 3.0%')).toBeInTheDocument()
     expect(screen.getByText('USD 3.1%')).toBeInTheDocument()
   })
 
   it('renders boundary dates', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} currency="HKD" />)
 
     expect(screen.getByText('04-May')).toBeInTheDocument()
     expect(screen.getByText('02-Jul')).toBeInTheDocument()
@@ -33,9 +38,25 @@ describe('PhaseRateTimeline', () => {
     expect(screen.getByText('31-Aug')).toBeInTheDocument()
   })
 
+  it('positions bands and labels from the schedule result', () => {
+    const { container } = render(
+      <PhaseRateTimeline schedule={scheduleFor('2026-05-04')} currency="HKD" />,
+    )
+
+    const bands = container.querySelectorAll('[style*="flex:"]')
+    expect(Array.from(bands).map((band) => parseFloat((band as HTMLElement).style.flex))).toEqual([
+      49.166666666666664, 26.666666666666668, 24.166666666666668,
+    ])
+
+    const labels = Array.from(container.querySelectorAll('span.absolute'))
+      .filter((label) => (label as HTMLElement).style.left !== '')
+      .map((label) => parseFloat((label as HTMLElement).style.left))
+    expect(labels).toEqual([0, 49.166666666666664, 75.83333333333333])
+  })
+
   it('renders phase with zero effective days with muted styling', () => {
     const { container } = render(
-      <PhaseRateTimeline phases={mockPhases} depositDate="2026-07-15" currency="HKD" />
+      <PhaseRateTimeline schedule={scheduleFor('2026-07-15')} currency="HKD" />,
     )
 
     const mutedSegment = container.querySelector('[style*="opacity: 0.4"]')
@@ -43,7 +64,7 @@ describe('PhaseRateTimeline', () => {
   })
 
   it('shows zero days message when deposit date is after all phases', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-12-01" currency="HKD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-12-01')} currency="HKD" />)
 
     expect(screen.getByText('存款日期在所有階段之後')).toBeInTheDocument()
   })
@@ -54,7 +75,8 @@ describe('PhaseRateTimeline', () => {
       { startDate: '2026-12-01', endDate: '', hkdRate: 3.0, usdRate: 3.5 },
       { startDate: '', endDate: '2027-02-01', hkdRate: 3.2, usdRate: 3.6 },
     ]
-    render(<PhaseRateTimeline phases={blankPhases} depositDate="2026-10-02" currency="HKD" />)
+    const schedule = computeMarathonSavings(blankPhases, '2026-10-02', 100000, 'HKD')
+    render(<PhaseRateTimeline schedule={schedule} currency="HKD" />)
 
     const labels = screen.getAllByText(/^[0-9]{2}-[A-Za-z]{3}$/)
     expect(labels.map((l) => l.textContent)).toEqual(['02-Oct', '01-Dec', '01-Feb'])

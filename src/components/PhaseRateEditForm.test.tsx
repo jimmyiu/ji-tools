@@ -136,5 +136,34 @@ describe('PhaseRateEditForm', () => {
       expect(startInputs()[1]).toHaveAttribute('min', '2026-05-05')
       expect(startInputs()[2]).toHaveAttribute('min', '2026-07-03')
     })
+
+    it('omits the start min when the previous start is blank', () => {
+      const blankPrevious: Phases = [
+        { ...mockPhases[0], startDate: '', endDate: '' },
+        mockPhases[1],
+        mockPhases[2],
+      ]
+      render(<PhaseRateEditForm phases={blankPrevious} onChange={vi.fn()} />)
+
+      expect(startInputs()[1]).not.toHaveAttribute('min')
+    })
+
+    function phasesWithBlankStart(index: number): Phases {
+      const out = [...mockPhases] as Phases
+      out[index] = { ...mockPhases[index], startDate: '' }
+      return out
+    }
+
+    it('omits the end min when a phase has no start date', () => {
+      render(<PhaseRateEditForm phases={phasesWithBlankStart(1)} onChange={vi.fn()} />)
+
+      expect(endInputs()[1]).not.toHaveAttribute('min')
+    })
+
+    it('keeps the start min when the own start is blank', () => {
+      render(<PhaseRateEditForm phases={phasesWithBlankStart(1)} onChange={vi.fn()} />)
+
+      expect(startInputs()[1]).toHaveAttribute('min', '2026-05-05')
+    })
   })
 })

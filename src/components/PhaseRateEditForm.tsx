@@ -1,9 +1,9 @@
-import { addDays, format, parseISO } from 'date-fns'
 import { InputField } from './InputField'
 import { DateField } from './DateField'
 import {
   applyPhaseEndDate,
   applyPhaseStartDate,
+  phaseDateBounds,
   type PhaseIndex,
   type PhaseState,
   type Phases,
@@ -16,15 +16,6 @@ interface PhaseRateEditFormProps {
 
 function assertPhaseIndex(i: number): asserts i is PhaseIndex {
   if (i < 0 || i > 2) throw new Error(`Invalid phase index: ${i}`)
-}
-
-function nextDay(date: string): string {
-  return format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
-}
-
-// Empty string min would block nothing; use undefined so the attribute is omitted.
-function minOrUndefined(date: string): string | undefined {
-  return date === '' ? undefined : date
 }
 
 export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) {
@@ -46,7 +37,7 @@ export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) 
     <div className="space-y-5">
       {phases.map((phase, i) => {
         assertPhaseIndex(i)
-        const prevStart = i > 0 ? phases[i - 1].startDate : ''
+        const bounds = phaseDateBounds(phases, i)
         return (
           <div key={i} className="space-y-3">
             <div className="text-xs font-medium text-primary">
@@ -60,13 +51,13 @@ export function PhaseRateEditForm({ phases, onChange }: PhaseRateEditFormProps) 
                 label="開始日期"
                 value={phase.startDate}
                 onChange={(v) => updateStartDate(i, v)}
-                min={i === 0 ? undefined : prevStart === '' ? undefined : nextDay(prevStart)}
+                min={bounds.minStart}
               />
               <DateField
                 label="結束日期"
                 value={phase.endDate}
                 onChange={(v) => updateEndDate(i, v)}
-                min={minOrUndefined(phase.startDate)}
+                min={bounds.minEnd}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">

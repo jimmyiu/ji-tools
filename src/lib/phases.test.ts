@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { applyPhaseEndDate, applyPhaseStartDate, type Phases, type PhaseState } from './phases'
+import {
+  applyPhaseEndDate,
+  applyPhaseStartDate,
+  phaseDateBounds,
+  type Phases,
+  type PhaseState,
+} from './phases'
 
 function phases(
   overrides: Partial<PhaseState>[] = [],
@@ -114,6 +120,41 @@ describe('applyPhaseStartDate', () => {
     const empty = phases([{ endDate: '' }, { startDate: '' }])
     const result = applyPhaseStartDate(empty, 1, '')
     expect(result).toEqual(empty)
+  })
+})
+
+describe('phaseDateBounds', () => {
+  it.each([
+    {
+      label: 'first phase',
+      index: 0 as const,
+      minStart: undefined,
+      minEnd: '2026-05-04',
+    },
+    {
+      label: 'middle phase',
+      index: 1 as const,
+      minStart: '2026-05-05',
+      minEnd: '2026-07-02',
+    },
+    {
+      label: 'last phase',
+      index: 2 as const,
+      minStart: '2026-07-03',
+      minEnd: '2026-08-03',
+    },
+  ])('$label derives start and end minimums', ({ index, minStart, minEnd }) => {
+    expect(phaseDateBounds(phases(), index)).toEqual({ minStart, minEnd })
+  })
+
+  it('omits the start minimum when the previous start is blank', () => {
+    const blank = phases([{ startDate: '', endDate: '' }])
+    expect(phaseDateBounds(blank, 1).minStart).toBeUndefined()
+  })
+
+  it('omits the end minimum when the own start is blank', () => {
+    const blank = phases([{}, { startDate: '' }])
+    expect(phaseDateBounds(blank, 1).minEnd).toBeUndefined()
   })
 })
 

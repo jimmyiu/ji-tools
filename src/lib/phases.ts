@@ -22,6 +22,23 @@ function isBlank(v: string): boolean {
   return v === ''
 }
 
+// Bounds for a phase's date pickers. A bound is absent when the date it
+// derives from is unset: the first phase has no start bound, and any phase
+// with a blank own start has no end bound.
+export interface PhaseDateBounds {
+  minStart?: string
+  minEnd?: string
+}
+
+export function phaseDateBounds(phases: Phases, index: PhaseIndex): PhaseDateBounds {
+  const prevStart = index === 0 ? '' : phases[index - 1].startDate
+  const ownStart = phases[index].startDate
+  return {
+    minStart: isBlank(prevStart) ? undefined : nextDay(prevStart),
+    minEnd: isBlank(ownStart) ? undefined : ownStart,
+  }
+}
+
 // An end date is invalid only when both dates are present and end < start.
 function isEndInvalid(start: string, end: string): boolean {
   return !isBlank(start) && !isBlank(end) && isBefore(parseISO(end), parseISO(start))

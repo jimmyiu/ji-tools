@@ -1,11 +1,9 @@
 import { ExternalLink } from 'lucide-react'
 import { SectionHeader } from '../components/SectionHeader'
-import { useInstallPrompt } from '../hooks/useInstallPrompt'
-import { usePwaUpdateContext } from '../contexts/PwaUpdateContext'
+import { usePwaPrompts } from '../contexts/PwaPromptsContext'
 
 export default function Settings() {
-  const { dismissed, resetDismissed } = useInstallPrompt()
-  const { showUpdateBanner, toggleShow } = usePwaUpdateContext()
+  const { install, update } = usePwaPrompts()
 
   return (
     <div className="max-w-5xl mx-auto py-4 page-enter">
@@ -26,14 +24,14 @@ export default function Settings() {
         <ExternalLink className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
       </a>
       <button
-        onClick={toggleShow}
+        onClick={update.toggle}
         className="w-full p-4 text-left text-sm text-primary hover:bg-card/90 transition-colors active:opacity-90 border-b border-border"
       >
-        {showUpdateBanner ? '隱藏更新提示' : '顯示更新提示'}
+        {update.visible ? '隱藏更新提示' : '顯示更新提示'}
       </button>
-      {dismissed && (
+      {!install.visible && (
         <button
-          onClick={resetDismissed}
+          onClick={install.toggle}
           className="w-full p-4 text-left text-sm text-primary hover:bg-card/90 transition-colors active:opacity-90"
         >
           重新顯示安裝提示

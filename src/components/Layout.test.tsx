@@ -3,12 +3,29 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import Layout from './Layout'
 
-const mockUsePwaUpdateContext = vi.fn()
+const mockUsePwaPrompts = vi.fn()
 
-vi.mock('../contexts/PwaUpdateContext', () => ({
-  usePwaUpdateContext: () => mockUsePwaUpdateContext(),
-  PwaUpdateProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+vi.mock('../contexts/PwaPromptsContext', () => ({
+  usePwaPrompts: () => mockUsePwaPrompts(),
 }))
+
+function prompts({ installVisible = false, updateVisible = false } = {}) {
+  return {
+    install: {
+      visible: installVisible,
+      isIOS: false,
+      dismiss: vi.fn(),
+      toggle: vi.fn(),
+      prompt: vi.fn(),
+    },
+    update: {
+      visible: updateVisible,
+      dismiss: vi.fn(),
+      toggle: vi.fn(),
+      reload: vi.fn(),
+    },
+  }
+}
 
 function renderWithRouter(ui: React.ReactElement) {
   return render(<BrowserRouter>{ui}</BrowserRouter>)
@@ -29,11 +46,7 @@ beforeEach(() => {
     })),
   })
 
-  mockUsePwaUpdateContext.mockReturnValue({
-    showUpdateBanner: false,
-    update: vi.fn(),
-    dismiss: vi.fn(),
-  })
+  mockUsePwaPrompts.mockReturnValue(prompts())
 })
 
 describe('Layout header', () => {
@@ -79,20 +92,31 @@ describe('Layout padding offsets', () => {
     expect(main.style.paddingLeft).toBe('var(--nav-left-offset)')
   })
 
-  it('sets header top style to totalBannerHeight (install height only)', () => {
+  it('sets header top to the install prompt banner height', () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(96)
+    mockUsePwaPrompts.mockReturnValue(prompts({ installVisible: true }))
+
     const { container } = renderWithRouter(<Layout />)
+
     const header = container.querySelector('header') as HTMLElement
-    expect(header.style.top).toBeDefined()
-    expect(header.style.top).not.toBe('')
+    expect(header.style.top).toBe('96px')
   })
 
-  it('header top does not include UpdateBanner height even when update banner is visible', () => {
-    mockUsePwaUpdateContext.mockReturnValue({
-      showUpdateBanner: true,
-      update: vi.fn(),
-      dismiss: vi.fn(),
-    })
+  it('sets header top to 0 when the install prompt banner is hidden', () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(96)
+
     const { container } = renderWithRouter(<Layout />)
+
+    const header = container.querySelector('header') as HTMLElement
+    expect(header.style.top).toBe('0px')
+  })
+
+  it('header top does not include the update prompt banner height when it is visible', () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(96)
+    mockUsePwaPrompts.mockReturnValue(prompts({ updateVisible: true }))
+
+    const { container } = renderWithRouter(<Layout />)
+
     const header = container.querySelector('header') as HTMLElement
     expect(header.style.top).toBe('0px')
   })
@@ -126,43 +150,31 @@ describe('Main element', () => {
   })
 })
 
-describe('UpdateBanner', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
+describe('Prompt banners', () => {
+  it('renders the install prompt banner through the provider', () => {
+    mockUsePwaPrompts.mockReturnValue(prompts({ installVisible: true }))
+
+    renderWithRouter(<Layout />)
+
+    expect(screen.getByText('安裝 JI Tools')).toBeInTheDocument()
   })
 
-  it('renders update banner with refresh button when showUpdateBanner is true', () => {
-    mockUsePwaUpdateContext.mockReturnValue({
-      showUpdateBanner: true,
-      update: vi.fn(),
-      dismiss: vi.fn(),
-    })
+  it('renders the update prompt banner through the provider', () => {
+    mockUsePwaPrompts.mockReturnValue(prompts({ updateVisible: true }))
+
     renderWithRouter(<Layout />)
+
     expect(screen.getByText('新版本已可用')).toBeInTheDocument()
     expect(screen.getByText('重新整理')).toBeInTheDocument()
   })
 
-  it('does not render update banner when showUpdateBanner is false', () => {
-    mockUsePwaUpdateContext.mockReturnValue({
-      showUpdateBanner: false,
-      update: vi.fn(),
-      dismiss: vi.fn(),
-    })
-    renderWithRouter(<Layout />)
-    expect(screen.queryByText('新版本已可用')).not.toBeInTheDocument()
-    expect(screen.queryByText('重新整理')).not.toBeInTheDocument()
-  })
+  it('dismisses the update prompt when its close button is clicked', () => {
+    const update = prompts({ updateVisible: true }).update
+    mockUsePwaPrompts.mockReturnValue({ ...prompts(), update })
 
-  it('hides banner on dismiss click', () => {
-    const dismiss = vi.fn()
-    mockUsePwaUpdateContext.mockReturnValue({
-      showUpdateBanner: true,
-      update: vi.fn(),
-      dismiss,
-    })
     renderWithRouter(<Layout />)
-    expect(screen.getByText('新版本已可用')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('關閉'))
-    expect(dismiss).toHaveBeenCalled()
+
+    expect(update.dismiss).toHaveBeenCalledOnce()
   })
 })

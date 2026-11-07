@@ -1,9 +1,8 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useScrollPosition } from '../hooks/useScrollPosition'
 import { useScrollLock } from '../hooks/useScrollLock'
-import { useInstallPrompt } from '../hooks/useInstallPrompt'
-import { PwaUpdateProvider, usePwaUpdateContext } from '../contexts/PwaUpdateContext'
-import { useBannerManager } from '../hooks/useBannerManager'
+import { usePwaPrompts } from '../contexts/PwaPromptsContext'
 import TabBar from './TabBar'
 import SideNav from './SideNav'
 import InstallBanner from './InstallBanner'
@@ -21,22 +20,18 @@ function lerp(a: number, b: number, t: number) {
 }
 
 export default function Layout() {
-  return (
-    <PwaUpdateProvider>
-      <LayoutInner />
-    </PwaUpdateProvider>
-  )
-}
-
-function LayoutInner() {
   const location = useLocation()
   const { scrollProgress } = useScrollPosition(44)
   const pageInfo = pageTitles[location.pathname] ?? { title: 'JI Tools' }
-  const { canInstall, isIOS, dismiss: dismissInstall, install } = useInstallPrompt()
-  const { showUpdateBanner, update, dismiss: dismissUpdate } = usePwaUpdateContext()
-  const { bannerRef, totalBannerHeight } = useBannerManager(canInstall)
+  const { install } = usePwaPrompts()
+  const bannerRef = useRef<HTMLDivElement>(null)
+  const [installBannerHeight, setInstallBannerHeight] = useState(0)
 
   useScrollLock(location.pathname)
+
+  useLayoutEffect(() => {
+    setInstallBannerHeight(bannerRef.current?.offsetHeight ?? 0)
+  }, [install.visible])
 
   const titleFontSize = `${lerp(1.5, 1, scrollProgress)}rem`
   const titleFontWeight = Math.round(lerp(700, 600, scrollProgress))
@@ -47,13 +42,9 @@ function LayoutInner() {
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg">跳到主內容</a>
-      <InstallBanner ref={bannerRef} canInstall={canInstall} isIOS={isIOS} install={install} dismiss={dismissInstall} />
-      <UpdateBanner
-        visible={showUpdateBanner}
-        update={update}
-        dismiss={dismissUpdate}
-      />
-      <header className="sticky z-30 bg-background" style={{ top: totalBannerHeight || 0, paddingLeft: 'var(--nav-left-offset)' }}>
+      <InstallBanner ref={bannerRef} />
+      <UpdateBanner />
+      <header className="sticky z-30 bg-background" style={{ top: installBannerHeight || 0, paddingLeft: 'var(--nav-left-offset)' }}>
         <div style={{ paddingTop: 'env(safe-area-inset-top)' }}>
             <div
               className="max-w-5xl mx-auto px-4 flex flex-col justify-center"

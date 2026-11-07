@@ -14,6 +14,14 @@ function nextDay(date: string): string {
   return format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
 }
 
+function prevDay(date: string): string {
+  return format(addDays(parseISO(date), -1), 'yyyy-MM-dd')
+}
+
+function isBlank(v: string): boolean {
+  return v === ''
+}
+
 // Bounds for a phase's date pickers. A bound is absent when the date it
 // derives from is unset: the first phase has no start bound, and any phase
 // with a blank own start has no end bound.
@@ -29,14 +37,6 @@ export function phaseDateBounds(phases: Phases, index: PhaseIndex): PhaseDateBou
     minStart: isBlank(prevStart) ? undefined : nextDay(prevStart),
     minEnd: isBlank(ownStart) ? undefined : ownStart,
   }
-}
-
-function prevDay(date: string): string {
-  return format(addDays(parseISO(date), -1), 'yyyy-MM-dd')
-}
-
-function isBlank(v: string): boolean {
-  return v === ''
 }
 
 // An end date is invalid only when both dates are present and end < start.

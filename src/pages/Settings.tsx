@@ -29,14 +29,12 @@ export default function Settings() {
       >
         {update.visible ? '隱藏更新提示' : '顯示更新提示'}
       </button>
-      {!install.visible && (
-        <button
-          onClick={install.toggle}
-          className="w-full p-4 text-left text-sm text-primary hover:bg-card/90 transition-colors active:opacity-90"
-        >
-          重新顯示安裝提示
-        </button>
-      )}
+      <button
+        onClick={install.toggle}
+        className="w-full p-4 text-left text-sm text-primary hover:bg-card/90 transition-colors active:opacity-90 border-b border-border"
+      >
+        {install.visible ? '隱藏安裝提示' : '顯示安裝提示'}
+      </button>
     </div>
   )
 }

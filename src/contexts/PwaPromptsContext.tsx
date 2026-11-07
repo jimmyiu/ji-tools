@@ -30,6 +30,7 @@ export interface PwaPrompts {
 }
 
 const INSTALL_DISMISSED_KEY = 'pwa_install_dismissed'
+const INSTALL_FORCED_KEY = 'pwa_install_forced'
 const UPDATE_VISIBLE_KEY = 'pwa_update_visible'
 const LEGACY_UPDATE_KEYS = ['pwa_update_dismissed', 'pwa_update_force_show']
 
@@ -54,6 +55,9 @@ function useInstallPrompt(): InstallPrompt {
   const [dismissed, setDismissed] = useState(
     () => localStorage.getItem(INSTALL_DISMISSED_KEY) === 'true'
   )
+  const [forced, setForced] = useState(
+    () => localStorage.getItem(INSTALL_FORCED_KEY) === 'true'
+  )
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [ios] = useState(isIOSDevice)
 
@@ -66,19 +70,29 @@ function useInstallPrompt(): InstallPrompt {
     return () => window.removeEventListener('beforeinstallprompt', handler)
   }, [])
 
-  const visible = !installed && !dismissed && (ios || deferredPrompt !== null)
+  const visible = !installed && !dismissed && (ios || deferredPrompt !== null || forced)
 
   const dismiss = useCallback(() => {
     setDismissed(true)
     localStorage.setItem(INSTALL_DISMISSED_KEY, 'true')
+    setForced(false)
+    localStorage.removeItem(INSTALL_FORCED_KEY)
   }, [])
 
   const toggle = useCallback(() => {
+    if (visible) {
+      dismiss()
+      return
+    }
     setDismissed(false)
     localStorage.removeItem(INSTALL_DISMISSED_KEY)
-  }, [])
+    setForced(true)
+    localStorage.setItem(INSTALL_FORCED_KEY, 'true')
+  }, [visible, dismiss])
 
   const prompt = useCallback(() => {
+    setForced(false)
+    localStorage.removeItem(INSTALL_FORCED_KEY)
     if (!deferredPrompt) return
     void deferredPrompt.prompt()
     void deferredPrompt.userChoice.then(() => setDeferredPrompt(null))

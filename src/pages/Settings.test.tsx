@@ -69,23 +69,33 @@ describe('Settings', () => {
     expect(update.toggle).toHaveBeenCalledOnce()
   })
 
-  it('offers the install prompt reset when the install prompt is hidden', () => {
+  it('shows both prompt toggles at once when both prompts are hidden', () => {
     renderSettings()
-    expect(screen.getByText('重新顯示安裝提示')).toBeInTheDocument()
+
+    expect(screen.getByText('顯示安裝提示')).toBeInTheDocument()
+    expect(screen.getByText('顯示更新提示')).toBeInTheDocument()
   })
 
-  it('hides the install prompt reset when the install prompt is visible', () => {
+  it('shows "隱藏安裝提示" when the install prompt is visible', () => {
     mockUsePwaPrompts.mockReturnValue(prompts({ installVisible: true }))
     renderSettings()
-    expect(screen.queryByText('重新顯示安裝提示')).not.toBeInTheDocument()
+
+    expect(screen.getByText('隱藏安裝提示')).toBeInTheDocument()
+    expect(screen.queryByText('顯示安裝提示')).not.toBeInTheDocument()
   })
 
-  it('restores the install prompt when its reset row is clicked', () => {
+  it('shows "顯示安裝提示" when the install prompt is hidden', () => {
+    renderSettings()
+
+    expect(screen.getByText('顯示安裝提示')).toBeInTheDocument()
+  })
+
+  it('toggles the install prompt when its row is clicked', () => {
     const install = prompts().install
     mockUsePwaPrompts.mockReturnValue({ ...prompts(), install })
     renderSettings()
 
-    fireEvent.click(screen.getByText('重新顯示安裝提示'))
+    fireEvent.click(screen.getByText('顯示安裝提示'))
 
     expect(install.toggle).toHaveBeenCalledOnce()
   })

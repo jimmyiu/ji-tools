@@ -268,6 +268,21 @@ describe('PwaPromptsProvider', () => {
       expect(result.current.install.visible).toBe(false)
     })
 
+    it('does not persist a forced prompt when already installed', () => {
+      mockStandalone(true)
+      const first = renderPrompts()
+
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(false)
+      expect(localStorage.getItem('pwa_install_forced')).toBeNull()
+      first.unmount()
+
+      mockStandalone(false)
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(false)
+    })
+
     it('dismisses a force-shown prompt when the install button is clicked with no deferred event', () => {
       const first = renderPrompts()
       act(() => first.result.current.install.toggle())

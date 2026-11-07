@@ -80,6 +80,7 @@ function useInstallPrompt(): InstallPrompt {
   }, [])
 
   const toggle = useCallback(() => {
+    if (installed) return
     if (visible) {
       dismiss()
       return
@@ -88,7 +89,7 @@ function useInstallPrompt(): InstallPrompt {
     localStorage.removeItem(INSTALL_DISMISSED_KEY)
     setForced(true)
     localStorage.setItem(INSTALL_FORCED_KEY, 'true')
-  }, [visible, dismiss])
+  }, [installed, visible, dismiss])
 
   const prompt = useCallback(() => {
     setForced(false)

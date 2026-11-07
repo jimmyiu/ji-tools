@@ -56,10 +56,7 @@ describe('navigation metrics match the stylesheet', () => {
   it('tab bar bottom on mobile keeps the tab bar inset', () => {
     const value = declaration(mobileScope, 'tab-bar-bottom')
     expect(value).toContain(`${TAB_BAR_BOTTOM_INSET}px`)
-  })
-
-  it('tab bar bottom on mobile clears the tab bar height and shadow', () => {
-    expect(firstPx(declaration(mobileScope, 'tab-bar-bottom'))).toBe(TAB_BAR_BOTTOM_INSET)
+    expect(firstPx(value)).toBe(TAB_BAR_BOTTOM_INSET)
   })
 
   it('desktop side nav offset equals the side nav width', () => {

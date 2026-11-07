@@ -212,6 +212,90 @@ describe('PwaPromptsProvider', () => {
 
       expect(result.current.install.visible).toBe(true)
     })
+
+    it('force-shows the install prompt on a device with no install offer, including on a fresh mount', () => {
+      const first = renderPrompts()
+      expect(first.result.current.install.visible).toBe(false)
+
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(true)
+      first.unmount()
+
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(true)
+    })
+
+    it('clears a prior dismissal when force-shown, including on a fresh mount', () => {
+      const first = renderPrompts()
+      act(() => first.result.current.install.dismiss())
+      expect(first.result.current.install.visible).toBe(false)
+
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(true)
+      first.unmount()
+
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(true)
+    })
+
+    it('stays hidden after a force-shown prompt is toggled off, including on a fresh mount', () => {
+      const first = renderPrompts()
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(true)
+
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(false)
+      first.unmount()
+
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(false)
+    })
+
+    it('stays hidden after dismissing a force-shown prompt, including on a fresh mount', () => {
+      const first = renderPrompts()
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(true)
+
+      act(() => first.result.current.install.dismiss())
+      expect(first.result.current.install.visible).toBe(false)
+      first.unmount()
+
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(false)
+    })
+
+    it('does not persist a forced prompt when already installed', () => {
+      mockStandalone(true)
+      const first = renderPrompts()
+
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(false)
+      expect(localStorage.getItem('pwa_install_forced')).toBeNull()
+      first.unmount()
+
+      mockStandalone(false)
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(false)
+    })
+
+    it('dismisses a force-shown prompt when the install button is clicked with no deferred event', () => {
+      const first = renderPrompts()
+      act(() => first.result.current.install.toggle())
+      expect(first.result.current.install.visible).toBe(true)
+
+      act(() => first.result.current.install.prompt())
+      expect(first.result.current.install.visible).toBe(false)
+      first.unmount()
+
+      const { result } = renderPrompts()
+
+      expect(result.current.install.visible).toBe(false)
+    })
   })
 
   describe('update prompt', () => {

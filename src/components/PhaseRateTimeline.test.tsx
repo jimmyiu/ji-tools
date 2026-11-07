@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { PhaseRateTimeline } from './PhaseRateTimeline'
 import { computeMarathonSavings } from '@/lib/marathon'
 import type { PhaseState } from '@/lib/phases'
+import type { Currency } from '@/lib/calculator'
 
 describe('PhaseRateTimeline', () => {
   const mockPhases: PhaseState[] = [
@@ -11,8 +12,8 @@ describe('PhaseRateTimeline', () => {
     { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.2, usdRate: 3.3 },
   ]
 
-  function scheduleFor(depositDate: string) {
-    return computeMarathonSavings(mockPhases, depositDate, 100000, 'HKD')
+  function scheduleFor(depositDate: string, currency: Currency = 'HKD') {
+    return computeMarathonSavings(mockPhases, depositDate, 100000, currency)
   }
 
   it('shows HKD rates when currency is HKD', () => {
@@ -23,7 +24,7 @@ describe('PhaseRateTimeline', () => {
   })
 
   it('shows USD rates when currency is USD', () => {
-    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} currency="USD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04', 'USD')} currency="USD" />)
 
     expect(screen.getByText('USD 3.0%')).toBeInTheDocument()
     expect(screen.getByText('USD 3.1%')).toBeInTheDocument()

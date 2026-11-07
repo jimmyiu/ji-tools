@@ -6,9 +6,6 @@ import type { PhaseState } from './phases'
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
 
 interface PhaseAllocation {
-  index: number
-  startDate: string
-  endDate: string
   days: number
   duration: number
 }
@@ -40,7 +37,7 @@ function allocatePhaseDays(phases: readonly PhaseState[], depositDate: string): 
     const start = parseISO(p.startDate)
     const end = parseISO(p.endDate)
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      out.push({ index: i, startDate: p.startDate, endDate: p.endDate, days: 0, duration: 0 })
+      out.push({ days: 0, duration: 0 })
       continue
     }
     const clampedStart =
@@ -51,7 +48,7 @@ function allocatePhaseDays(phases: readonly PhaseState[], depositDate: string): 
     const days = effectiveStart > end ? 0 : differenceInDays(end, effectiveStart) + 1
     const duration = Math.max(differenceInDays(end, start) + 1, 1)
 
-    out.push({ index: i, startDate: p.startDate, endDate: p.endDate, days, duration })
+    out.push({ days, duration })
     totalDays += days
     totalDuration += duration
 
@@ -102,25 +99,19 @@ export function computeMarathonSavings(
   const allocation = allocatePhaseDays(phases, depositDate)
   const { totalDays, totalDuration } = allocation
 
-  let weightedHKD = 0
-  let weightedUSD = 0
-  for (let i = 0; i < phases.length; i++) {
-    weightedHKD += allocation.phases[i].days * (Number(phases[i].hkdRate) || 0)
-    weightedUSD += allocation.phases[i].days * (Number(phases[i].usdRate) || 0)
-  }
-
-  const hkdActualRate = totalDays === 0 ? 0 : weightedHKD / totalDays
-  const usdActualRate = totalDays === 0 ? 0 : weightedUSD / totalDays
-
   const percentage = (value: number) => (totalDuration === 0 ? 0 : (value / totalDuration) * 100)
 
   const phaseResults: PhaseResult[] = []
   let elapsedDuration = 0
+  let weightedHKD = 0
+  let weightedUSD = 0
   for (let i = 0; i < phases.length; i++) {
     const p = phases[i]
     const { days, duration } = allocation.phases[i]
     const hkdRate = Number(p.hkdRate) || 0
     const usdRate = Number(p.usdRate) || 0
+    weightedHKD += days * hkdRate
+    weightedUSD += days * usdRate
     const rate = currency === 'HKD' ? hkdRate : usdRate
     const interest = calculateSimpleInterest(
       new Decimal(principal),
@@ -144,6 +135,8 @@ export function computeMarathonSavings(
     elapsedDuration += duration
   }
 
+  const hkdActualRate = totalDays === 0 ? 0 : weightedHKD / totalDays
+  const usdActualRate = totalDays === 0 ? 0 : weightedUSD / totalDays
   const totalInterest = phaseResults.reduce((sum, r) => sum + r.interest, 0)
 
   return {

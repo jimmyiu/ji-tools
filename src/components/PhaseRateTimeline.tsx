@@ -38,9 +38,7 @@ export function PhaseRateTimeline({ schedule, currency }: PhaseRateTimelineProps
               }}
             >
               <span className="text-xs font-bold text-phase-bar-foreground">
-                {currency === 'HKD'
-                  ? `HKD ${fmtPhaseRate(phase.hkdRate)}%`
-                  : `USD ${fmtPhaseRate(phase.usdRate)}%`}
+                {`${currency} ${fmtPhaseRate(phase.rate)}%`}
               </span>
             </div>
           )

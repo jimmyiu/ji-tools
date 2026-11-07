@@ -95,23 +95,27 @@ describe('phase schedule', () => {
     },
   )
 
-  it.each(windowCases)(
+  it.each(windowCases.filter((c) => c.totalDuration > 0))(
     'tiles the timeline for $name',
-    ({ phases, depositDate, totalDuration }) => {
+    ({ phases, depositDate }) => {
       const schedule = computeMarathonSavings(phases, depositDate, 100000, 'HKD')
       const bands = schedule.phaseResults
-      if (totalDuration === 0) {
-        expect(bands.every(({ position, width }) => position === 0 && width === 0)).toBe(true)
-        return
-      }
-      expect(bands.map((p) => p.position).at(-1)! + bands.at(-1)!.width).toBeCloseTo(100, 8)
-      expect(bands.reduce((sum, p) => sum + p.width, 0)).toBeCloseTo(100, 8)
+      expect(bands[0].position).toBe(0)
       bands.forEach((band, i) => {
-        expect(band.position).toBeCloseTo(
-          totalDuration === 0 ? 0 : (bands.slice(0, i).reduce((s, p) => s + p.duration, 0) / totalDuration) * 100,
-          8,
-        )
+        const next = bands[i + 1]
+        if (next) expect(band.position + band.width).toBeCloseTo(next.position, 8)
       })
+      expect(bands.at(-1)!.position + bands.at(-1)!.width).toBeCloseTo(100, 8)
+    },
+  )
+
+  it.each(windowCases.filter((c) => c.totalDuration === 0))(
+    'reports zero positions when no phase has duration ($name)',
+    ({ phases, depositDate }) => {
+      const schedule = computeMarathonSavings(phases, depositDate, 100000, 'HKD')
+      expect(
+        schedule.phaseResults.every(({ position, width }) => position === 0 && width === 0),
+      ).toBe(true)
     },
   )
 

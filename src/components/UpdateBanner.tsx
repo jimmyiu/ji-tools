@@ -1,13 +1,10 @@
 import { RotateCw, X } from 'lucide-react'
 import { BannerActionButton } from './ui/banner-action-button'
+import { usePwaPrompts } from '../contexts/PwaPromptsContext'
 
-interface UpdateBannerProps {
-  visible: boolean
-  update: () => void
-  dismiss: () => void
-}
+export default function UpdateBanner() {
+  const { visible, reload, dismiss } = usePwaPrompts().update
 
-export default function UpdateBanner({ visible, update, dismiss }: UpdateBannerProps) {
   if (!visible) return null
 
   return (
@@ -22,7 +19,7 @@ export default function UpdateBanner({ visible, update, dismiss }: UpdateBannerP
             新版本已可用
           </p>
         </div>
-        <BannerActionButton onClick={update} aria-label="更新">
+        <BannerActionButton onClick={reload} aria-label="更新">
           <RotateCw className="inline-block size-4 mr-1 align-text-bottom" />
           重新整理
         </BannerActionButton>

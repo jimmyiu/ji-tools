@@ -125,6 +125,17 @@ describe('PwaPromptsProvider', () => {
       expect(result.current.install.visible).toBe(false)
     })
 
+    it('is not visible in standalone display mode', () => {
+      mockMatchMedia((query) => query === '(display-mode: standalone)')
+
+      const { result } = renderPrompts()
+      act(() => {
+        window.dispatchEvent(new Event('beforeinstallprompt'))
+      })
+
+      expect(result.current.install.visible).toBe(false)
+    })
+
     it('is not visible on a device with no install offer', () => {
       const { result } = renderPrompts()
 
@@ -144,6 +155,36 @@ describe('PwaPromptsProvider', () => {
         window.dispatchEvent(event)
       })
 
+      expect(result.current.install.visible).toBe(true)
+    })
+
+    it('prompts the deferred install event and hides after userChoice resolves', async () => {
+      const { result } = renderPrompts()
+      const promptSpy = vi.fn().mockResolvedValue(undefined)
+
+      act(() => {
+        const event = new Event('beforeinstallprompt')
+        Object.assign(event, {
+          prompt: promptSpy,
+          userChoice: Promise.resolve({ outcome: 'accepted' }),
+        })
+        window.dispatchEvent(event)
+      })
+      expect(result.current.install.visible).toBe(true)
+
+      await act(async () => {
+        result.current.install.prompt()
+      })
+
+      expect(promptSpy).toHaveBeenCalledOnce()
+      expect(result.current.install.visible).toBe(false)
+    })
+
+    it('prompt is a no-op when no install event has been captured', () => {
+      mockUserAgent(IOS_USER_AGENT)
+      const { result } = renderPrompts()
+
+      expect(() => act(() => result.current.install.prompt())).not.toThrow()
       expect(result.current.install.visible).toBe(true)
     })
 

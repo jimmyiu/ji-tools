@@ -23,7 +23,7 @@ Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. Wi
 - Use `pnpm` for project commands and dependency updates.
 - For features gated by browser or system events (such as PWA updates or install prompts), add a Settings developer toggle so the state can be tested on demand.
 - Use emoji for avatar placeholders instead of remote avatar URLs.
-- Use Conventional Commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, etc.). Keep development fixups one-line and squash-merge feature branches; a merge commit may include a summary body.
+- Use Conventional Commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, etc.). Subject: one line. Body: only when the reason is hidden from the diff. Keep development fixups one-line and squash-merge feature branches.
 
 ## Calculations and tests
 

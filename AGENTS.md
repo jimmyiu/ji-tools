@@ -8,19 +8,7 @@ Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. Wi
 
 ## Quick commands
 
-```sh
-pnpm install
-pnpm dev
-pnpm verify
-pnpm typecheck
-pnpm build
-pnpm test
-pnpm test:watch
-pnpm run lint
-pnpm run preview
-```
-
-- `pnpm verify` runs the full CI check suite (lint, typecheck, test, build) in CI order; use it before committing.
+- Run `pnpm verify` before committing: the full CI check suite (lint, typecheck, test, build) in CI order. Its exit code is the verdict, so read that rather than the tail of its output.
 - Focused test: `pnpm test src/hooks/useCalculator.test.ts`
 - Visual check: `pnpm dev`, then drive the printed `http://localhost:<port>/ji-tools/<route>` with the `playwright` MCP tools.
 - CI install: `pnpm install --frozen-lockfile`
@@ -69,7 +57,8 @@ pnpm run preview
 
 - When a toggle appears in both persistent UI and Settings, share state through React context rather than coordinating through localStorage and custom events.
 - Set optimistic UI state before starting async work so the interface responds even if the operation stalls.
-- CSS-only changes to theme variables in `.dark` may skip worktree isolation; use isolation for JavaScript, TypeScript, or behavior changes.
+- Skip worktree isolation for deletion-only, docs-only, and `.dark` theme-variable changes; isolate anything that changes runtime behavior.
+- Enumerate files with `git ls-files` or `rg --files`, which honor `.gitignore`; `find` and `grep -r` also walk `node_modules/` and `dist/`.
 
 ## Agent skills
 

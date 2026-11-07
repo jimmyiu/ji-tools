@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   applyPhaseEndDate,
   applyPhaseStartDate,
+  applyPresetSchedule,
+  normalizePhases,
   phaseDateBounds,
   type Phases,
   type PhaseState,
@@ -164,4 +166,45 @@ it('returns new objects and never mutates the input', () => {
   applyPhaseEndDate(before, 0, '2026-06-15')
   applyPhaseStartDate(before, 1, '2026-09-10')
   expect(before).toEqual(snapshot)
+})
+
+describe('applyPresetSchedule', () => {
+  it.each([
+    {
+      label: 'contiguous preset',
+      input: phases() as Phases,
+      expectedDepositDate: '2026-05-04',
+    },
+    {
+      label: 'gapped preset',
+      input: [
+        { startDate: '2026-05-04', endDate: '2026-05-10', hkdRate: 1.85, usdRate: 3.0 },
+        { startDate: '2026-06-01', endDate: '2026-06-10', hkdRate: 2.0, usdRate: 3.1 },
+        { startDate: '2026-07-01', endDate: '2026-07-10', hkdRate: 2.2, usdRate: 3.3 },
+      ] as Phases,
+      expectedDepositDate: '2026-05-04',
+    },
+    {
+      label: 'end before start gets unset',
+      input: [
+        { startDate: '2026-05-10', endDate: '2026-05-01', hkdRate: 1.85, usdRate: 3.0 },
+        { startDate: '2026-06-01', endDate: '2026-06-10', hkdRate: 2.0, usdRate: 3.1 },
+        { startDate: '2026-07-01', endDate: '2026-07-10', hkdRate: 2.2, usdRate: 3.3 },
+      ] as Phases,
+      expectedDepositDate: '2026-05-10',
+    },
+  ])('normalizes $label and derives deposit date from raw phase 0 start', ({ input, expectedDepositDate }) => {
+    const result = applyPresetSchedule(input)
+    expect(result.phases).toEqual(normalizePhases(input))
+    expect(result.depositDate).toBe(expectedDepositDate)
+    expect(result.depositDate).toBe(input[0].startDate)
+  })
+
+  it('returns new objects and never mutates the input', () => {
+    const before = phases()
+    const snapshot = JSON.parse(JSON.stringify(before))
+    const result = applyPresetSchedule(before)
+    expect(before).toEqual(snapshot)
+    expect(result.phases).not.toBe(before)
+  })
 })

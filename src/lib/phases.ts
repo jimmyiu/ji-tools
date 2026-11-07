@@ -48,6 +48,16 @@ function clone(phases: Phases): Phases {
   return phases.map((p) => ({ ...p })) as Phases
 }
 
+export interface PresetSchedule {
+  phases: Phases
+  depositDate: string
+}
+
+// Deposit date = first phase start (issue #18 rule).
+export function applyPresetSchedule(phases: Phases): PresetSchedule {
+  return { phases: normalizePhases(phases), depositDate: phases[0].startDate }
+}
+
 // Owns the contiguity invariant:
 // - phases are always contiguous: start(i+1) = end(i) + 1 day
 // - any end date earlier than its own start date is unset to ''

@@ -39,8 +39,7 @@ export default function MarathonSavings() {
               <PhaseRateHistory
                 currency={inputs.currency}
                 onLoad={(preset) => {
-                  inputs.setPhases(preset.phases)
-                  inputs.setDepositDate(preset.phases[0].startDate)
+                  inputs.applyPreset(preset)
                   depositDateFlash.trigger()
                 }}
               />

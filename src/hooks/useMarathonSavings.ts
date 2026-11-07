@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { computeMarathonSavings, type MarathonSavingsResult } from '../lib/marathon'
 import type { Currency } from '../lib/calculator'
-import { normalizePhases, type Phases } from '../lib/phases'
+import { applyPresetSchedule, normalizePhases, type Phases } from '../lib/phases'
 import { DEFAULT_MARATHON_PHASES, type MarathonSavingsPreset } from '../lib/marathonPresets'
 
 function toDateStr(date: Date): string {
@@ -44,9 +44,9 @@ export function useInputs() {
     // One action so the loaded schedule is never half applied: phases and the
     // deposit date land together, and the date always matches phase 0's start.
     applyPreset: (preset) => {
-      const next = normalizePhases(preset.phases)
-      setPhases(next)
-      setDepositDate(next[0].startDate)
+      const { phases, depositDate } = applyPresetSchedule(preset.phases)
+      setPhases(phases)
+      setDepositDate(depositDate)
     },
   }
 

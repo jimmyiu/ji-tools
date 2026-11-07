@@ -16,6 +16,12 @@ The count of `expect` calls is not the measure — a single behaviour often need
 
 Setup shared by several scenarios belongs in a `beforeEach` or a small helper, not in one long test that walks through all of them in sequence.
 
+## One section wrapper per section
+
+A page section carries exactly one `px-4 py-4` wrapper. Card styling (padding, border, background, radius) lives inside that wrapper on the inner card, so two stacked sections never nest wrappers and never collapse their spacing.
+
+When a page puts two wrappers around one section — an outer `px-4 py-4` and an inner one, or a card that also carries the section's padding — flag it: the next change to section spacing will drift one page away from the others.
+
 ## Shipped data is never live state
 
 Data that ships with the app — history presets, defaults, fixtures, anything described as immutable — is read-only reference data.

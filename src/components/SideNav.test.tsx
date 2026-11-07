@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import SideNav from './SideNav'
 import TabBar from './TabBar'
+import { TAB_BAR_HEIGHT } from '@/lib/navigation'
 
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -66,6 +67,6 @@ describe('TabBar', () => {
     const capsule = container.querySelector('.max-w-\\[280px\\]')
     expect(capsule).toBeInTheDocument()
     expect(capsule?.className).toContain('rounded-2xl')
-    expect(capsule?.className).toContain('h-16')
+    expect(capsule).toHaveStyle({ height: `${TAB_BAR_HEIGHT}px` })
   })
 })

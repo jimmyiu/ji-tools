@@ -8,10 +8,14 @@ Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. Wi
 
 ## Quick commands
 
-- Run `pnpm verify` before committing: the full CI check suite (lint, typecheck, test, build) in CI order. Its exit code is the verdict, so read that rather than the tail of its output.
+- Run `pnpm verify` before committing: the full CI check suite (lint, typecheck, dead-code check, test, build) in CI order. Its exit code is the verdict, so read that rather than the tail of its output.
 - Focused test: `pnpm test src/hooks/useCalculator.test.ts`
 - Visual check: `pnpm dev`, then drive the printed `http://localhost:<port>/ji-tools/<route>` with the `playwright` MCP tools.
 - CI install: `pnpm install --frozen-lockfile`
+
+## Orientation
+
+- Read `docs/architecture.md` before exploring: it maps the layers, the deep modules, and which calculator owns which files.
 
 ## Project conventions
 

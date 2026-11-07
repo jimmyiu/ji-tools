@@ -13,6 +13,7 @@
   color-scheme: dark;
   --nav-bottom-offset: calc(104px + env(safe-area-inset-bottom));
   --nav-left-offset: 0px;
+  --tab-bar-bottom: calc(24px + env(safe-area-inset-bottom));
   --update-banner-bottom: calc(64px + 24px + env(safe-area-inset-bottom));
 }
 

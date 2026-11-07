@@ -31,3 +31,35 @@ describe('useInputs', () => {
     expect(result.current).toMatchObject(otherInputs)
   })
 })
+
+describe('useInputs applyPreset', () => {
+  it('applies phases and the deposit date together, leaving principal and currency alone', () => {
+    const { result } = renderHook(() => useInputs())
+    const preset = {
+      id: 'test-preset',
+      phases: [
+        { startDate: '2024-03-01', endDate: '2024-03-10', hkdRate: 1.5, usdRate: 2.5 },
+        { startDate: '2024-03-20', endDate: '2024-03-25', hkdRate: 1.7, usdRate: 2.7 },
+        { startDate: '2024-04-01', endDate: '2024-04-05', hkdRate: 1.9, usdRate: 2.9 },
+      ] as Phases,
+    }
+
+    act(() => {
+      result.current.setCurrency('USD')
+      result.current.setPrincipal('250000')
+    })
+
+    act(() => {
+      result.current.applyPreset(preset)
+    })
+
+    expect(result.current.phases).toEqual([
+      { ...preset.phases[0] },
+      { ...preset.phases[1], startDate: '2024-03-11' },
+      { ...preset.phases[2], startDate: '2024-03-26' },
+    ])
+    expect(result.current.depositDate).toBe('2024-03-01')
+    expect(result.current.currency).toBe('USD')
+    expect(result.current.principal).toBe('250000')
+  })
+})

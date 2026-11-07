@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { computeMarathonSavings, type MarathonSavingsResult } from '../lib/marathon'
 import type { Currency } from '../lib/calculator'
 import { normalizePhases, type Phases } from '../lib/phases'
-import { DEFAULT_MARATHON_PHASES } from '../lib/marathonPresets'
+import { DEFAULT_MARATHON_PHASES, type MarathonSavingsPreset } from '../lib/marathonPresets'
 
 function toDateStr(date: Date): string {
   return format(date, 'yyyy-MM-dd')
@@ -21,6 +21,7 @@ interface InputActions {
   setCurrency: (v: Currency) => void
   setPrincipal: (v: string) => void
   setPhases: (phases: Phases) => void
+  applyPreset: (preset: MarathonSavingsPreset) => void
 }
 
 const defaultDates = {
@@ -40,6 +41,13 @@ export function useInputs() {
     setCurrency,
     setPrincipal,
     setPhases: (next) => setPhases(normalizePhases(next)),
+    // One action so the loaded schedule is never half applied: phases and the
+    // deposit date land together, and the date always matches phase 0's start.
+    applyPreset: (preset) => {
+      const next = normalizePhases(preset.phases)
+      setPhases(next)
+      setDepositDate(next[0].startDate)
+    },
   }
 
   return { depositDate, currency, principal, phases, ...actions }

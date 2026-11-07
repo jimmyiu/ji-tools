@@ -1,14 +1,17 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { InterestBreakdown } from './InterestBreakdown'
-import type { PhaseResult } from '@/lib/marathon'
+import { computeMarathonSavings } from '@/lib/marathon'
+import type { PhaseState } from '@/lib/phases'
 
 describe('InterestBreakdown', () => {
-  const mockPhaseResults: PhaseResult[] = [
-    { days: 59, rate: 1.85, interest: 895.21 },
-    { days: 32, rate: 2.0, interest: 526.03 },
-    { days: 0, rate: 0, interest: 0 },
+  const mockPhases: PhaseState[] = [
+    { startDate: '2026-05-04', endDate: '2026-07-01', hkdRate: 1.85, usdRate: 3.0 },
+    { startDate: '2026-07-02', endDate: '2026-08-02', hkdRate: 2.0, usdRate: 3.1 },
+    { startDate: '2026-08-03', endDate: '', hkdRate: 2.2, usdRate: 3.3 },
   ]
+
+  const mockPhaseResults = computeMarathonSavings(mockPhases, '2026-05-04', 100000, 'HKD').phaseResults
 
   it('renders HKD currency label and prefix', () => {
     render(

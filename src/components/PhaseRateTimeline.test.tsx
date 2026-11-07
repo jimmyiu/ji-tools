@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { PhaseRateTimeline } from './PhaseRateTimeline'
+import { computeMarathonSavings } from '@/lib/marathon'
 import type { PhaseState } from '@/lib/phases'
+import type { Currency } from '@/lib/calculator'
 
 describe('PhaseRateTimeline', () => {
   const mockPhases: PhaseState[] = [
@@ -10,22 +12,26 @@ describe('PhaseRateTimeline', () => {
     { startDate: '2026-08-03', endDate: '2026-08-31', hkdRate: 2.2, usdRate: 3.3 },
   ]
 
+  function scheduleFor(depositDate: string, currency: Currency = 'HKD') {
+    return computeMarathonSavings(mockPhases, depositDate, 100000, currency)
+  }
+
   it('shows HKD rates when currency is HKD', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} />)
 
     expect(screen.getByText('HKD 1.85%')).toBeInTheDocument()
     expect(screen.getByText('HKD 2.0%')).toBeInTheDocument()
   })
 
   it('shows USD rates when currency is USD', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="USD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04', 'USD')} />)
 
     expect(screen.getByText('USD 3.0%')).toBeInTheDocument()
     expect(screen.getByText('USD 3.1%')).toBeInTheDocument()
   })
 
   it('renders boundary dates', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-05-04" currency="HKD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} />)
 
     expect(screen.getByText('04-May')).toBeInTheDocument()
     expect(screen.getByText('02-Jul')).toBeInTheDocument()
@@ -33,9 +39,28 @@ describe('PhaseRateTimeline', () => {
     expect(screen.getByText('31-Aug')).toBeInTheDocument()
   })
 
+  it('positions bands and labels from the schedule result', () => {
+    const { container } = render(<PhaseRateTimeline schedule={scheduleFor('2026-05-04')} />)
+
+    const bandWidths = (screen.getAllByTestId('phase-band') as HTMLElement[]).map((band) =>
+      parseFloat(band.style.flex),
+    )
+    const schedule = scheduleFor('2026-05-04')
+    schedule.phaseResults.forEach((phase, i) => {
+      expect(bandWidths[i]).toBeCloseTo(phase.width, 8)
+    })
+
+    const labelPositions = Array.from(container.querySelectorAll('span.absolute'))
+      .filter((label) => (label as HTMLElement).style.left !== '')
+      .map((label) => parseFloat((label as HTMLElement).style.left))
+    schedule.phaseResults.forEach((phase, i) => {
+      expect(labelPositions[i]).toBeCloseTo(phase.position, 8)
+    })
+  })
+
   it('renders phase with zero effective days with muted styling', () => {
     const { container } = render(
-      <PhaseRateTimeline phases={mockPhases} depositDate="2026-07-15" currency="HKD" />
+      <PhaseRateTimeline schedule={scheduleFor('2026-07-15')} />,
     )
 
     const mutedSegment = container.querySelector('[style*="opacity: 0.4"]')
@@ -43,18 +68,19 @@ describe('PhaseRateTimeline', () => {
   })
 
   it('shows zero days message when deposit date is after all phases', () => {
-    render(<PhaseRateTimeline phases={mockPhases} depositDate="2026-12-01" currency="HKD" />)
+    render(<PhaseRateTimeline schedule={scheduleFor('2026-12-01')} />)
 
     expect(screen.getByText('存款日期在所有階段之後')).toBeInTheDocument()
   })
 
-  it('omits date labels for blank phase boundaries', () => {
+  it('shows labels from the phase start dates, skipping blank ones', () => {
     const blankPhases: PhaseState[] = [
       { startDate: '2026-10-02', endDate: '2026-11-30', hkdRate: 2.8, usdRate: 3.3 },
       { startDate: '2026-12-01', endDate: '', hkdRate: 3.0, usdRate: 3.5 },
       { startDate: '', endDate: '2027-02-01', hkdRate: 3.2, usdRate: 3.6 },
     ]
-    render(<PhaseRateTimeline phases={blankPhases} depositDate="2026-10-02" currency="HKD" />)
+    const schedule = computeMarathonSavings(blankPhases, '2026-10-02', 100000, 'HKD')
+    render(<PhaseRateTimeline schedule={schedule} />)
 
     const labels = screen.getAllByText(/^[0-9]{2}-[A-Za-z]{3}$/)
     expect(labels.map((l) => l.textContent)).toEqual(['02-Oct', '01-Dec', '01-Feb'])

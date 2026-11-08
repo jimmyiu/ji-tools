@@ -51,6 +51,7 @@ Node.js 26 (`.node-version`) and pnpm 12.9.1 (`packageManager`) are required. Wi
 ### Visual checks
 
 - For visual or layout changes, verify the rendered screen with the `playwright` MCP before finishing: start `pnpm dev` and open the `http://localhost:<port>/ji-tools/<route>` it prints. Capture before/after with `browser_take_screenshot`; use `browser_snapshot` when spacing, alignment, or hierarchy matters. Check a mobile viewport (about 390x844) and desktop.
+- Kill dev servers with `pkill -f 'vite --host'` when done; background job handles like `kill %1` do not survive across tool invocations.
 
 ### Fields
 

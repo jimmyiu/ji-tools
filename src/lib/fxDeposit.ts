@@ -1,8 +1,25 @@
 import { addMonths, subDays, addDays, differenceInDays, parseISO, isLastDayOfMonth, getDate } from 'date-fns'
 import Decimal from 'decimal.js'
-import { calculateCompoundDayBased, DAY_BASE_MAP } from './calculator'
+import { calculateSimpleInterest, DAY_BASE_MAP } from './calculator'
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP })
+
+// Chained simple-interest compounding: each span's interest is added to the
+// principal before the next span earns. Moved here from calculator.ts, whose
+// exports are shared with marathon.ts only.
+export function calculateCompoundDayBased(
+  principal: Decimal,
+  annualRate: Decimal,
+  dayCounts: number[],
+  dayBase: number,
+): Decimal {
+  let current = principal
+  for (let i = 0; i < dayCounts.length; i++) {
+    const interest = calculateSimpleInterest(current, annualRate, dayCounts[i], dayBase)
+    current = current.plus(interest)
+  }
+  return current
+}
 
 // Comparing an HKD term deposit against a USD term deposit that is bought at
 // the bank's sell rate and sold back at the buy rate, rolled over (滾存) a fixed
@@ -22,22 +39,16 @@ export interface FxDepositInput {
 
 export interface FxDepositComparison {
   hkdTotal: number
+  hkdInterest: number
   usdTotalInHkd: number
+  usdInterestInHkd: number
   difference: number
   usdWins: boolean
   // The rollover count at which the USD deposit's HKD-equivalent total first
   // reaches or exceeds the HKD deposit's total; absent while USD already wins
   // or when no rollover count within the search bound can catch up.
   breakEven: { rolloverCount: number; days: number; months: number } | null
-  period: { startDate: Date; endDate: Date; totalDays: number }
-}
-
-// Numeric inputs coerce defensively: NaN never escapes, mirroring
-// computeMarathonSavings. Rate and principal semantics are the caller's
-// (the form validates presence); 0 is the neutral value.
-function coerceNumber(value: number): number {
-  const n = Number(value)
-  return Number.isFinite(n) ? n : 0
+  depositWindow: { startDate: Date; endDate: Date; totalDays: number }
 }
 
 interface DepositPeriod {
@@ -77,16 +88,14 @@ function depositWindows(startDate: Date, depositMonths: number, rolloverCount: n
 
 // The comparison interface: the single public entry point for FX deposit
 // comparison totals, the net difference, the break-even rollover count, and
-// the deposit window. Callers format the period dates for display.
+// the deposit window. Callers format the deposit window dates for display.
 export function compareFxDeposit(input: FxDepositInput): FxDepositComparison {
   const startDate = parseISO(input.startDate)
-  const depositMonths = coerceNumber(input.depositMonths)
-  const rolloverCount = coerceNumber(input.rolloverCount)
-  const principal = coerceNumber(input.principal)
-  const hkdRate = coerceNumber(input.hkdRate)
-  const usdRate = coerceNumber(input.usdRate)
-  const sellRate = coerceNumber(input.bankSellRate)
-  const buyRate = coerceNumber(input.bankBuyRate)
+  // Coercion and blank-field defaults live at the adapter (useCalculator);
+  // this interface receives clean numbers.
+  const { depositMonths, rolloverCount, principal, hkdRate, usdRate } = input
+  const sellRate = input.bankSellRate
+  const buyRate = input.bankBuyRate
 
   const windows = depositWindows(startDate, depositMonths, rolloverCount)
   const dayCounts = windows.map(periodLength)
@@ -104,7 +113,9 @@ export function compareFxDeposit(input: FxDepositInput): FxDepositComparison {
 
   let breakEven: FxDepositComparison['breakEven'] = null
   if (!usdWins) {
-    const maxRolloverCount = Math.min(100, Math.ceil(1200 / depositMonths))
+    // Search horizon: 1200 months of deposit window per spec — no rollover
+    // count cap. A non-positive term has no permitted rollovers to search.
+    const maxRolloverCount = depositMonths > 0 ? Math.ceil(1200 / depositMonths) : 0
     const allWindows = depositWindows(startDate, depositMonths, maxRolloverCount)
     const allDayCounts = allWindows.map(periodLength)
     for (let n = 1; n <= maxRolloverCount; n++) {
@@ -124,11 +135,13 @@ export function compareFxDeposit(input: FxDepositInput): FxDepositComparison {
 
   return {
     hkdTotal: hkdTotal.toNumber(),
+    hkdInterest: hkdTotal.minus(principal).toNumber(),
     usdTotalInHkd: usdTotalInHkd.toNumber(),
+    usdInterestInHkd: usdTotalInHkd.minus(principal).toNumber(),
     difference: difference.toNumber(),
     usdWins,
     breakEven,
-    period: {
+    depositWindow: {
       startDate: windows[0].startDate,
       endDate: windows[windows.length - 1].endDate,
       totalDays: dayCounts.reduce((sum, d) => sum + d, 0),

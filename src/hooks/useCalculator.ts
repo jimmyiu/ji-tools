@@ -4,7 +4,7 @@ import { compareFxDeposit, type FxDepositComparison } from '../lib/fxDeposit'
 interface InputState {
   initialPrincipal: string | number
   depositMonths: string | number
-  iterate: string | number
+  rolloverCount: string | number
   hkdRate: string | number
   usdRate: string | number
   bankSellRate: string | number
@@ -23,7 +23,7 @@ export function useCalculator(state: InputState): FxDepositComparison {
         // point rather than computing an empty comparison.
         principal: Number(state.initialPrincipal) || 0,
         depositMonths: Number(state.depositMonths) || 3,
-        rolloverCount: Number(state.iterate) || 1,
+        rolloverCount: Number(state.rolloverCount) || 1,
         hkdRate: Number(state.hkdRate) || 0,
         usdRate: Number(state.usdRate) || 0,
         bankSellRate: Number(state.bankSellRate) || 0,
@@ -33,7 +33,7 @@ export function useCalculator(state: InputState): FxDepositComparison {
       state.startDate,
       state.initialPrincipal,
       state.depositMonths,
-      state.iterate,
+      state.rolloverCount,
       state.hkdRate,
       state.usdRate,
       state.bankSellRate,

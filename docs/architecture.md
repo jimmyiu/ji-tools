@@ -19,15 +19,16 @@ Changes flow downward: a page composes sections, sections render field component
 Each of these hides real behaviour behind a small interface, and is the place to test that behaviour.
 
 - `src/lib/marathon.ts` — phase day allocation and marathon interest (deepening tracked in #15).
+- `src/lib/fxDeposit.ts` — FX deposit comparison: rollover windows, per-rollover day-based compounding, comparison totals, break-even rollover count.
 - `src/lib/phases.ts` — the contiguity invariant and phase date edits.
-- `src/lib/calculator.ts` — interest primitives, day-count bases, compounding periods.
+- `src/lib/calculator.ts` — the simple-interest primitive and day-count bases shared by both calculators.
 - `src/contexts/PwaPromptsContext.tsx` — install and update prompt state, consumed by both layout and settings.
 
 ## Calculators
 
-Two independent calculators, one per route. They share only the interest primitives in `src/lib/calculator.ts` and the field components.
+Two independent calculators, one per route. They share only the simple-interest primitives in `src/lib/calculator.ts` and the field components.
 
-- **FX deposit comparison** (`/fx-deposit-compare`) — `src/pages/FxDepositCompare.tsx` with `src/hooks/useCalculator.ts` and `src/lib/calculator.ts`.
+- **FX deposit comparison** (`/fx-deposit-compare`) — `src/pages/FxDepositCompare.tsx` with `src/hooks/useCalculator.ts` and `src/lib/fxDeposit.ts` (interest primitives shared from `src/lib/calculator.ts`).
 - **Marathon savings** (`/marathon-savings`) — `src/pages/MarathonSavings.tsx` with `src/hooks/useMarathonSavings.ts`, `src/lib/marathon.ts`, `src/lib/phases.ts`, `src/lib/marathonPresets.ts`.
 
 ## App shell

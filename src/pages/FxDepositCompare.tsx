@@ -17,7 +17,7 @@ const schema = z.object({
   startDate: z.string().min(1, '請選擇開始日期'),
   initialPrincipal: z.string().min(1, '請輸入本金').regex(amountRegex, '請輸入有效金額'),
   depositMonths: z.string().min(1, '請輸入存款月數').regex(amountRegex, '請輸入有效數字'),
-  iterate: z.string().min(1, '請輸入滾存次數').regex(intRegex, '請輸入整數'),
+  rolloverCount: z.string().min(1, '請輸入滾存次數').regex(intRegex, '請輸入整數'),
   hkdRate: z.string().min(1, '請輸入港元利率').regex(amountRegex, '請輸入有效利率'),
   usdRate: z.string().min(1, '請輸入美元利率').regex(amountRegex, '請輸入有效利率'),
   bankSellRate: z.string().min(1, '請輸入賣出價').regex(amountRegex, '請輸入有效匯率'),
@@ -37,7 +37,7 @@ export default function FxDepositCompare() {
       startDate: format(new Date(), 'yyyy-MM-dd'),
       initialPrincipal: '100000',
       depositMonths: '3',
-      iterate: '1',
+      rolloverCount: '1',
       hkdRate: '2.25',
       usdRate: '3.2',
       bankSellRate: '7.8574',
@@ -49,7 +49,7 @@ export default function FxDepositCompare() {
   const startDate = useWatch({ control, name: 'startDate' })
   const initialPrincipal = useWatch({ control, name: 'initialPrincipal' })
   const depositMonths = useWatch({ control, name: 'depositMonths' })
-  const iterate = useWatch({ control, name: 'iterate' })
+  const rolloverCount = useWatch({ control, name: 'rolloverCount' })
   const hkdRate = useWatch({ control, name: 'hkdRate' })
   const usdRate = useWatch({ control, name: 'usdRate' })
   const bankSellRate = useWatch({ control, name: 'bankSellRate' })
@@ -59,15 +59,13 @@ export default function FxDepositCompare() {
     startDate,
     initialPrincipal,
     depositMonths,
-    iterate,
+    rolloverCount,
     hkdRate,
     usdRate,
     bankSellRate,
     bankBuyRate,
   })
-  const principal = Number(initialPrincipal) || 0
-  const hkdInterest = result.hkdTotal - principal
-  const usdInterestInHkd = result.usdTotalInHkd - principal
+  const endDateDisplay = format(result.depositWindow.endDate, 'dd-MMM-yyyy')
 
   const handleChange = (field: keyof FormData) => (v: string) => setValue(field, v, { shouldValidate: true })
 
@@ -89,7 +87,7 @@ export default function FxDepositCompare() {
               />
               <ReadonlyDateField
                 label="結束日期"
-                value={result.endDateDisplay}
+                value={endDateDisplay}
               />
             </div>
             <InputField
@@ -108,13 +106,13 @@ export default function FxDepositCompare() {
               error={formState.errors.depositMonths?.message}
             />
             <InputField
-              label="滾存次數 (Iterate)"
-              value={iterate}
-              onChange={handleChange('iterate')}
+              label="滾存次數"
+              value={rolloverCount}
+              onChange={handleChange('rolloverCount')}
               suffix="次"
               step={1}
               min={1}
-              error={formState.errors.iterate?.message}
+              error={formState.errors.rolloverCount?.message}
             />
             <div className="grid grid-cols-2 gap-2">
               <InputField
@@ -161,7 +159,7 @@ export default function FxDepositCompare() {
           <div className="px-4 py-4">
             <SectionHeader title="計算結果" />
             <p className="text-xs text-muted-foreground mb-3">
-              {iterate} 次滾存 · 共 {result.totalDays} 日
+              {rolloverCount} 次滾存 · 共 {result.depositWindow.totalDays} 日
             </p>
             <div className="space-y-4">
               <div className="flex items-start justify-between py-3 border-b border-border">
@@ -172,7 +170,7 @@ export default function FxDepositCompare() {
                   </span>
                 </div>
                 <span className="text-base font-semibold text-foreground whitespace-nowrap ml-2">
-                  HK$ {fmt(hkdInterest)}
+                  HK$ {fmt(result.hkdInterest)}
                 </span>
               </div>
               <div className="flex items-start justify-between py-3 border-b border-border">
@@ -183,7 +181,7 @@ export default function FxDepositCompare() {
                   </span>
                 </div>
                 <span className="text-base font-semibold text-foreground whitespace-nowrap ml-2">
-                  HK$ {fmt(usdInterestInHkd)}
+                  HK$ {fmt(result.usdInterestInHkd)}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
@@ -204,12 +202,12 @@ export default function FxDepositCompare() {
                 <span>{result.usdWins ? '🏆' : '📉'}</span>
                 <span>{result.usdWins ? '美元定存較佳' : '港元定存較佳'}</span>
               </div>
-              {!result.usdWins && result.breakEvenIterate !== null && (
+              {result.breakEven && (
                 <div>
-                  <p className="text-4xl font-bold text-foreground mb-1">{result.breakEvenIterate} 次滾存</p>
-                  <p className="text-sm text-muted-foreground">共 {result.breakEvenDays} 日（約 {result.breakEvenMonths} 個月）後可追平並反超</p>
+                  <p className="text-4xl font-bold text-foreground mb-1">{result.breakEven.rolloverCount} 次滾存</p>
+                  <p className="text-sm text-muted-foreground">共 {result.breakEven.days} 日（約 {result.breakEven.months} 個月）後可追平並反超</p>
                   <p className="text-xs text-muted-foreground/60 mt-2">
-                    需將美元定存滾存 {result.breakEvenIterate} 次（共 {result.breakEvenDays} 日），才能抵消匯率差價造成的損失
+                    需將美元定存滾存 {result.breakEven.rolloverCount} 次（共 {result.breakEven.days} 日），才能抵消匯率差價造成的損失
                   </p>
                 </div>
               )}

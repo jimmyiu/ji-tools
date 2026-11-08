@@ -66,6 +66,7 @@ export default function FxDepositCompare() {
     bankBuyRate,
   })
   const principal = Number(initialPrincipal) || 0
+  const endDateDisplay = format(result.period.endDate, 'dd-MMM-yyyy')
   const hkdInterest = result.hkdTotal - principal
   const usdInterestInHkd = result.usdTotalInHkd - principal
 
@@ -89,7 +90,7 @@ export default function FxDepositCompare() {
               />
               <ReadonlyDateField
                 label="結束日期"
-                value={result.endDateDisplay}
+                value={endDateDisplay}
               />
             </div>
             <InputField
@@ -161,7 +162,7 @@ export default function FxDepositCompare() {
           <div className="px-4 py-4">
             <SectionHeader title="計算結果" />
             <p className="text-xs text-muted-foreground mb-3">
-              {iterate} 次滾存 · 共 {result.totalDays} 日
+              {iterate} 次滾存 · 共 {result.period.totalDays} 日
             </p>
             <div className="space-y-4">
               <div className="flex items-start justify-between py-3 border-b border-border">
@@ -204,12 +205,12 @@ export default function FxDepositCompare() {
                 <span>{result.usdWins ? '🏆' : '📉'}</span>
                 <span>{result.usdWins ? '美元定存較佳' : '港元定存較佳'}</span>
               </div>
-              {!result.usdWins && result.breakEvenIterate !== null && (
+              {result.breakEven && (
                 <div>
-                  <p className="text-4xl font-bold text-foreground mb-1">{result.breakEvenIterate} 次滾存</p>
-                  <p className="text-sm text-muted-foreground">共 {result.breakEvenDays} 日（約 {result.breakEvenMonths} 個月）後可追平並反超</p>
+                  <p className="text-4xl font-bold text-foreground mb-1">{result.breakEven.rolloverCount} 次滾存</p>
+                  <p className="text-sm text-muted-foreground">共 {result.breakEven.days} 日（約 {result.breakEven.months} 個月）後可追平並反超</p>
                   <p className="text-xs text-muted-foreground/60 mt-2">
-                    需將美元定存滾存 {result.breakEvenIterate} 次（共 {result.breakEvenDays} 日），才能抵消匯率差價造成的損失
+                    需將美元定存滾存 {result.breakEven.rolloverCount} 次（共 {result.breakEven.days} 日），才能抵消匯率差價造成的損失
                   </p>
                 </div>
               )}

@@ -31,3 +31,15 @@ _Avoid_: adjacency, ordering
 **Deposit date**:
 The first day of the deposit window: each phase contributes only on and after whichever is later, its own start or the deposit date, so days before it do not count. A deposit date before every phase still leaves earning to begin at the first phase's start; a deposit date after every phase leaves no phase earning.
 _Avoid_: start date, entry date, value date
+
+**Rollover** (滾存):
+Reinvesting a matured term deposit for another deposit term.
+_Avoid_: iterate, roll
+
+**Deposit window**:
+The total calendar span a deposit earns across, continuing from the deposit date through every stage of the term: the phase spans in the marathon savings schedule, every rollover in the FX comparison.
+_Avoid_: deposit period, term
+
+**Break-even rollover count**:
+The rollover count at which the USD deposit's HKD-equivalent total first reaches or exceeds the HKD deposit's total. Absent when the USD deposit already wins.
+_Avoid_: catch-up point, balance point
